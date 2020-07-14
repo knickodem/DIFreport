@@ -1,7 +1,10 @@
 
 # for each item: calculate rest score, run 4 dif methods
 
-#### Conduct the loess method ####
+########################################
+#### A function for each DIF method ####
+
+#### the loess method ####
 Run_loess <- function(scaledat, theItem,
                       group, pred_scores, n_items, scoreType){ #NEED TO INCORPORATE TOTAL SCORE
   
@@ -38,7 +41,7 @@ Run_loess <- function(scaledat, theItem,
   return(loess_data)
 }
 
-#### MH Stage 1 ####
+#### The Mantel-Haenszel method with refinement iteration (Stage 2) ####
 Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = NULL){
   
   ## calculating rest or total score
@@ -85,4 +88,7 @@ Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = 
   return(mh)
   
 }
+
+#### the logistic regression method ####
+
 

@@ -67,7 +67,9 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     loess <- list(data = gg_data,
                   plot = p)
   } else{
+    
     loess <- NULL
+    
   }
   
   #### Mantel-Haenszel ####
@@ -75,14 +77,16 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     
     ## MH testing stage 1
     # Storage
-    MH1 <- data.frame(item = names(MeasureData), OR = NA, lower = NA, upper = NA, pvalue = NA, bias = 0)
+    MH1 <- data.frame(item = names(MeasureData), Initial_OR = NA, 
+                      Initial_lower = NA, Initial_upper = NA, 
+                      Initial_pvalue = NA, Initial_bias = 0)
     
     # Loop over items
     for(i in 1:n_items){
       
       stage1 <- Run_MH(scaledat = MeasureData, theItem = i, 
                        group = group, scoreType = scoreType,
-                       strata = MHstrata,)
+                       strata = MHstrata)
       
       MH1$Initial_OR[i] <- stage1$estimate
       MH1$Initial_lower[i] <- stage1$conf.int[1]
@@ -91,11 +95,15 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     }
     
     # Benjamini–Hochberg procedure for false discovery rate < 5%
-    MH1$bias <- p.adjust(MH1$pvalue, method = "BH") < .05
+    MH1$Initial_bias <- p.adjust(MH1$Initial_pvalue, method = "BH") < .05
     
-    # MH testing stage 2
-    item_drops <- which(MH1$bias == 1)
-    MH2 <- data.frame(item = names(MeasureData), OR = NA, lower = NA, upper = NA, pvalue = NA, bias = 0)
+    ## MH testing stage 2
+    # The items to exclude based on initial test
+    item_drops <- which(MH1$Initial_bias == 1) 
+    # Storage
+    MH2 <- data.frame(item = names(MeasureData), Refine_OR = NA,
+                      Refine_lower = NA, Refine_upper = NA,
+                      Refine_pvalue = NA, Refine_bias = 0)
     
     # Loop over items
     for(i in 1:n_items) {
@@ -111,26 +119,52 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     }
     
     # Benjamini–Hochberg procedure for false discovery rate = 5%
-    MH2$bias <- p.adjust(MH2$pvalue, method = "BH") < .05
+    MH2$Refine_bias <- p.adjust(MH2$Refine_pvalue, method = "BH") < .05
     
     # Output dataframe combining stage 1 and stage 2
     MH <- cbind(MH1, MH2[,-1])
     
   } else{
+    
     MH <- NULL
+    
   }
   
+  #### Logistic Regression ####
   if("logistic" %in% methods){
     
-    Run_logistic() # run for each item
+    # Logistic regression
+    long_data <- data.frame(score = NA, rest = NA, item = NA, group = NA)
+    
+    # Loop over items
+    for(i in 1:n_items) {
+    
+    Run_logistic()
+      
+    }
+    
+  } else{
+    
+    logistic <- NULL
+    
   }
+  
+  
+  #### Item Response Theory ####
   if("IRT" %in% methods){
     
-    Run_IRT() # run for each item
+    Run_IRT()
+    
+  } else{
+    
+    IRT <- NULL
+    
   }
   
   all <- list(loess = loess,
-              MH = MH)
+              MH = MH,
+              logistic = logistic,
+              IRT = IRT)
   
   return(all)
   
