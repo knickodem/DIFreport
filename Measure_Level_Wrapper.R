@@ -9,7 +9,11 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
   names(MeasureData) <- substr(names(MeasureData), 1, nchar(names(MeasureData)) - 2)
   
   ## Handling missing data in the items
-  drop_cases <- apply(is.na(MeasureData), 1, mean) != 1 # cases with all NA
+  # Identifying cases with NA on all items or in grouping variable
+  drop_cases <- apply(is.na(MeasureData), 1, mean) != 1             # cases with all NA
+  drop_cases <- ifelse(is.na(data[[groupvar]]), FALSE, drop_cases)  # cases with NA for group
+  # Note: drop_cases = FALSE are the cases that will be removed from the analysis
+  
   MeasureData[is.na(MeasureData)] <- 0                  # Replacing NA with 0
   MeasureData <- MeasureData[drop_cases, ]              # dropping cases with all NA
   
@@ -100,6 +104,7 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     ## MH testing stage 2
     # The items to exclude based on initial test
     item_drops <- which(MH1$Initial_bias == 1) 
+    
     # Storage
     MH2 <- data.frame(item = names(MeasureData), Refine_OR = NA,
                       Refine_lower = NA, Refine_upper = NA,
@@ -133,15 +138,30 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
   #### Logistic Regression ####
   if("logistic" %in% methods){
     
-    # Logistic regression
-    long_data <- data.frame(score = NA, rest = NA, item = NA, group = NA)
+    # Blank dataframe for adding model chisquare comparison with 2 df
+    log_mod_comp <- data.frame(item = NA, deviance = NA, pvalue = NA)
+    
+    # Blank dataframe for adding Slope parameters for uniform and nonuniform dif
+    slope_params <- data.frame(item = NA, Type = NA, Estimate = NA, SE = NA, z = NA, pvalue = NA, OR = NA)
     
     # Loop over items
     for(i in 1:n_items) {
     
-    Run_logistic()
+    logresults <- Run_logistic(scaledat = MeasureData, theItem = i, 
+                               group = group, scoreType = scoreType)
+    
+    log_mod_comp <- rbind(log_mod_comp, logresults$modtest)
+    slope_params <- rbind(slope_params, logresults$slopes)
       
     }
+    
+    # Benjamini–Hochberg procedure for false discovery rate = 5%
+    log_mod_comp$bias <- p.adjust(log_mod_comp[,3], method = "BH") < .05
+    slope_params$bias <- p.adjust(slope_params[,6], method = "BH") < .05
+    
+    # Output a list containing two dataframes
+    logistic <- list(Model_Comparison = log_mod_comp[-1, ],
+                     Slope_Parameters = slope_params[-1, ])
     
   } else{
     
