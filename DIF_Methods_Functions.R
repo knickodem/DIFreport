@@ -1,12 +1,14 @@
 
 # for each item: calculate rest score, run 4 dif methods
 
+# These functions are expected to run at the item level. Typically a for loop in the Measure_Level_Wrapper initiates these function
+
 ########################################
 #### A function for each DIF method ####
 
 #### the loess method ####
 Run_loess <- function(scaledat, theItem,
-                      group, pred_scores, n_items, scoreType){ #NEED TO INCORPORATE TOTAL SCORE
+                      group, pred_scores, n_items, scoreType){
   
   # calculating rest or total score
   if(scoreType == "Rest"){
@@ -91,4 +93,47 @@ Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = 
 
 #### the logistic regression method ####
 
-
+Run_logistic <- function(scaledat, theItem, group, scoreType){
+  
+  # calculating rest or total score
+  if(scoreType == "Rest"){
+    scaledat$score <- apply(scaledat[,-theItem], 1, sum)
+  } else {
+    scaledat$score <- apply(scaledat, 1, sum)  
+  }
+  
+  # Compiling the dataframe for use in the logistic regression models
+  log_data <- data.frame(response = scaledat[,theItem],           # 1/0 response to the item
+                          score = scaledat$score,           # rest or total score calculated above
+                          group = as.numeric(group)-1       # converting group from factor to 1/0 dummy variable
+  )
+  
+  log_data$interaction <- log_data$score * log_data$group  # calculating the group x score interaction term
+  
+  
+  ### logistic regression models ---
+  
+  mod0 <- glm(response ~ 1 + score, data = log_data, family = binomial)
+  # mod1 <- glm(response ~ 1 + score + group, data = log_data, family = binomial)
+  mod2 <- glm(response ~ 1 + score + group + interaction, data = log_data, family = binomial)
+  
+  # Overall test of uniform or nonuniform DIF
+  tab1 <- anova(mod0, mod2, test = "LRT")
+  modtest <- data.frame(item = names(scaledat)[theItem],
+                        deviance = tab1$Deviance[[2]],
+                        pvalue = tab1$`Pr(>Chi)`[[2]])
+  
+  slopes <- as.data.frame(summary(mod2)$coefficients)                   # extracting slope parameters
+  slopes <- slopes[row.names(slopes) %in% c("group", "interaction"), ]  # removing intercept and score rows
+  slopes$OR <- exp(slopes$Estimate)                                     # Computing odds ratios
+  slopes <- tibble::rownames_to_column(slopes, "Type")                  # adding rownames to the df
+  slopes$item <- names(scaledat)[theItem]                               # adding item identifier
+  slopes <- slopes[,c(7,1:6)]                                           # and moving it to the first column
+  names(slopes) <- c("item", "Type", "Estimate", "SE", "z", "pvalue", "OR")
+  
+  output <- list(modtest = modtest,
+                 slopes = slopes)
+  
+  return(output)
+  
+}

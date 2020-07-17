@@ -32,8 +32,9 @@ MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",
 ## Using deciles of rest (or total) score for strata (to avoid empty cells in the two-way MH tables)
 tenths <- seq(0, 1, by = .1)
 
-###################################3
+###################################
 
+#### Temporary for Testing ####
 ## grouping variable - make factor before putting into function
 table(MalawiData$cr_gender, useNA = "always")
 
@@ -42,20 +43,25 @@ mmData <- lapply(MalawiMeasures,
 
 MeasureData <- mmData$EGMA_number_recognition.Endline
 
+#################################
 
 
+################################################
 #### Loading and Running analysis functions ####
+
 
 source("DIF_Methods_Functions.R")
 source("Measure_Level_Wrapper.R")
 
+## another sensitivity check is comparing results here to using the difR package
+
 ## Test runs
 firsttry <- WB_analysis(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
-                        groupvar = "cr_gender", scoreType = "Rest", methods = c("loess", "MH"),
+                        groupvar = "cr_gender", scoreType = "Rest", methods = c("loess", "MH", "logistic"),
                         MHstrata = tenths)
 
 allmeasuretry <- purrr::map(.x = MalawiMeasures, ~WB_analysis(data = MalawiData, items = .x,
-                       groupvar = "cr_gender", scoreType = "Rest", methods = c("MH"),
+                       groupvar = "cr_gender", scoreType = "Rest", methods = c("loess","MH", "logistic"),
                        MHstrata = tenths))
 
 
