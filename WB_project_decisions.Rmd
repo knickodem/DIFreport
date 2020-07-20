@@ -1,0 +1,32 @@
+---
+title: "WB Project Decisions"
+output:
+  html_document:
+    toc: yes
+always_allow_html: yes
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Identifying data errors
+
+**EGMA_number_recognition.Endline**: The stage1 MH test produced a statistic, df, and p-value, but no estimate or CI.
+
+```{r data error check}
+library(dplyr)
+check <- MalawiData[384:403] %>%
+  tidyr::gather(Item, Response) %>%
+  group_by(Item, Response) %>% summarize(n = n()) %>%
+  mutate(r = n())
+```
+
+ - recog4_3 has a value of 3 in one cell (instead of all 0s and 1s)
+ - recog12_3 has a value of 2 in one cell
+ - recog15_3 has a value of 9 in one cell
+ 
+
+# Alternative approaches
+
+Comparing results from our code to using the difR package as a sensetivity check
