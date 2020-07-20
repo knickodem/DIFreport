@@ -1,0 +1,346 @@
+---
+title: "Summary of WB project analyses"
+author: "PFH"
+output:
+  html_document:
+    toc: yes
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(dpi=350)
+library("kableExtra")
+library("flextable")
+library("ggplot2")
+```
+
+# Data
+
+The following variable codes correspond to the items used for the outcome measures in the Malawai dataset, collected at either midline (wave `_2`) or endline (wave`_3`). All data analyses should be conducted on each outcome. More details on the measures are in the Appendix of the Ozler et al. report. 
+
+* MDAT language at Midline (`l20_2-l48_2`)
+* MDAT motor at Midline (`fm20_2-fm43_2`)  
+* PPVT at Endline (`ppvt13_3-ppvt120_3`)  
+* Kaufman hand movement at Endline (`hm1_3-hm23_3`)
+* Kaufman triangles at Endline (`t4_3-t27_3`) 
+* Kaufman number recall at Endline (`nr1_3-nr22_3`) 
+* EGMA number recognition at Endline (`recog1_3-recog20_3`)
+* EGMA quantity discrimination at Endline (`quant1_3-quant10_3`)
+* EGMA addition at Endline (`add1_3-add20_3`)
+
+
+For all variables, code any missing values / NA as 0 (?) 
+
+# Focal comparisons
+
+There are two types of DIF comparisons we want to do, by treatment status and by gender. For treatment, compare the control group (`treated == 0`) to one group in which all 3 treatment conditions are combined (`treated == 1`). 
+
+# Analyses
+
+For both types of comparisons, the overall goal is to report the influence of measurement bias on treatment effects. For treatment comparisons, we just care about the usual treatment effect, for the gender comparisons, we care about conditional treatment effects (just for males, just for females, and the interaction). 
+
+However, we also want to sort out the best way to find biased items in this context, and we have a few options. 
+
+* LOESS by group 
+* MH test
+* Logistic regression
+* IRT
+
+Also, need to sort out whether to use the total or rest score for the first 3. 
+
+It would probably be nice to have the option to run each of these analyses separately, since we won't likely need all of them all of the time. 
+
+
+# Example 
+
+The following data were used for the analysis. The data were obtained from `child.tests_items_wide.csv.` [Sorry this is just one huge code dump...we can talk it though on monday]. 
+
+```{r, message = FALSE}
+
+# Load data
+setwd("~/Dropbox/Academic/Projects/WB/Data/Malawi")
+data <- read.csv("child.tests_items_wide.csv")
+data <- data[!is.na(data$cr_gender), ] # drop missing gender
+
+# Extract MDAT language items from data
+names_of_items <- 'l[0-9][0-9]_2' # This is regex
+items <- data[grep(names_of_items, names(data))]
+names(items) <- substr(names(items), 1, 3)
+names(items) <- gsub("l", "L", names(items))
+
+# Deal with missing responses; partial missing = 0; complete 0 = drop
+drop_cases <- apply(is.na(items), 1, mean) != 1
+items[is.na(items)] <- 0
+items <- items[drop_cases, ]
+n_items <- ncol(items)
+
+# Name grouping variable and its levels
+group <- factor(data$cr_gender[drop_cases], labels = c("male", "female"))
+group1 <- levels(group)[1] # male
+group2 <- levels(group)[2] # female
+
+# Name of treatment
+treated <- factor(data$treated[drop_cases], labels = c("Control", "Tx"))
+
+
+# LOESS
+rest_scores <- 0:(n_items - 1)
+gg_data <- list()
+
+# Loop over items
+for (i in 1:n_items) {
+  # Data
+  temp <- items
+  temp$rest <- apply(temp[,-i], 1, sum)
+
+  # Model
+  mod <- paste0(names(temp)[i], " ~ rest")
+
+  # Loess by group
+  f_fit <-  loess(mod, subset(temp, group == group1))
+  m_fit <-  loess(mod, subset(temp, group == group2))
+
+  f_pred <- predict(f_fit, newdata = rest_scores, se = T)
+  m_pred <- predict(m_fit, newdata = rest_scores, se = T)
+
+  # Storage
+  gg_data[[i]] <- data.frame(
+                        rest = rep(rest_scores, times = 2),
+                        prob = c(f_pred$fit, m_pred$fit),
+                        SE = c(f_pred$se.fit, m_pred$se.fit),
+                        item = rep(names(items)[i], times = n_items*2),
+                        group = rep(c(group1, group2), each = n_items)
+                        )
+}
+
+# Reformat to data.frame
+gg_data <- Reduce(rbind, gg_data)
+example_items <- paste0("L", 34:37)
+gg_short <- gg_data[gg_data$item %in% example_items, ]
+
+# Plotting the results
+p <- ggplot(gg_short, aes(x = rest, y = prob, group = group)) +
+        geom_line(aes(color = group), lwd = .8) +
+        geom_ribbon(aes(ymin = prob - 1.96*SE,
+                        ymax = prob + 1.96*SE,
+                        fill = group), alpha = .4) +
+        xlab("Rest Score") + ylab("Item Regression")
+
+p + facet_wrap(~ item)
+
+
+# MH testing stage 1
+# Storage
+MH1 <- data.frame(item = names(items), OR = NA, lower = NA, upper = NA, pvalue = NA, bias = 0)
+
+# Using deciles of rest score for strata (to avoid empty cells)
+tenths <- seq(0, 1, by = .1)
+
+# Loop over items
+for(i in 1:n_items) {
+  temp <- items
+  temp$rest <- apply(temp[,-i], 1, sum)
+  m <- table(temp$rest) - 1
+  drop <- !temp$rest%in%as.numeric(names(m[m==0]))
+  deciles <- cut(temp$rest, unique(quantile(temp$rest, tenths, type = 1)))
+  mh <- mantelhaen.test(temp[drop, i], group[drop], temp$rest[drop], exact = T)
+
+  MH1$OR[i] <- mh$estimate
+  MH1$lower[i] <- mh$conf.int[1]
+  MH1$upper[i] <- mh$conf.int[2]
+  MH1$pvalue[i] <- mh$p.value
+}
+
+# Benjamini–Hochberg procedure for false discovery rate < 5%
+MH1$bias <- p.adjust(MH1$pvalue, method = "BH") < .05
+
+
+# MH testing stage 2
+item_drops <- which(MH1$bias == 1)
+MH2 <- data.frame(item = names(items), OR = NA, lower = NA, upper = NA, pvalue = NA, bias = 0)
+
+# Loop over items
+for(i in 1:n_items) {
+  temp <- items
+  temp$rest <- apply(temp[,-c(i, item_drops)], 1, sum)
+  m <- table(temp$rest) - 1
+  drop <- !temp$rest%in%as.numeric(names(m[m==0]))
+  #deciles <- cut(temp$rest, unique(quantile(temp$rest, tenths, type = 1)))
+  mh <- mantelhaen.test(temp[drop, i], group[drop], temp$rest[drop], exact = T)
+
+  MH2$OR[i] <- mh$estimate
+  MH2$lower[i] <- mh$conf.int[1]
+  MH2$upper[i] <- mh$conf.int[2]
+  MH2$pvalue[i] <- mh$p.value
+}
+
+# Benjamini–Hochberg procedure for false discovery rate = 5%
+MH2$bias <- p.adjust(MH2$pvalue, method = "BH") < .05
+
+MH <- cbind(MH1, MH2[,-1])
+xtable::xtable(MH, digits = 2)
+head(MH)
+
+
+# Logistic regression
+long_data <- data.frame(score = NA, rest = NA, item = NA, group = NA)
+
+# Loop over items
+for (i in 1:n_items) {
+  temp <- items
+  temp$rest <- apply(temp[,-c(i, item_drops)], 1, sum)
+  long_temp <- data.frame(score = temp[,i],
+                          rest = temp$rest,
+                          item = rep(names(temp)[i], nrow(temp)),
+                          group = as.numeric(group)-1
+                          )
+  long_data <- rbind(long_data, long_temp)
+}
+long_data <- long_data[-1, ]
+head(long_data)
+long_data$GroupByRest <- long_data$rest * long_data$group
+
+### logistic regression models ---
+
+mod0 <- glm(score ~ -1 + item + rest:item, data = long_data, family = binomial)
+mod1 <- glm(score ~ -1 + item + rest:item + group:item, data = long_data, family = binomial)
+mod2 <- glm(score ~ -1 + item + rest:item + GroupByRest:item + group:item, data = long_data, family = binomial)
+
+# Overall test of whether items were biased in slopes
+tab1 <- anova(mod0, mod1, mod2, test = "LRT")
+xtable::xtable(tab1[, -1], digits = 3)
+
+# Diffy items will require a bunch of 2 df model comparisons....sigh
+temp <- as.data.frame(summary(mod2)$coefficients)
+mod2_bias <- temp[grep(":group", row.names(temp)), ]
+
+# Computing odds ratios
+mod2_bias$OR <- exp(mod2_bias$Estimate)
+head(mod2_bias)
+
+# Benjamini–Hochberg procedure for false discovery rate = 5%
+mod2_bias$bias <- p.adjust(mod2_bias[,4], method = "BH") < .05
+
+
+# IRT
+library(mirt)
+anchor_items <- MH1$bias == 0
+itemnames <- colnames(items)
+
+# Nested models
+mod_configural <- multipleGroup(items, 1, group = group, SE = T)
+mod_metric <- multipleGroup(items, 1, group = group, invariance = c('slopes', 'free_var'), SE = T)
+mod_scalar <- multipleGroup(items, 1, group = group,
+                             invariance = c('slopes', 'intercepts', 'free_var','free_means'))
+tab1 <- anova(mod_configural, mod_metric)
+tab2 <- anova(mod_metric, mod_scalar)
+
+tab <- rbind(tab2, tab1[2,])
+xtable::xtable(tab[,-c(1:5)], digits = 3)
+
+# Finding Diffy items
+# Assume metric (no mean dif between groups), test equality constraints per item -- need to sort out if this is really a good idea...
+dif <- DIF(mod_configural, which.par = c('a1', 'd'), scheme = "add", Wald = T, p.adjust = 'fdr')
+dif[, 4] <- dif[, 4] < .05
+xtable::xtable(dif, digits = 2)
+
+
+### Effect sizes: rest scores
+# The standardized mean difference with all items included
+total <- apply(items, 1, sum, na.rm = T)
+mean_total <- tapply(total, treated, mean, na.rm = T)
+sd_total <- tapply(total, treated, sd, na.rm = T)
+delta <- (mean_total["Tx"] - mean_total["Control"]) / sd_total["Control"]
+
+# Reliability of total score
+r <- psy::cronbach(items)$alpha
+
+
+# The standardized mean difference with biased items omitted
+total_star <- apply(items[, MH2$bias == 0], 1, sum, na.rm = T)
+mean_star <- tapply(total_star, treated, mean, na.rm = T)
+sd_star <- tapply(total_star, treated, sd, na.rm = T)
+delta_star <- (mean_star["Tx"] - mean_star["Control"]) / sd_star["Control"]
+
+# Reliability of total_star
+r_star <- psy::cronbach(items[, MH2$bias == 0])$alpha
+
+effects <-  matrix(c(delta, delta/sqrt(r), r, delta_star, delta_star/sqrt(r_star), r_star),  3, 2)
+row.names(effects) <- c("raw delta", "adj delta", "reliability")
+colnames(effects) <- c("all items", "bias-omitted")
+effects
+
+
+# Effect sizes: factor scores
+anchor_items <- row.names(dif)[dif[,4] == F]
+mod_dif <- multipleGroup(items, 1, group = group, invariance = c(anchor_items, 'free_means', 'free_var'))
+theta_dif <- fscores(mod_dif, verbose = T)
+theta_scalar <- fscores(mod_scalar)
+
+# The standardized mean difference for the scalar model
+  mean_scalar <- tapply(theta_scalar , treated, mean, na.rm = T)
+  sd_scalar <- tapply(theta_scalar , treated, sd, na.rm = T)
+  delta_scalar <- (mean_scalar["Tx"] - mean_scalar["Control"]) / sd_scalar["Control"]
+
+
+  # The standardized mean difference with biased items omitted
+  mean_dif <- tapply(theta_dif, treated, mean, na.rm = T)
+  sd_dif <- tapply(theta_dif, treated, sd, na.rm = T)
+  delta_dif <- (mean_dif["Tx"] - mean_dif["Control"]) / sd_dif["Control"]
+
+  t_effects <-  c(delta_scalar, delta_dif)
+  t_effects
+
+  xtable::xtable(rbind(effects,t_effects), digits = 3)
+
+
+
+### gender diff
+# The standardized mean difference with all items included
+total <- apply(items, 1, sum, na.rm = T)
+mean_total <- tapply(total, group, mean, na.rm = T)
+sd_total <- tapply(total, group, sd, na.rm = T)
+delta <- (mean_total[group2] - mean_total[group1]) / sd_total[group1]
+
+# Reliability of total score
+r <- psy::cronbach(items)$alpha
+
+
+# The standardized mean difference with biased items omitted
+total_star <- apply(items[, MH2$bias == 0], 1, sum, na.rm = T)
+mean_star <- tapply(total_star, group, mean, na.rm = T)
+sd_star <- tapply(total_star, group, sd, na.rm = T)
+delta_star <- (mean_star[group2] - mean_star[group1]) / sd_star[group1]
+
+# Reliability of total_star
+r_star <- psy::cronbach(items[, MH2$bias == 0])$alpha
+
+effects <-  matrix(c(delta, delta/sqrt(r), r, delta_star, delta_star/sqrt(r_star), r_star),  3, 2)
+row.names(effects) <- c("raw delta", "adj delta", "reliability")
+colnames(effects) <- c("all items", "bias-omitted")
+effects
+
+
+# Effect sizes: factor scores
+anchor_items <- row.names(dif)[dif[,4] == F]
+mod_dif <- multipleGroup(items, 1, group = group, invariance = c(anchor_items, 'free_means', 'free_var'))
+theta_dif <- fscores(mod_dif, verbose = T)
+theta_scalar <- fscores(mod_scalar)
+
+# The standardized mean difference for the scalar model
+  mean_scalar <- tapply(theta_scalar , group, mean, na.rm = T)
+  sd_scalar <- tapply(theta_scalar , group, sd, na.rm = T)
+  delta_scalar <- (mean_scalar[group2] - mean_scalar[group1]) / sd_scalar[group1]
+
+
+  # The standardized mean difference with biased items omitted
+  mean_dif <- tapply(theta_dif, group, mean, na.rm = T)
+  sd_dif <- tapply(theta_dif, group, sd, na.rm = T)
+  delta_dif <- (mean_dif[group2] - mean_dif[group1]) / sd_dif[group1]
+
+  t_effects <-  c(delta_scalar, delta_dif)
+  t_effects
+
+  xtable::xtable(rbind(effects,t_effects), digits = 3)
+```
