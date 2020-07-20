@@ -137,3 +137,33 @@ Run_logistic <- function(scaledat, theItem, group, scoreType){
   return(output)
   
 }
+
+#### the IRT approach ####
+
+Run_IRT <- function(scaledat, group){
+  
+  # Nested models
+  mod_configural <- multipleGroup(scaledat, model = 1, group = group, SE = T)
+  mod_metric <- multipleGroup(scaledat, model = 1, group = group,
+                              invariance = c('slopes', 'free_var'), SE = T)
+  mod_scalar <- multipleGroup(scaledat, model = 1, group = group,
+                              invariance = c('slopes', 'intercepts', 'free_var','free_means'))
+  # Model comparison
+  tab1 <- anova(mod_configural, mod_metric)
+  tab2 <- anova(mod_metric, mod_scalar)
+  
+  tab <- rbind(tab2, tab1[2,])
+  tab$model <- c("scalar", "metric", "configural")
+  tab <- tab[, -c(1:5)]
+  
+  # Finding Diffy items
+  # Assume metric (no mean dif between groups), test equality constraints per item -- need to sort out if this is really a good idea...
+  dif <- DIF(mod_configural, which.par = c('a1', 'd'), scheme = "add", Wald = T, p.adjust = "BH")
+  dif$bias <- dif[, 4] < .05
+  dif <- dif[, -3]
+  
+  difout <- list(modtest = tab,
+                 itemdif = dif)
+  
+  return(difout)
+}

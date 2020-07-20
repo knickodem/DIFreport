@@ -173,7 +173,7 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
   #### Item Response Theory ####
   if("IRT" %in% methods){
     
-    Run_IRT()
+    IRT <- Run_IRT(scaledat = MeasureData, group = group)
     
   } else{
     

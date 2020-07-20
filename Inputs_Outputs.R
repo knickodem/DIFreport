@@ -4,7 +4,9 @@
 #### Importing Input Information ####
 
 ## Packages
+# Note: these could be placed in more strategic places given that they are not always needed depending on the analysis choices
 library(ggplot2)
+library(mirt)
 
 ## Data
 MalawiData <- read.csv("child.tests_items_wide.csv")
@@ -32,63 +34,60 @@ MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",
 ## Using deciles of rest (or total) score for strata (to avoid empty cells in the two-way MH tables)
 tenths <- seq(0, 1, by = .1)
 
-###################################
-
-#### Temporary for Testing ####
-## grouping variable - make factor before putting into function
-table(MalawiData$cr_gender, useNA = "always")
-
-mmData <- lapply(MalawiMeasures,
-                      function(x){MalawiData[grep(x, names(MalawiData))]})
-
-MeasureData <- mmData$EGMA_number_recognition.Endline
-
-#################################
+####################################################
 
 
 ################################################
-#### Loading and Running analysis functions ####
+#### Running analysis and Generating Report ####
 
 
 source("DIF_Methods_Functions.R")
 source("Measure_Level_Wrapper.R")
 
-## another sensitivity check is comparing results here to using the difR package
 
-## Test runs
-firsttry <- WB_analysis(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
-                        groupvar = "cr_gender", scoreType = "Rest", methods = c("loess", "MH", "logistic"),
+#### Temporary Test runs ####
+## Single measure runs
+Number_Recog_Gender_Rest <- WB_analysis(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
+                                          groupvar = "cr_gender", scoreType = "Rest", methods = c("loess", "MH", "logistic", "IRT"),
+                                          MHstrata = tenths)
+
+
+Number_Recog_Gender_Total <- WB_analysis(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
+                        groupvar = "cr_gender", scoreType = "Total", methods = c("loess", "MH", "logistic", "IRT"),
                         MHstrata = tenths)
 
-allmeasuretry <- purrr::map(.x = MalawiMeasures, ~WB_analysis(data = MalawiData, items = .x,
-                       groupvar = "cr_gender", scoreType = "Rest", methods = c("loess","MH", "logistic"),
+
+## All measures
+library(tictoc)
+tic()
+allmeasuretry_treated_rest <- purrr::map(.x = MalawiMeasures, ~WB_analysis(data = MalawiData, items = .x,
+                       groupvar = "cr_gender", scoreType = "Rest", methods = c("loess","MH", "logistic", "IRT"),
                        MHstrata = tenths))
+toc()
 
 
-#### Errors ####
-# EGMA_number_recognition.Endline, Item 4 (recog4_3);
-# the stage1 MH test produces a statistic, df, and p-value, but no estimate or CI
-# table(MalawiData$recog4_3, useNA = "always") shows a 3 in one cell (instead of 0/1)
-
-library(dplyr)
-check <- MalawiData[384:403] %>%
-  tidyr::gather(Item, Response) %>%
-  group_by(Item, Response) %>% summarize(n = n()) %>%
-  mutate(r = n())
-# recog12_3 has a value of 2 in one cell
-# recog15_3 has a value of 9 in one cell
 
 
-## Function arguments:
-# data - a dataframe containing items and grouping variable
-# items - character string
-# grouping variable - 
-# DIF methods - LOESS by group, MH test, Logistic regression, IRT
-# Score options - total, rest
-# MHstrata - 
+#### Generate Report ####
+
+rmarkdown::render("Bias_Correction_Report.Rmd")
+
+
+
+######################################################
+
+###############################
+#### Temporary for Testing ####
+
+## grouping variable - make factor before putting into function
+table(MalawiData$cr_gender, useNA = "always")
+
+mmData <- lapply(MalawiMeasures,
+                 function(x){MalawiData[grep(x, names(MalawiData))]})
+
+MeasureData <- mmData$EGMA_number_recognition.Endline
+
+#################################
+
   
-  
-### Alternatives ####
-# short <- data[names(data) %in% MalawiMeasures$PPVT.Endline]
-# MeasureDatamap <- purrr::map(.x = MalawiMeasures2, ~data[grep(.x, names(data))])
 
