@@ -12,20 +12,25 @@ Run_loess <- function(scaledat, theItem,
   
   # calculating rest or total score
   if(scoreType == "Rest"){
+    
     scaledat$score <- apply(scaledat[,-theItem], 1, sum)
+    
   } else {
-    scaledat$score <- apply(scaledat, 1, sum)  
+    
+    scaledat$score <- apply(scaledat, 1, sum)
+    n_items <- n_items + 1  # Needed for the item and group columns in loess_data
   }
   
   # Model
   mod <- paste0(names(scaledat)[theItem], " ~ score")
   
+  # levels of the grouping variable
   group1 <- levels(group)[1] 
   group2 <- levels(group)[2]
   
   # Loess by group
-  g1_fit <-  loess(mod, subset(scaledat, group == group1))
-  g2_fit <-  loess(mod, subset(scaledat, group == group2))
+  g1_fit <-  loess(mod, data = subset(scaledat, group == group1))
+  g2_fit <-  loess(mod, data = subset(scaledat, group == group2))
   
   # predicted probability by group
   g1_pred <- predict(g1_fit, newdata = pred_scores, se = T)
@@ -48,8 +53,11 @@ Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = 
   
   ## calculating rest or total score
   if(scoreType == "Rest"){
+    
     scaledat$score <- apply(scaledat[, -c(theItem, Stage2)], 1, sum)
+    
   } else {
+    
     scaledat$score <- apply(scaledat[, -c(Stage2)], 1, sum)  
   }
   
@@ -57,8 +65,7 @@ Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = 
     
     m <- table(scaledat$score) - 1                               # frequency (-1) of each score; WHY DO THIS STEP? COULD CHANGE m == 0 to m == 1? ALSO, WE NEED FREQUENCY CONDITIONED BY GROUP
     drop <- !scaledat$score %in% as.numeric(names(m[m == 0]))    # observations to drop if score frequency is too low
-    mh <- mantelhaen.test(scaledat[drop, theItem], group[drop], scaledat$score[drop], exact = T)
-    
+
     ## Runs MH test and catches any errors
     mh <- tryCatch(expr = {
       mantelhaen.test(scaledat[drop, theItem], group[drop], scaledat$score[drop], exact = T)
@@ -70,13 +77,13 @@ Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = 
                   conf.int = c(NA, NA),
                   p.value = NA))}
     )
-  } else{ # stratifies based on input strata (currently set for deciles based on WB_analysis function)
+  } else{ # stratifies based on input strata
 
-    deciles <- cut(scaledat$score, unique(quantile(scaledat$score, strata, type = 1))) # categorizes observations into deciles
+    stratum <- cut(scaledat$score, unique(quantile(scaledat$score, strata, type = 1))) # categorizes observations into strata
     
     ## Runs MH test and catches any errors
     mh <- tryCatch(expr = {
-      mantelhaen.test(scaledat[, theItem], group, deciles, exact = T)
+      mantelhaen.test(scaledat[, theItem], group, stratum, exact = T)
     },
     error = function(e){
       message(paste("Original error:", e))
@@ -93,12 +100,15 @@ Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = 
 
 #### the logistic regression method ####
 
-Run_logistic <- function(scaledat, theItem, group, scoreType){
+Run_logisticByItem <- function(scaledat, theItem, group, scoreType){
   
   # calculating rest or total score
   if(scoreType == "Rest"){
+    
     scaledat$score <- apply(scaledat[,-theItem], 1, sum)
+    
   } else {
+    
     scaledat$score <- apply(scaledat, 1, sum)  
   }
   
@@ -143,14 +153,18 @@ Run_logistic <- function(scaledat, theItem, group, scoreType){
 Run_IRT <- function(scaledat, group){
   
   # Nested models
-  mod_configural <- multipleGroup(scaledat, model = 1, group = group, SE = T)
+  mod_configural <- multipleGroup(scaledat, model = 1, group = group, SE = T) # assumes 2PL model
   mod_metric <- multipleGroup(scaledat, model = 1, group = group,
                               invariance = c('slopes', 'free_var'), SE = T)
+  
+  # Model comparison
+  tab1 <- anova(mod_configural, mod_metric)
+  
+  
   mod_scalar <- multipleGroup(scaledat, model = 1, group = group,
                               invariance = c('slopes', 'intercepts', 'free_var','free_means'))
   # Model comparison
-  tab1 <- anova(mod_configural, mod_metric)
-  tab2 <- anova(mod_metric, mod_scalar)
+  tab2 <- anova(mod_metric, mod_scalar) # If non-sig, no bias; otherwise uniform dif
   
   tab <- rbind(tab2, tab1[2,])
   tab$model <- c("scalar", "metric", "configural")
