@@ -29,4 +29,24 @@ check <- MalawiData[384:403] %>%
 
 # Alternative approaches
 
-Comparing results from our code to using the difR package as a sensetivity check
+Comparing results from our code to using the difR package as a sensitivity check
+
+
+# Decisions, assumptions, and defaults
+
+I am currently organizing this by function, which should be helpful if this transformed to an r package
+
+## WB_Data_Prep
+
+ - Assumes the last 2 characters in the item (column) names can be removed
+ - Only removes cases with missing data on all items or in the grouping variable
+ - Recodes NAs to 0
+   - Thus, scores could be a product of motivation rather than ability; in other words, the analysis equates low motivation to low ability  
+
+
+
+## DIF_analysis
+
+ - Assumes the grouping variable (groupvec) is a factor with 2 levels
+
+

@@ -17,8 +17,8 @@ MalawiData$treated <- factor(MalawiData$treated, labels = c("Control", "Tx"))
 
 ## Correcting data entry errors
 MalawiData$recog4_3 <- ifelse(MalawiData$recog4_3 == 3, NA, MalawiData$recog4_3)
-MalawiData$recog12_3 <- ifelse(MalawiData$recog4_3 == 2, NA, MalawiData$recog4_3)
-MalawiData$recog15_3 <- ifelse(MalawiData$recog4_3 == 9, NA, MalawiData$recog4_3)
+MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12_3)
+MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)
 
 ## Items for each measure
 MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",
@@ -46,14 +46,16 @@ source("Measure_Level_Wrapper.R")
 
 
 #### Temporary Test runs ####
+NumberRecog <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline, groupvar = "cr_gender")
+
 ## Single measure runs
-Number_Recog_Gender_Rest <- WB_analysis(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
-                                          groupvar = "cr_gender", scoreType = "Rest", methods = c("loess", "MH", "logistic", "IRT"),
+NumberRecog_Gender_Rest <- DIF_analysis(MeasureData = NumberRecog$MeasureData, groupvec = NumberRecog$GroupVector,
+                                        scoreType = "Rest", methods = c("loess", "MH"),
                                           MHstrata = tenths)
 
 
 Number_Recog_Gender_Total <- WB_analysis(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
-                        groupvar = "cr_gender", scoreType = "Total", methods = c("loess", "MH", "logistic", "IRT"),
+                        groupvar = "cr_gender", scoreType = "Total", methods = c("loess"),
                         MHstrata = tenths)
 
 
@@ -86,7 +88,26 @@ mmData <- lapply(MalawiMeasures,
                  function(x){MalawiData[grep(x, names(MalawiData))]})
 
 MeasureData <- mmData$EGMA_number_recognition.Endline
+data = MalawiData
+items = MalawiMeasures$EGMA_number_recognition.Endline
+groupvar = "cr_gender"
+scoreType = "Total"
 
+loopfunc <- function(x){
+  
+  gg_data <- list(); for(i in 1:n_items){gg_data[[i]] <- Run_loess(scaledat = x, theItem = i, group, pred_scores, n_items, scoreType)}
+}
+
+mb <- microbenchmark(
+  lapply = lapply(c(1:n_items), Run_loess, scaledat = MeasureData, group = group, pred_scores = pred_scores, n_items = n_items, scoreType = scoreType),
+  map = purrr::map(1:n_items, ~Run_loess(scaledat = MeasureData, theItem = .x, group, pred_scores, n_items, scoreType)),
+  loop = loopfunc(MeasureData),
+  times = 100)
+
+checkred <- Reduce(rbind, check)
+mapred <- Reduce(rbind, mapcheck)
+
+all.equal(checkred, mapred)
 #################################
 
   

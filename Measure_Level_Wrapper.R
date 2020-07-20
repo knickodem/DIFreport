@@ -1,8 +1,12 @@
-#### High level (Measure level) function ####
-## Function currently assumes groupvar has 2 levels
-WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
-                        methods = c("loess", "MH", "logistic", "IRT"),        # could incorporate a shortcut for "all"
-                        MHstrata = NULL){ 
+##############################
+#                            #
+#    High level functions    #
+#                            #
+##############################
+
+
+#### Function specifically for cleaning World Bank Data ####
+WB_Data_Prep <- function(data, items, groupvar){
   
   ## subsetting data and removing wave identifier from column names
   MeasureData <- data[grep(items, names(data))]
@@ -12,53 +16,60 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
   # Identifying cases with NA on all items or in grouping variable
   drop_cases <- apply(is.na(MeasureData), 1, mean) != 1             # cases with all NA
   drop_cases <- ifelse(is.na(data[[groupvar]]), FALSE, drop_cases)  # cases with NA for group
-  # Note: drop_cases = FALSE are the cases that will be removed from the analysis
+  # Note: In drop_cases, the FALSE elements are the cases that will be removed from the analysis
   
   MeasureData[is.na(MeasureData)] <- 0                  # Replacing NA with 0
   MeasureData <- MeasureData[drop_cases, ]              # dropping cases with all NA
   
-  # Number of items in the measure; length(items) should work too
-  n_items <- ncol(MeasureData)
-  
-  # Name grouping variable and its levels
+  # Vector of the grouping variable and its levels
   group <- data[drop_cases, ][[groupvar]]
   
+  output <- list(MeasureData = MeasureData,
+                 GroupVector = group)
+  
+  return(output)
+  
+}
+
+
+#### Wrapper function around the DIF Methods to conduct the full analysis ####
+DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
+                        methods = c("loess", "MH", "logistic", "IRT"),        # could incorporate a shortcut for "all"
+                        MHstrata = NULL){ 
+  
+  # Number of items in the measure
+  n_items <- ncol(MeasureData)
   
   ## COULD IMPROVE EFFICIENCY BY CALCULATING TOTAL AND REST SCORES HERE
-  ## RATHER THAN WITHIN EACH FUNCTION
-  
-  ##
-  ## Item level functions ##
-  ##
-  
+  ## RATHER THAN WITHIN EACH FUNCTION; would still need to re-calculate it in MH stage 2
+
   #### LOESS ####
   if("loess" %in% methods){
     
     ## score range to use with predict function
     if(scoreType == "Rest"){
-      pred_scores <- 0:(n_items - 1)  
+      
+      pred_scores <- 0:(n_items - 1) 
+      
     } else if(scoreType == "Total"){
+      
       pred_scores <- 0:(n_items)
+      
     } else {
       stop("scoreType argument must be 'Rest' or 'Total'")
     }
     
-    ## Storage
-    gg_data <- list()
+    ## Running loess method on each item
+    loess_list <- lapply(c(1:n_items), Run_loess,
+                         scaledat = MeasureData, group = groupvec,
+                         pred_scores = pred_scores,
+                         n_items = n_items, scoreType = scoreType)
     
-    ## Loop over items
-    for(i in 1:n_items){
-      
-      ## Running loess method
-      gg_data[[i]] <- Run_loess(scaledat = MeasureData, theItem = i,
-                                group, pred_scores, n_items, scoreType)
-    }
-    
-    ## Reformatting list elements into single dataframe
-    gg_data <- Reduce(rbind, gg_data)
+    ## Converting list elements into single dataframe
+    loess_df <- Reduce(rbind, loess_list)
     
     ## Plotting the results
-    p <- ggplot(gg_data, aes(x = score, y = prob, group = group)) +
+    p <- ggplot(loess_df, aes(x = score, y = prob, group = group)) +
       geom_line(aes(color = group), lwd = .8) +
       geom_ribbon(aes(ymin = prob - 1.96*SE,
                       ymax = prob + 1.96*SE,
@@ -68,7 +79,7 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
       facet_wrap(~ item)
     
     ## Output data and plot in a list
-    loess <- list(data = gg_data,
+    loess <- list(data = loess_df,
                   plot = p)
   } else{
     
@@ -79,7 +90,7 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
   #### Mantel-Haenszel ####
   if("MH" %in% methods){
     
-    ## MH testing stage 1
+    ## MH testing stage 1 - initial DIF items
     # Storage
     MH1 <- data.frame(item = names(MeasureData), Initial_OR = NA, 
                       Initial_lower = NA, Initial_upper = NA, 
@@ -89,7 +100,7 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     for(i in 1:n_items){
       
       stage1 <- Run_MH(scaledat = MeasureData, theItem = i, 
-                       group = group, scoreType = scoreType,
+                       group = groupvec, scoreType = scoreType,
                        strata = MHstrata)
       
       MH1$Initial_OR[i] <- stage1$estimate
@@ -101,8 +112,8 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     # Benjamini–Hochberg procedure for false discovery rate < 5%
     MH1$Initial_bias <- p.adjust(MH1$Initial_pvalue, method = "BH") < .05
     
-    ## MH testing stage 2
-    # The items to exclude based on initial test
+    ## MH testing stage 2 - Refinement/purification of Score criterion
+    # The items to exclude based on initial MH DIF analysis
     item_drops <- which(MH1$Initial_bias == 1) 
     
     # Storage
@@ -114,7 +125,7 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     for(i in 1:n_items) {
       
       stage2 <- Run_MH(scaledat = MeasureData, theItem = i, 
-                       group = group, scoreType = scoreType,
+                       group = groupvec, scoreType = scoreType,
                        strata = MHstrata, Stage2 = item_drops)
       
       MH2$Refine_OR[i] <- stage2$estimate
@@ -147,13 +158,15 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
     # Loop over items
     for(i in 1:n_items) {
     
-    logresults <- Run_logistic(scaledat = MeasureData, theItem = i, 
-                               group = group, scoreType = scoreType)
+    logresults <- Run_logisticByItem(scaledat = MeasureData, theItem = i, 
+                               group = groupvec, scoreType = scoreType)
     
     log_mod_comp <- rbind(log_mod_comp, logresults$modtest)
     slope_params <- rbind(slope_params, logresults$slopes)
       
     }
+    
+    ## COULD CONVERT THE ABOVE TO LAPPLY WITH REDUCE AS WE DO IN THE LOESS ANALYSIS
     
     # Benjamini–Hochberg procedure for false discovery rate = 5%
     log_mod_comp$bias <- p.adjust(log_mod_comp[,3], method = "BH") < .05
@@ -173,7 +186,7 @@ WB_analysis <- function(data, items, groupvar, scoreType = c("Rest", "Total"),
   #### Item Response Theory ####
   if("IRT" %in% methods){
     
-    IRT <- Run_IRT(scaledat = MeasureData, group = group)
+    IRT <- Run_IRT(scaledat = MeasureData, group = groupvec)
     
   } else{
     
