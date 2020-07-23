@@ -1,25 +1,43 @@
+#####################################################
+#                                                   #
+#    DIF Methods and Other Specialized functions    #
+#                                                   #
+#####################################################
 
-# for each item: calculate rest score, run 4 dif methods
 
-# These functions are expected to run at the item level. Typically a for loop in the Measure_Level_Wrapper initiates these function
+# These functions carry out the DIF analysis. Some run at the item level while others are at the measure level
+# Also included are other specialized functions, such as calculating the rest or total scores
+
+
+#### Calculate Match Score ####
+# scaledat - dataframe of item responses used to calculate the score
+# drops - vector of items in `scaledat` to exclude from score calculation; currently only accepts locations, not names
+Get_MatchScore <- function(scaledat, drops = NULL){
+  
+  # calculating rest or total score
+  if(!is.null(drops)){
+    
+    score <- apply(scaledat[,-c(drops)], 1, sum)
+    
+  } else {
+    
+    score <- apply(scaledat, 1, sum)
+  }
+  
+  return(score)
+}
+
+
 
 ########################################
 #### A function for each DIF method ####
 
 #### the loess method ####
-Run_loess <- function(scaledat, theItem,
-                      group, pred_scores, n_items, scoreType){
-  
-  # calculating rest or total score
-  if(scoreType == "Rest"){
-    
-    scaledat$score <- apply(scaledat[,-theItem], 1, sum)
-    
-  } else {
-    
-    scaledat$score <- apply(scaledat, 1, sum)
-    n_items <- n_items + 1  # Needed for the item and group columns in loess_data
-  }
+Run_loess <- function(scaledat, theItem, group, match,
+                      pred_scores, n_items){
+
+  # Appending match scores to item data
+  scaledat$score <- match
   
   # Model
   mod <- paste0(names(scaledat)[theItem], " ~ score")
@@ -49,26 +67,17 @@ Run_loess <- function(scaledat, theItem,
 }
 
 #### The Mantel-Haenszel method with refinement iteration (Stage 2) ####
-Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = NULL){
+Run_MH <- function(scaledat, theItem, group, match, strata = NULL){
   
-  ## calculating rest or total score
-  if(scoreType == "Rest"){
-    
-    scaledat$score <- apply(scaledat[, -c(theItem, Stage2)], 1, sum)
-    
-  } else {
-    
-    scaledat$score <- apply(scaledat[, -c(Stage2)], 1, sum)  
-  }
-  
+
   if(is.null(strata)){ # stratifies on all scores with > 1 value
     
-    m <- table(scaledat$score) - 1                               # frequency (-1) of each score; WHY DO THIS STEP? COULD CHANGE m == 0 to m == 1? ALSO, WE NEED FREQUENCY CONDITIONED BY GROUP
-    drop <- !scaledat$score %in% as.numeric(names(m[m == 0]))    # observations to drop if score frequency is too low
+    m <- table(match) - 1                               # frequency (-1) of each score; WHY DO THIS STEP? COULD CHANGE m == 0 to m == 1? ALSO, WE NEED FREQUENCY CONDITIONED BY GROUP
+    drop <- !match %in% as.numeric(names(m[m == 0]))    # observations to drop if score frequency is too low
 
     ## Runs MH test and catches any errors
     mh <- tryCatch(expr = {
-      mantelhaen.test(scaledat[drop, theItem], group[drop], scaledat$score[drop], exact = T)
+      mantelhaen.test(scaledat[drop, theItem], group[drop], match[drop], exact = T)
     },
     error = function(e){
       message(paste("Original error:", e))
@@ -79,7 +88,7 @@ Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = 
     )
   } else{ # stratifies based on input strata
 
-    stratum <- cut(scaledat$score, unique(quantile(scaledat$score, strata, type = 1))) # categorizes observations into strata
+    stratum <- cut(match, unique(quantile(match, strata, type = 1))) # categorizes observations into strata
     
     ## Runs MH test and catches any errors
     mh <- tryCatch(expr = {
@@ -93,12 +102,23 @@ Run_MH <- function(scaledat, theItem, group, scoreType, strata = NULL, Stage2 = 
                   p.value = NA))}
     )
   }
+  
+  MHout <- data.frame(item = names(scaledat)[[theItem]],
+                      OR = mh$estimate[[1]], 
+                      lower = mh$conf.int[[1]],
+                      upper = mh$conf.int[[2]], 
+                      pvalue = mh$p.value)
     
-  return(mh)
+  return(MHout)
   
 }
 
 #### the logistic regression method ####
+
+OmnibusLogistic <- function(){
+  
+  
+}
 
 Run_logisticByItem <- function(scaledat, theItem, group, scoreType){
   
