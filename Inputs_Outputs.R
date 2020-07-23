@@ -3,11 +3,6 @@
 #####################################
 #### Importing Input Information ####
 
-## Packages
-# Note: these could be placed in more strategic places given that they are not always needed depending on the analysis choices
-library(ggplot2)
-library(mirt)
-
 ## Data
 MalawiData <- read.csv("child.tests_items_wide.csv")
 
@@ -42,10 +37,12 @@ tenths <- seq(0, 1, by = .1)
 
 
 source("DIF_Methods_Functions.R")
+source("DIF_Methods_Wrappers.R")
 source("Measure_Level_Wrapper.R")
 
 
 #### Temporary Test runs ####
+## Preparing Data for DIF_analysis
 NumberRecog <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline, groupvar = "cr_gender")
 
 ## Single measure runs
@@ -54,9 +51,6 @@ NumberRecog_Gender_Rest <- DIF_analysis(MeasureData = NumberRecog$MeasureData, g
                                           MHstrata = tenths)
 
 
-Number_Recog_Gender_Total <- WB_analysis(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
-                        groupvar = "cr_gender", scoreType = "Total", methods = c("loess"),
-                        MHstrata = tenths)
 
 
 ## All measures

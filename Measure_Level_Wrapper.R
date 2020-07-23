@@ -1,6 +1,6 @@
 ##############################
 #                            #
-#    High level functions    #
+#    Executive functions     #
 #                            #
 ##############################
 
@@ -37,50 +37,31 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
                         methods = c("loess", "MH", "logistic", "IRT"),        # could incorporate a shortcut for "all"
                         MHstrata = NULL){ 
   
-  # Number of items in the measure
+  ## Number of items in the measure
   n_items <- ncol(MeasureData)
-  
-  ## COULD IMPROVE EFFICIENCY BY CALCULATING TOTAL AND REST SCORES HERE
-  ## RATHER THAN WITHIN EACH FUNCTION; would still need to re-calculate it in MH stage 2
 
+  ## Calculating vector of total scores or list of rest scores
+  if(scoreType == "Rest"){ # Returns a list with n_items elements of length = nrow(MeasureData)
+    
+    match_scores <- lapply(c(1:n_items), Get_MatchScore, scaledat = MeasureData) 
+    
+  } else if(scoreType == "Total"){ # a single vector of length = nrow(MeasureData)
+    
+    match_scores <- Get_MatchScore(scaledat = MeasureData, drops = NULL)
+    
+  } else {
+    stop("scoreType argument must be 'Rest' or 'Total'")
+  }
+  
+  
   #### LOESS ####
   if("loess" %in% methods){
     
-    ## score range to use with predict function
-    if(scoreType == "Rest"){
-      
-      pred_scores <- 0:(n_items - 1) 
-      
-    } else if(scoreType == "Total"){
-      
-      pred_scores <- 0:(n_items)
-      
-    } else {
-      stop("scoreType argument must be 'Rest' or 'Total'")
-    }
-    
-    ## Running loess method on each item
-    loess_list <- lapply(c(1:n_items), Run_loess,
-                         scaledat = MeasureData, group = groupvec,
-                         pred_scores = pred_scores,
-                         n_items = n_items, scoreType = scoreType)
-    
-    ## Converting list elements into single dataframe
-    loess_df <- Reduce(rbind, loess_list)
-    
-    ## Plotting the results
-    p <- ggplot(loess_df, aes(x = score, y = prob, group = group)) +
-      geom_line(aes(color = group), lwd = .8) +
-      geom_ribbon(aes(ymin = prob - 1.96*SE,
-                      ymax = prob + 1.96*SE,
-                      fill = group), alpha = .4) +
-      labs(x = paste(scoreType, "Score"), y = "Item Regression") +
-      theme_bw(base_size = 16) +
-      facet_wrap(~ item)
-    
-    ## Output data and plot in a list
-    loess <- list(data = loess_df,
-                  plot = p)
+    loess <- Get_loess(scaledat = MeasureData,
+                       group = groupvec,
+                       scoreType = scoreType,
+                       match_on = match_scores)
+
   } else{
     
     loess <- NULL
@@ -90,56 +71,12 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
   #### Mantel-Haenszel ####
   if("MH" %in% methods){
     
-    ## MH testing stage 1 - initial DIF items
-    # Storage
-    MH1 <- data.frame(item = names(MeasureData), Initial_OR = NA, 
-                      Initial_lower = NA, Initial_upper = NA, 
-                      Initial_pvalue = NA, Initial_bias = 0)
-    
-    # Loop over items
-    for(i in 1:n_items){
-      
-      stage1 <- Run_MH(scaledat = MeasureData, theItem = i, 
-                       group = groupvec, scoreType = scoreType,
-                       strata = MHstrata)
-      
-      MH1$Initial_OR[i] <- stage1$estimate
-      MH1$Initial_lower[i] <- stage1$conf.int[1]
-      MH1$Initial_upper[i] <- stage1$conf.int[2]
-      MH1$Initial_pvalue[i] <- stage1$p.value
-    }
-    
-    # Benjamini–Hochberg procedure for false discovery rate < 5%
-    MH1$Initial_bias <- p.adjust(MH1$Initial_pvalue, method = "BH") < .05
-    
-    ## MH testing stage 2 - Refinement/purification of Score criterion
-    # The items to exclude based on initial MH DIF analysis
-    item_drops <- which(MH1$Initial_bias == 1) 
-    
-    # Storage
-    MH2 <- data.frame(item = names(MeasureData), Refine_OR = NA,
-                      Refine_lower = NA, Refine_upper = NA,
-                      Refine_pvalue = NA, Refine_bias = 0)
-    
-    # Loop over items
-    for(i in 1:n_items) {
-      
-      stage2 <- Run_MH(scaledat = MeasureData, theItem = i, 
-                       group = groupvec, scoreType = scoreType,
-                       strata = MHstrata, Stage2 = item_drops)
-      
-      MH2$Refine_OR[i] <- stage2$estimate
-      MH2$Refine_lower[i] <- stage2$conf.int[1]
-      MH2$Refine_upper[i] <- stage2$conf.int[2]
-      MH2$Refine_pvalue[i] <- stage2$p.value
-    }
-    
-    # Benjamini–Hochberg procedure for false discovery rate = 5%
-    MH2$Refine_bias <- p.adjust(MH2$Refine_pvalue, method = "BH") < .05
-    
-    # Output dataframe combining stage 1 and stage 2
-    MH <- cbind(MH1, MH2[,-1])
-    
+    MH <- Get_MH(scaledat = MeasureData,
+                 group = groupvec,
+                 scoreType = scoreType,
+                 stage1.match_scores = match_scores,
+                 strata = MHstrata) 
+
   } else{
     
     MH <- NULL
