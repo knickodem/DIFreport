@@ -10,3 +10,10 @@ always_allow_html: yes
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+Table of effect sizes - refer to Table 9 in WB paper
+
+Column for original score, column for bias corrected score, mean differences, reliabilities
+
+
+Supplemental text:
+How were the bias items detected?
