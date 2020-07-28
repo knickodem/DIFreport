@@ -86,22 +86,14 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
   #### Logistic Regression ####
   if("logistic" %in% methods){
     
-    # Blank dataframe for adding model chisquare comparison with 2 df
-    log_mod_comp <- data.frame(item = NA, deviance = NA, pvalue = NA)
     
-    # Blank dataframe for adding Slope parameters for uniform and nonuniform dif
-    slope_params <- data.frame(item = NA, Type = NA, Estimate = NA, SE = NA, z = NA, pvalue = NA, OR = NA)
     
-    # Loop over items
-    for(i in 1:n_items) {
+    logistic <- Get_Logistic(scaledat = MeasureData,
+                             group = groupvec,
+                             scoreType = scoreType,
+                             match_on = match_scores)
     
-    logresults <- Run_logisticByItem(scaledat = MeasureData, theItem = i, 
-                               group = groupvec, scoreType = scoreType)
-    
-    log_mod_comp <- rbind(log_mod_comp, logresults$modtest)
-    slope_params <- rbind(slope_params, logresults$slopes)
-      
-    }
+
     
     ## COULD CONVERT THE ABOVE TO LAPPLY WITH REDUCE AS WE DO IN THE LOESS ANALYSIS
     
@@ -123,7 +115,7 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
   #### Item Response Theory ####
   if("IRT" %in% methods){
     
-    IRT <- Run_IRT(scaledat = MeasureData, group = groupvec)
+    IRT <- Get_IRT(scaledat = MeasureData, group = groupvec)
     
   } else{
     
@@ -139,3 +131,11 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
   return(all)
   
 }
+
+
+#### Use information produced from `DIF_analysis` to compare treatment effect estimates ####
+CompareTreatmentEffects <- function(DIFanalysis){}  # Need to alter DIF_analysis output to include all information needed to run comparison
+# pass items that we want to check
+# breakdown by conditional (eg. gender) or unconditional treatment effect
+# observed score with dropped items or fit irt with identified items not constrianed over groups (ml factor scores)
+#   - score, group

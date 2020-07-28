@@ -47,9 +47,13 @@ NumberRecog <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_numbe
 
 ## Single measure runs
 NumberRecog_Gender_Rest <- DIF_analysis(MeasureData = NumberRecog$MeasureData, groupvec = NumberRecog$GroupVector,
-                                        scoreType = "Rest", methods = c("loess", "MH"),
+                                        scoreType = "Rest", methods = c("loess", "MH", "IRT"),
                                           MHstrata = tenths)
 
+
+MeasureData = NumberRecog$MeasureData
+groupvec = NumberRecog$GroupVector
+scoreType = "Rest"
 
 
 
@@ -72,37 +76,6 @@ rmarkdown::render("Bias_Correction_Report.Rmd")
 
 ######################################################
 
-###############################
-#### Temporary for Testing ####
-
-## grouping variable - make factor before putting into function
-table(MalawiData$cr_gender, useNA = "always")
-
-mmData <- lapply(MalawiMeasures,
-                 function(x){MalawiData[grep(x, names(MalawiData))]})
-
-MeasureData <- mmData$EGMA_number_recognition.Endline
-data = MalawiData
-items = MalawiMeasures$EGMA_number_recognition.Endline
-groupvar = "cr_gender"
-scoreType = "Total"
-
-loopfunc <- function(x){
-  
-  gg_data <- list(); for(i in 1:n_items){gg_data[[i]] <- Run_loess(scaledat = x, theItem = i, group, pred_scores, n_items, scoreType)}
-}
-
-mb <- microbenchmark(
-  lapply = lapply(c(1:n_items), Run_loess, scaledat = MeasureData, group = group, pred_scores = pred_scores, n_items = n_items, scoreType = scoreType),
-  map = purrr::map(1:n_items, ~Run_loess(scaledat = MeasureData, theItem = .x, group, pred_scores, n_items, scoreType)),
-  loop = loopfunc(MeasureData),
-  times = 100)
-
-checkred <- Reduce(rbind, check)
-mapred <- Reduce(rbind, mapcheck)
-
-all.equal(checkred, mapred)
-#################################
 
   
 

@@ -162,3 +162,156 @@ Get_MH <- function(scaledat, group, scoreType, stage1.match_scores, strata = NUL
   
   return(MH)
 }
+
+
+#######################################
+
+
+##############################
+#### Logisitic Regression ####
+
+Get_Logistic <- function(scaledat, group, scoreType, match_on){
+  
+  ## Number of items in the measure
+  n_items <- ncol(scaledat)
+  
+  if(scoreType == "Rest"){
+    
+    match_list <- match_on
+    
+  } else if(scoreType == "Total"){
+    
+    match_list <- rep(list(match_on), n_items)
+  }
+  
+  #### Omnibus test for DIF  ####
+  long_data <- data.frame(response = NA, score = NA, item = NA, group = NA)
+  
+  ## Gather item information into a long format dataframe
+  for (i in 1:n_items) {
+
+    long_temp <- data.frame(response = scaledat[,i],
+                            score = match_list[[i]],
+                            item = rep(names(scaledat)[i], nrow(scaledat)),
+                            group = as.numeric(group)-1)
+    
+    long_data <- rbind(long_data, long_temp)
+  }
+  
+
+  long_data <- long_data[-1, ]  # removes first row which is all NA
+  long_data$GroupByScore <- long_data$score * long_data$group  # Calculating group by score interaction term
+  
+  
+  ## Baseline model, then adding grouping variable
+  mod0 <- glm(response ~ -1 + item + score:item, data = long_data, family = binomial)                # baseline
+  mod1 <- glm(response ~ -1 + item + score:item + group:item, data = long_data, family = binomial)   # uniform DIF
+  mod2 <- glm(response ~ -1 + item + score:item + group:item + GroupByScore:item, data = long_data, family = binomial) # nonuniform DIF
+  
+  ## Omnibus test for any DIF 
+  anyDIF.test <- anova(mod0, mod1, mod2, test = "LRT")
+  
+  testfor <- c("uni", "non")
+  
+  
+  ## Is there non-uniform DIF?
+  if(anyDIF.test$`Pr(>Chi)`[[3]] < .05){
+    
+    # Blank dataframe for adding model chisquare comparison with 2 df
+    log_mod_comp <- data.frame(item = NA, deviance = NA, pvalue = NA)
+    
+    # Blank dataframe for adding Slope parameters for uniform and nonuniform dif
+    slope_params <- data.frame(item = NA, Type = NA, Estimate = NA, SE = NA, z = NA, pvalue = NA, OR = NA)
+    
+    # Loop over items
+    for(i in 1:n_items) {
+      
+      logresults <- Run_logisticByItem(scaledat = MeasureData, theItem = i, 
+                                       group = groupvec, scoreType = scoreType)
+      
+      log_mod_comp <- rbind(log_mod_comp, logresults$modtest)
+      slope_params <- rbind(slope_params, logresults$slopes)
+      
+    }
+    
+    unifDIF <- Run_logisticByItem(scaledat = scaledat,
+                                  )
+    
+  }
+  
+  
+  #### Testing for nonuniform DIF ####
+  
+  
+  
+  # Overall test of whether items were biased in slopes
+  nonuniform.test <- anova(mod1, mod2, test = "LRT")
+
+  if(nonuniform.test$`Pr(>Chi)`[[2]] < .05){ # Then have to identify which items
+    
+    unifDIF <- Run_logisticByItem()
+    
+  }
+  
+  
+}
+
+
+Get_IRT <- function(scaledat, group){
+  
+  #### Comparing configural, metric, and scalar models ####
+  globalIRT <- Run_GlobalIRT(scaledat = scaledat, group = group)
+  
+  cols <- 1:ncol(scaledat)
+  
+  
+  if(length(globalIRT$Params_With_DIF) > 0){
+    
+    ## Stage 1 - Initial DIF
+    stage1IRT <- lapply(cols, Run_ItemIRT, GlobalResults = globalIRT, which.model = "Scalar_Mod")
+    # if we want more flexiblity in the code, might need to use a for loop instead
+    
+    # convert list to df
+    stage1IRTdf <- Reduce(rbind, stage1IRT)
+    
+    # Benjamini–Hochberg procedure for false discovery rate < 5%
+    stage1IRTdf$bias <- p.adjust(stage1IRTdf$p, method = "BH") < .05
+    
+    # The items to free
+    IRT_free <- which(stage1IRTdf$bias == 1)
+    
+    
+    ## Stage 2 - Refine/Purify
+    
+    # Re-estimate scalar model while freeing IRT_free items
+    globalIRT$Stage2_Scalar_Mod <- multipleGroup(scaledat, model = 1, group = group,
+                                                 invariance = c('slopes', 'intercepts', 'free_var','free_means', names(scaledat)[-IRT_free]))
+    
+    
+    stage2IRT <- lapply(cols[-IRT_free], Run_ItemIRT, GlobalResults = globalIRT, which.model = "Stage2_Scalar_Mod")
+    # if we want more flexiblity in the code, might need to use a for loop instead
+    
+    # convert list to df
+    stage2IRTdf <- Reduce(rbind, stage2IRT)
+    
+    # Benjamini–Hochberg procedure for false discovery rate < 5%
+    stage2IRTdf$bias <- p.adjust(stage2IRTdf$p, method = "BH") < .05
+    
+    ## Merging initial and refined stage results
+    stage1IRTdf <- cbind(rownames(stage1IRTdf), data.frame(stage1IRTdf[,6:9], row.names=NULL))
+    names(stage1IRTdf) <- c("Item", "Initial_X2", "Initial_df", "Initial_p", "Initial_bias")
+    stage2IRTdf <- cbind(rownames(stage2IRTdf), data.frame(stage2IRTdf[,6:9], row.names=NULL))
+    names(stage2IRTdf) <- c("Item", "Refined_X2", "Refined_df", "Refined_p", "Refined_bias")
+    
+    IRTdif <- merge(stage1IRTdf, stage2IRTdf, by = "Item", all.x = TRUE)
+    IRTdif$Item <- factor(IRTdif, levels = names(scaledat))
+    
+    
+  }  else {
+    
+    IRTdiff <- "No DIF was detected through IRT model comparisons"
+  }
+  
+  return(IRTdif)
+  
+}
