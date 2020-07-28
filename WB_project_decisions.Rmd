@@ -30,6 +30,10 @@ check <- MalawiData[384:403] %>%
 # Alternative approaches
 
 Comparing results from our code to using the difR package as a sensitivity check
+ - Would need to write a function to extract the relevant info into the dataframe output we desire since the difR output is disjointed
+ - Also a bit difficult to determine what is going on "under the hood". Need to review the workhorse functions to determine what procedures are exactly being used, and how many tests are conducted, etc...
+ - At first glance, it does not seem like using difR would save much time/debugging issues 
+
 
 
 # Decisions, assumptions, and defaults

@@ -120,32 +120,14 @@ OmnibusLogistic <- function(){
   
 }
 
-Run_logisticByItem <- function(scaledat, theItem, group, scoreType){
+Run_logisticByItem <- function(itemlogdf, theItem){
   
-  # calculating rest or total score
-  if(scoreType == "Rest"){
-    
-    scaledat$score <- apply(scaledat[,-theItem], 1, sum)
-    
-  } else {
-    
-    scaledat$score <- apply(scaledat, 1, sum)  
-  }
+
+  ### logistic regression models for individual items ---
   
-  # Compiling the dataframe for use in the logistic regression models
-  log_data <- data.frame(response = scaledat[,theItem],           # 1/0 response to the item
-                          score = scaledat$score,           # rest or total score calculated above
-                          group = as.numeric(group)-1       # converting group from factor to 1/0 dummy variable
-  )
-  
-  log_data$interaction <- log_data$score * log_data$group  # calculating the group x score interaction term
-  
-  
-  ### logistic regression models ---
-  
-  mod0 <- glm(response ~ 1 + score, data = log_data, family = binomial)
-  # mod1 <- glm(response ~ 1 + score + group, data = log_data, family = binomial)
-  mod2 <- glm(response ~ 1 + score + group + interaction, data = log_data, family = binomial)
+  itemmod0 <- glm(response ~ 1 + score, data = itemlogdf, family = binomial)
+  itemmod1 <- glm(response ~ 1 + score + group, data = itemlogdf, family = binomial)
+  itemmod2 <- glm(response ~ 1 + score + group + interaction, data = log_data, family = binomial)
   
   # Overall test of uniform or nonuniform DIF
   tab1 <- anova(mod0, mod2, test = "LRT")
@@ -170,34 +152,72 @@ Run_logisticByItem <- function(scaledat, theItem, group, scoreType){
 
 #### the IRT approach ####
 
-Run_IRT <- function(scaledat, group){
+Run_GlobalIRT <- function(scaledat, group){
   
-  # Nested models
-  mod_configural <- multipleGroup(scaledat, model = 1, group = group, SE = T) # assumes 2PL model
+  ## Fitting nested models - Fit 2PL models with varying constraints
+  mod_configural <- multipleGroup(scaledat, model = 1, group = group, SE = T)
   mod_metric <- multipleGroup(scaledat, model = 1, group = group,
                               invariance = c('slopes', 'free_var'), SE = T)
-  
-  # Model comparison
-  tab1 <- anova(mod_configural, mod_metric)
-  
-  
   mod_scalar <- multipleGroup(scaledat, model = 1, group = group,
                               invariance = c('slopes', 'intercepts', 'free_var','free_means'))
-  # Model comparison
-  tab2 <- anova(mod_metric, mod_scalar) # If non-sig, no bias; otherwise uniform dif
   
-  tab <- rbind(tab2, tab1[2,])
+  ## Model comparisons
+  uniform.tab <- anova(mod_configural, mod_metric, verbose = FALSE) # tests uniform dif
+  nonunif.tab <- anova(mod_metric, mod_scalar, verbose = FALSE) # tests non-uniform dif
+  
+
+  ## Extracting comparison results
+  tab <- rbind(nonunif.tab, uniform.tab[2,])
   tab$model <- c("scalar", "metric", "configural")
   tab <- tab[, -c(1:5)]
   
-  # Finding Diffy items
-  # Assume metric (no mean dif between groups), test equality constraints per item -- need to sort out if this is really a good idea...
-  dif <- DIF(mod_configural, which.par = c('a1', 'd'), scheme = "add", Wald = T, p.adjust = "BH")
-  dif$bias <- dif[, 4] < .05
-  dif <- dif[, -3]
+
+  ## Do we need to test for DIF at the item-level, and if so, which parameter?
   
-  difout <- list(modtest = tab,
-                 itemdif = dif)
+  # possible parameters to inspect
+  paramswithdif <- c("a1", "d")
   
-  return(difout)
+  if(tab$p[[3]] > .05){  # Was there uniform dif?
+    
+    paramswithdif <- paramswithdif[-2] # If not, drop intercept parameter
+    
+  }
+  
+  if(tab$p[[2]] > .05){ # Was there non-uniform dif?
+    
+    paramswithdif <- tryCatch(expr = paramswithdif[-1],
+                          error = function(e){return(FALSE)})
+  }
+  
+  
+  ## Compiling results to output
+  GlobalResults <- list(Model_Comparison = tab,
+                        Params_With_DIF = paramswithdif,
+                        Scalar_Mod = mod_scalar,
+                        Metric_Mod = mod_metric,
+                        Config_Mod = mod_configural)
+  
+  return(GlobalResults)
+    
+}
+
+
+
+Run_ItemIRT <- function(GlobalResults, which.model = "Scalar_Mod", items2test){ # might need to add ...
+  
+  ## Identifying items with DIF
+  # 
+  dif <- DIF(GlobalResults[[which.model]], which.par = GlobalResults$Params_With_DIF,
+             items2test = items2test, 
+             scheme = "drop", #seq_stat = .05, max_run = 2, 
+             Wald = FALSE) # , p.adjust = "BH", ...
+  # dif$bias <- dif[, 4] < .05
+  # dif <- dif[, -3]
+  
+
+# 
+# difout <- list(modtest = tab,
+#                itemdif = dif)
+
+return(dif)
 }
