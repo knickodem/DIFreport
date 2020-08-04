@@ -115,38 +115,138 @@ Run_MH <- function(scaledat, theItem, group, match, strata = NULL){
 
 #### the logistic regression method ####
 
-OmnibusLogistic <- function(){
+Run_GlobalLogistic <- function(scaledat, group, match_list){
+  
+  #### Omnibus test for DIF  ####
+  long_data <- data.frame(response = NA, score = NA, item = NA, group = NA)
+  
+  ## Gather item information into a long format dataframe
+  for (i in 1:ncol(scaledat)) {
+    
+    long_temp <- data.frame(response = scaledat[,i],
+                            score = match_list[[i]],
+                            item = rep(names(scaledat)[i], nrow(scaledat)),
+                            group = as.numeric(group)-1)
+    
+    long_data <- rbind(long_data, long_temp)
+  }
+  
+  
+  long_data <- long_data[-1, ]  # removes first row which is all NA
+  long_data$GroupByScore <- long_data$score * long_data$group  # Calculating group by score interaction term
+  
+  
+  ## Baseline model, then adding grouping variable
+  mod0 <- glm(response ~ -1 + item + score:item, data = long_data, family = binomial)                # baseline
+  mod1 <- glm(response ~ -1 + item + score:item + group:item, data = long_data, family = binomial)   # uniform DIF
+  mod2 <- glm(response ~ -1 + item + score:item + group:item + GroupByScore:item, data = long_data, family = binomial) # nonuniform DIF
+  
+  ## Omnibus test for any DIF 
+  anyDIF.test <- anova(mod0, mod1, mod2, test = "LRT")
+  anyDIF.test$Model <- c("Baseline", "Uniform", "Non-uniform")
+  
+  # Possible DIF to test for
+  testfor <- c("uni", "non")
+  
+  # Is there non-uniform DIF?
+  if(anyDIF.test$`Pr(>Chi)`[[3]] > .05){
+    
+    testfor <- testfor[-2] # If not, drop non-uniform indicator
+    
+  }
+  
+  # Is there uniform DIF
+  if(anyDIF.test$`Pr(>Chi)`[[2]] > .05){
+    
+    testfor <- tryCatch(expr = testfor[-1],   # If not, then drop uniform indicator
+                        error = function(e){
+                          return(character()) # if there was no dif, returns an empty vector
+                        })
+  }
+  
+  GlobalResults <- list(Model_Comparison = anyDIF.test,
+                        DIF_type = testfor,
+                        Baseline_Mod = mod0,
+                        Uniform_Mod = mod1,
+                        Nonuniform_Mod = mod2,
+                        Data = long_data)
+  
+  return(GlobalResults)
   
   
 }
 
-Run_logisticByItem <- function(itemlogdf, theItem){
+#### logistic regression models for individual items ####
+Run_ItemLogistic <- function(itemlogdf, which.type){
+  
+  
+  if(length(which.type) == 2){
+    
+    # Models
+    itemmod0 <- glm(response ~ 1 + score, data = itemlogdf, family = binomial)
+    # itemmod1 <- glm(response ~ 1 + score + group, data = itemlogdf, family = binomial)               # uniform
+    itemmod2 <- glm(response ~ 1 + score + group + GroupByScore, data = itemlogdf, family = binomial) # nonuniform
+    
+    # Model Comparison
+    modcomp <- anova(itemmod0, itemmod2, test = "LRT")
+    
+    # # Parameter Magnitude
+    # slopes <- as.data.frame(summary(itemmod2)$coefficients)
+    # slopes <- slopes[row.names(slopes) %in% c("group", "GroupByScore"), ]  # removing intercept and score rows
+    
+  } else {
+    
+    
+    if("uni" %in% which.type){
+      
+      # Models
+      itemmod0 <- glm(response ~ 1 + score, data = itemlogdf, family = binomial)
+      itemmod1 <- glm(response ~ 1 + score + group, data = itemlogdf, family = binomial) # uniform
+      
+      # Model Comparison
+      modcomp <- anova(itemmod0, itemmod1, test = "LRT")
+      
+      # # Parameter Magnitude
+      # slopes <- as.data.frame(summary(itemmod1)$coefficients)
+      # slopes <- slopes[row.names(slopes) %in% c("group"), ]  # removing intercept and score rows
+    }
+    
+    if("non" %in% which.type){
+      
+      # Models
+      itemmod1 <- glm(response ~ 1 + score + group, data = itemlogdf, family = binomial) # uniform
+      itemmod2 <- glm(response ~ 1 + score + group + GroupByScore, data = itemlogdf, family = binomial) # nonuniform
+      
+      # Model Comparison
+      modcomp <- anova(itemmod1, itemmod2, test = "LRT")
+      
+      # # Parameter Magnitude
+      # slopes <- as.data.frame(summary(itemmod2)$coefficients)
+      # slopes <- slopes[row.names(slopes) %in% c("GroupByScore"), ]  # removing intercept and score rows
+      
+    }
+  }
   
 
-  ### logistic regression models for individual items ---
   
-  itemmod0 <- glm(response ~ 1 + score, data = itemlogdf, family = binomial)
-  itemmod1 <- glm(response ~ 1 + score + group, data = itemlogdf, family = binomial)
-  itemmod2 <- glm(response ~ 1 + score + group + interaction, data = log_data, family = binomial)
+  modtest <- data.frame(item = itemlogdf$item[[1]],
+                        dif.type = ifelse(length(which.type) == 2, "both", which.type),
+                        deviance = modcomp$Deviance[-1],
+                        df = modcomp$Df[-1],
+                        pvalue = modcomp$`Pr(>Chi)`[-1])
   
-  # Overall test of uniform or nonuniform DIF
-  tab1 <- anova(mod0, mod2, test = "LRT")
-  modtest <- data.frame(item = names(scaledat)[theItem],
-                        deviance = tab1$Deviance[[2]],
-                        pvalue = tab1$`Pr(>Chi)`[[2]])
+  # paramtest <- data.frame(item = itemlogdf$item[[1]],
+  #                         parameter = row.names(slopes),
+  #                         estimate = slopes$Estimate,
+  #                         se = slopes$`Std. Error`,
+  #                         z = slopes$`z value`,
+  #                         pvalue = slopes$`Pr(>|z|)`,
+  #                         OR = exp(slopes$Estimate))
   
-  slopes <- as.data.frame(summary(mod2)$coefficients)                   # extracting slope parameters
-  slopes <- slopes[row.names(slopes) %in% c("group", "interaction"), ]  # removing intercept and score rows
-  slopes$OR <- exp(slopes$Estimate)                                     # Computing odds ratios
-  slopes <- tibble::rownames_to_column(slopes, "Type")                  # adding rownames to the df
-  slopes$item <- names(scaledat)[theItem]                               # adding item identifier
-  slopes <- slopes[,c(7,1:6)]                                           # and moving it to the first column
-  names(slopes) <- c("item", "Type", "Estimate", "SE", "z", "pvalue", "OR")
+  # output <- list(Model_Comparison = modtest,
+  #                Parameter_Estimates = paramtest)
   
-  output <- list(modtest = modtest,
-                 slopes = slopes)
-  
-  return(output)
+  return(modtest)
   
 }
 
@@ -177,16 +277,20 @@ Run_GlobalIRT <- function(scaledat, group){
   # possible parameters to inspect
   paramswithdif <- c("a1", "d")
   
-  if(tab$p[[3]] > .05){  # Was there uniform dif?
+  # Is there uniform dif?
+  if(tab$p[[3]] > .05){  
     
     paramswithdif <- paramswithdif[-2] # If not, drop intercept parameter
     
   }
   
-  if(tab$p[[2]] > .05){ # Was there non-uniform dif?
+  # Is there non-uniform dif?
+  if(tab$p[[2]] > .05){
     
-    paramswithdif <- tryCatch(expr = paramswithdif[-1],
-                          error = function(e){return(FALSE)})
+    paramswithdif <- tryCatch(expr = paramswithdif[-1], # If not, then drop slope parameter
+                          error = function(e){
+                            return(character()) # if there was no dif, returns an empty vector
+                            })
   }
   
   
@@ -202,22 +306,15 @@ Run_GlobalIRT <- function(scaledat, group){
 }
 
 
-
+## Don't really need Run_ItemIRT as a separate function, but keeping it for now in case we want to include additional capabilities
 Run_ItemIRT <- function(GlobalResults, which.model = "Scalar_Mod", items2test){ # might need to add ...
   
   ## Identifying items with DIF
-  # 
   dif <- DIF(GlobalResults[[which.model]], which.par = GlobalResults$Params_With_DIF,
              items2test = items2test, 
              scheme = "drop", #seq_stat = .05, max_run = 2, 
              Wald = FALSE) # , p.adjust = "BH", ...
-  # dif$bias <- dif[, 4] < .05
-  # dif <- dif[, -3]
-  
 
-# 
-# difout <- list(modtest = tab,
-#                itemdif = dif)
 
 return(dif)
 }

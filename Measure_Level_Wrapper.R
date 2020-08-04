@@ -34,12 +34,12 @@ WB_Data_Prep <- function(data, items, groupvar){
 
 #### Wrapper function around the DIF Methods to conduct the full analysis ####
 DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
-                        methods = c("loess", "MH", "logistic", "IRT"),        # could incorporate a shortcut for "all"
-                        MHstrata = NULL){ 
+                         methods = c("loess", "MH", "logistic", "IRT"),        # could incorporate a shortcut for "all"
+                         MHstrata = NULL){ 
   
   ## Number of items in the measure
   n_items <- ncol(MeasureData)
-
+  
   ## Calculating vector of total scores or list of rest scores
   if(scoreType == "Rest"){ # Returns a list with n_items elements of length = nrow(MeasureData)
     
@@ -61,7 +61,7 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
                        group = groupvec,
                        scoreType = scoreType,
                        match_on = match_scores)
-
+    
   } else{
     
     loess <- NULL
@@ -76,7 +76,7 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
                  scoreType = scoreType,
                  stage1.match_scores = match_scores,
                  strata = MHstrata) 
-
+    
   } else{
     
     MH <- NULL
@@ -93,17 +93,6 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
                              scoreType = scoreType,
                              match_on = match_scores)
     
-
-    
-    ## COULD CONVERT THE ABOVE TO LAPPLY WITH REDUCE AS WE DO IN THE LOESS ANALYSIS
-    
-    # Benjamini–Hochberg procedure for false discovery rate = 5%
-    log_mod_comp$bias <- p.adjust(log_mod_comp[,3], method = "BH") < .05
-    slope_params$bias <- p.adjust(slope_params[,6], method = "BH") < .05
-    
-    # Output a list containing two dataframes
-    logistic <- list(Model_Comparison = log_mod_comp[-1, ],
-                     Slope_Parameters = slope_params[-1, ])
     
   } else{
     

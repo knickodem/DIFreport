@@ -43,30 +43,66 @@ source("Measure_Level_Wrapper.R")
 
 #### Temporary Test runs ####
 ## Preparing Data for DIF_analysis
-NumberRecog <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline, groupvar = "cr_gender")
+NumberRecog_Gender <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline, groupvar = "cr_gender")
+NumberRecog_Treated <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline, groupvar = "treated")
 
-## Single measure runs
-NumberRecog_Gender_Rest <- DIF_analysis(MeasureData = NumberRecog$MeasureData, groupvec = NumberRecog$GroupVector,
-                                        scoreType = "Rest", methods = c("loess", "MH", "IRT"),
+
+Motor_Gender <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$MDAT_motor.Midline, groupvar = "cr_gender")
+
+
+x_Gender <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$MDAT_motor.Midline, groupvar = "cr_gender")
+
+Hand_Treated <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$Kaufman_hand_movement.Endline, groupvar = "treated")
+
+## Gender_Rest
+# Total worked too
+NumberRecog_Gender_Rest <- DIF_analysis(MeasureData = NumberRecog_Gender$MeasureData,
+                                        groupvec = NumberRecog_Gender$GroupVector,
+                                        scoreType = "Rest", methods = c("loess", "MH", "logistic", "IRT"),
                                           MHstrata = tenths)
 
 
-MeasureData = NumberRecog$MeasureData
-groupvec = NumberRecog$GroupVector
+MeasureData = NumberRecog_Gender$MeasureData
+groupvec = NumberRecog_Gender$GroupVector
 scoreType = "Rest"
+
+
+Hand_Treated_Rest <- DIF_analysis(MeasureData = Hand_Treated$MeasureData,
+                                  groupvec = Hand_Treated$GroupVector,
+                                  scoreType = "Rest", methods = c("loess", "MH", "logistic", "IRT"),
+                                  MHstrata = tenths)
+
+
+
+View(Hand_Treated_Rest$MH)
+
+## Treated Total - error in MH cut.default; invalid number of intervals
+# Rest works
+NumberRecog_Treated_Total <- DIF_analysis(MeasureData = NumberRecog_Treated$MeasureData,
+                                         groupvec = NumberRecog_Treated$GroupVector,
+                                        scoreType = "Total", methods = c("loess", "MH", "logistic","IRT"),
+                                        MHstrata = tenths)
 
 
 
 ## All measures
 library(tictoc)
+
+AllMeasuresPrepped <- purrr::map(.x = MalawiMeasures,
+                                         ~WB_Data_Prep(data = MalawiData, items = .x, groupvar = "cr_gender"))
+
+## currently breaks at stage2IRTdf[,6:9] has incorrect number of dimensions
 tic()
-allmeasuretry_treated_rest <- purrr::map(.x = MalawiMeasures, ~WB_analysis(data = MalawiData, items = .x,
-                       groupvar = "cr_gender", scoreType = "Rest", methods = c("loess","MH", "logistic", "IRT"),
-                       MHstrata = tenths))
+AllMeasures_Gender_Rest <- purrr::map(.x = AllMeasuresPrepped[4],
+                                      ~DIF_analysis(MeasureData = .x$MeasureData, groupvec = .x$GroupVector,
+                                                    scoreType = "Rest", methods = c("loess","MH", "IRT"),
+                                                    MHstrata = tenths))
 toc()
 
 
-
+freqcheck <- purrr::map(.x = names(AllMeasuresPrepped$Kaufman_hand_movement.Endline$MeasureDat),
+                        ~table(AllMeasuresPrepped$Kaufman_hand_movement.Endline$MeasureData[[.x]],
+                               AllMeasuresPrepped$Kaufman_hand_movement.Endline$GroupVector, useNA = "ifany"))
 
 #### Generate Report ####
 
