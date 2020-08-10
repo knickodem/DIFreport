@@ -45,7 +45,7 @@ print(DIF_Results$loess$plot)
 ## Mantel-Haenszel
 
 ```{r MH}
-xtable(DIF_Results$MH)
+xtable(DIF_Results$MH, digits = 2)
 ```
 
 
@@ -53,12 +53,12 @@ xtable(DIF_Results$MH)
 ## Logistic Regression
 
 ```{r Logistic Global}
-xtable(DIF_Results$logistic$Global)
+xtable(DIF_Results$logistic$Global, digits = 2)
 ```
 
 
 ```{r Logistic Item}
-xtable(DIF_Results$logistic$Item)
+xtable(DIF_Results$logistic$Item, digits = 2)
 ```
 
 
@@ -67,12 +67,12 @@ xtable(DIF_Results$logistic$Item)
 
 
 ```{r IRT Global}
-xtable(DIF_Results$IRT$Global)
+xtable(DIF_Results$IRT$Global, digits = 2)
 ```
 
 
 ```{r IRT Item}
-xtable(DIF_Results$IRT$Item)
+xtable(DIF_Results$IRT$Item, digits = 2)
 ```
 
 
