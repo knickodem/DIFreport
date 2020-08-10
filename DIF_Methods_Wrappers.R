@@ -38,7 +38,7 @@ Get_loess <- function(scaledat, group, scoreType, match_on){
     
   } else if(scoreType == "Total"){
     
-    pred_scores <- 0:(n_items) # score range to use with predict function
+    pred_scores <- 0:n_items   # score range to use with predict function
     n_items1 <- n_items + 1    # Needed for the item and group columns in loess_data
     
     ## Running loess method on each item
@@ -79,12 +79,10 @@ Get_loess <- function(scaledat, group, scoreType, match_on){
 #######################################
 
 
-
 # ----------------- Mantel-Haenszel -------------------------
 
 Get_MH <- function(scaledat, group, scoreType,
                    stage1.match_scores, strata = NULL){
-  
   
   ## Number of items in the measure
   n_items <- ncol(scaledat)
@@ -121,6 +119,8 @@ Get_MH <- function(scaledat, group, scoreType,
   #### MH testing stage 2 - Refinement/purification of match_score criterion ####
   # The items to exclude based on initial MH DIF analysis
   MH_drops <- which(MH1$bias == 1)
+  
+  if(length(MH_drops) > 0){
   
   if(scoreType == "Rest"){
     
@@ -161,6 +161,10 @@ Get_MH <- function(scaledat, group, scoreType,
   names(MH2)[-1] <- paste0("Refined_", names(MH2)[-1])
   MH <- cbind(MH1, MH2[,-1])
   
+  } else {
+    names(MH1)[-1] <- paste0("Initial_", names(MH1)[-1])
+    MH <- MH1
+  }
   
   return(MH)
 }
@@ -336,7 +340,7 @@ Get_IRT <- function(scaledat, group){
         
         # Re-estimate scalar model while freeing IRT_free items
         globalIRT$Stage2_Scalar_Mod <- multipleGroup(scaledat, model = 1, group = group,
-                                                     invariance = c('slopes', 'intercepts', 'free_var','free_means', names(scaledat)[-IRT_free]))
+                                                     invariance = c('free_var','free_means', names(scaledat)[-IRT_free]))
         
         
         stage2IRT <- lapply(cols[-IRT_free], Run_ItemIRT, GlobalResults = globalIRT, which.model = "Stage2_Scalar_Mod")

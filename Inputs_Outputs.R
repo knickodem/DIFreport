@@ -66,6 +66,17 @@ MeasureData = NumberRecog_Gender$MeasureData
 groupvec = NumberRecog_Gender$GroupVector
 scoreType = "Rest"
 
+## Treated_Total
+# Total worked too
+NumberRecog_Treated_Total<- DIF_analysis(MeasureData = NumberRecog_Treated$MeasureData,
+                                        groupvec = NumberRecog_Treated$GroupVector,
+                                        scoreType = "Total", methods = c("loess", "MH", "logistic", "IRT"),
+                                        MHstrata = tenths)
+
+NumberRecod_Treated_Total_Effects <- CompareTreatmentEffects(MeasureData = NumberRecog_Treated$MeasureData,
+                                                             groupvec = NumberRecog_Treated$GroupVector,
+                                                             biased.items = 7)
+
 
 Hand_Treated_Rest <- DIF_analysis(MeasureData = Hand_Treated$MeasureData,
                                   groupvec = Hand_Treated$GroupVector,
@@ -76,26 +87,21 @@ Hand_Treated_Rest <- DIF_analysis(MeasureData = Hand_Treated$MeasureData,
 
 View(Hand_Treated_Rest$MH)
 
-## Treated Total - error in MH cut.default; invalid number of intervals
-# Rest works
-NumberRecog_Treated_Total <- DIF_analysis(MeasureData = NumberRecog_Treated$MeasureData,
-                                         groupvec = NumberRecog_Treated$GroupVector,
-                                        scoreType = "Total", methods = c("loess", "MH", "logistic","IRT"),
-                                        MHstrata = tenths)
 
 
 
 ## All measures
 library(tictoc)
 
+tic()
 AllMeasuresPrepped <- purrr::map(.x = MalawiMeasures,
                                          ~WB_Data_Prep(data = MalawiData, items = .x, groupvar = "cr_gender"))
-
+toc()
 ## currently breaks at stage2IRTdf[,6:9] has incorrect number of dimensions
 tic()
-AllMeasures_Gender_Rest <- purrr::map(.x = AllMeasuresPrepped[4],
+AllMeasures_Gender_Rest <- purrr::map(.x = AllMeasuresPrepped,
                                       ~DIF_analysis(MeasureData = .x$MeasureData, groupvec = .x$GroupVector,
-                                                    scoreType = "Rest", methods = c("loess","MH", "IRT"),
+                                                    scoreType = "Rest", methods = c("loess","MH", "logistic", "IRT"),
                                                     MHstrata = tenths))
 toc()
 
@@ -105,6 +111,8 @@ freqcheck <- purrr::map(.x = names(AllMeasuresPrepped$Kaufman_hand_movement.Endl
                                AllMeasuresPrepped$Kaufman_hand_movement.Endline$GroupVector, useNA = "ifany"))
 
 #### Generate Report ####
+
+DIF_Results <- NumberRecog_Treated_Total
 
 rmarkdown::render("Bias_Correction_Report.Rmd")
 

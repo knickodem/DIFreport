@@ -27,6 +27,42 @@ Get_MatchScore <- function(scaledat, drops = NULL){
   return(score)
 }
 
+#### Calculate standardized mean difference from two independent or paired groups ####
+## SD can be pooled by providing sd1 and sd2
+Get_smd <- function(m1, m2, sd1, sd2 = NULL, n1, n2, sample = "ind"){
+  
+  
+  # raw mean difference
+  md <- (m1 - m2)
+  
+  # Use only SD from group 1 or an overall SD
+  if(is.null(sd2)){
+    
+    sigma <- sd1
+    
+  } else {
+    
+    # sigma for independent groups
+    if(sample == "ind"){
+      
+      sigmanum <- (n1 - 1) * (sd1^2) + (n2 - 1) * (sd2^2)
+      sigmadenom <- (n1 + n2 - 2)
+      sigma <- sqrt(sigmanum / sigmadenom)
+      
+    } else{ 
+      
+      # sigma for paired groups
+      sigma <- sqrt((sd1^2 + sd2^2) / 2)
+      
+    }
+  }
+  
+  # Calculating d
+  d <- md / sigma
+  
+  return(d)
+}
+
 
 
 ########################################

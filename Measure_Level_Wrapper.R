@@ -123,8 +123,77 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
 
 
 #### Use information produced from `DIF_analysis` to compare treatment effect estimates ####
-CompareTreatmentEffects <- function(DIFanalysis){}  # Need to alter DIF_analysis output to include all information needed to run comparison
-# pass items that we want to check
+# biased.items - vector of items in `MeasureData` to exclude from score calculation; currently only accepts locations, not names
+CompareTreatmentEffects <- function(MeasureData, groupvec, biased.items, IRTmethod = "ML"){
+  
+  ## levels of the grouping variable
+  group1 <- levels(groupvec)[1] 
+  group2 <- levels(groupvec)[2]
+  
+#### Using Total Score ####
+  # The standardized mean difference with all items included
+  total <- Get_MatchScore(MeasureData)
+  mean_total <- tapply(total, groupvec, mean, na.rm = T)
+  sd_total <- tapply(total, groupvec, sd, na.rm = T)
+  n_total <- tapply(total, groupvec, length)
+  delta_total <- Get_smd(m1 = mean_total[[group1]], m2 = mean_total[[group2]],
+                   sd1 = sd_total[[group1]], sd2 = sd_total[[group2]],
+                   n1 = n_total[[group1]], n2 = n_total[[group2]])
+  
+  # Reliability of total score
+  r_total <- psy::cronbach(MeasureData)$alpha
+  
+  # The standardized mean difference with bias items omitted
+  star <- Get_MatchScore(MeasureData, drops = biased.items)
+  mean_star <- tapply(star, groupvec, mean, na.rm = T)
+  sd_star <- tapply(star, groupvec, sd, na.rm = T)
+  n_star <- tapply(star, groupvec, length)
+  delta_star <- Get_smd(m1 = mean_star[[group1]], m2 = mean_star[[group2]],
+                   sd1 = sd_star[[group1]], sd2 = sd_star[[group2]],
+                   n1 = n_star[[group1]], n2 = n_star[[group2]])
+  
+  # Reliability of total score
+  r_star <- psy::cronbach(MeasureData[,-c(biased.items)])$alpha
+  
+
+#### using irt score ####
+  ## REVISE WORKFLOW TO GRAB mod_scalar FROM DIF ANALYSIS RATHER THAN RE-RUNNING IT
+  mod_scalar <- multipleGroup(MeasureData, model = 1, group = groupvec,
+                              invariance = c('slopes', 'intercepts', 'free_var','free_means'))
+  mod_bo <-   multipleGroup(MeasureData, model = 1, group = groupvec,
+                                            invariance = c(names(MeasureData)[-biased.items],'free_var','free_means'))
+  
+  theta_scalar <- fscores(mod_scalar, method = IRTmethod)
+  theta_bo <- fscores(mod_bo, method = IRTmethod)
+  
+  # The standardized mean difference for the scalar model
+  mean_scalar <- tapply(theta_scalar , groupvec, mean, na.rm = T)
+  sd_scalar <- tapply(theta_scalar , groupvec, sd, na.rm = T)
+  n_scalar <- tapply(theta_scalar, groupvec, length)
+  delta_scalar <- Get_smd(m1 = mean_scalar[[group1]], m2 = mean_scalar[[group2]],
+                        sd1 = sd_scalar[[group1]], sd2 = sd_scalar[[group2]],
+                        n1 = n_scalar[[group1]], n2 = n_scalar[[group2]])
+  
+  # The standardized mean difference for the bias omitted model
+  mean_bo <- tapply(theta_bo , groupvec, mean, na.rm = T)
+  sd_bo <- tapply(theta_bo , groupvec, sd, na.rm = T)
+  n_bo <- tapply(theta_bo, groupvec, length)
+  delta_bo <- Get_smd(m1 = mean_bo[[group1]], m2 = mean_bo[[group2]],
+                          sd1 = sd_bo[[group1]], sd2 = sd_bo[[group2]],
+                          n1 = n_bo[[group1]], n2 = n_bo[[group2]])
+  
+  
+  effects = data.frame(Measure = c("Raw Delta", "Adj. Delta", "Reliability", "Theta Delta"),
+                       All_Items = c(delta_total, (delta_total / sqrt(r_total)), r_total, delta_scalar),
+                       Bias_Omitted = c(delta_star, (delta_star / sqrt(r_star)), r_star, delta_bo))
+  
+  
+return(effects)  
+  
+}
+
 # breakdown by conditional (eg. gender) or unconditional treatment effect
 # observed score with dropped items or fit irt with identified items not constrianed over groups (ml factor scores)
 #   - score, group
+
+

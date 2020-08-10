@@ -58,3 +58,21 @@ Logdif
 
 
 # Overall, using the difR package doesn't seem like it will save a whole lot of time.
+
+
+#### Sample data for exploration ####
+test <- data.frame(a = rbinom(n = 20, size = 1, prob = .5),
+                   b = rbinom(n = 20, size = 1, prob = .3),
+                   c = rbinom(n = 20, size = 1, prob = .8),
+                   d = rbinom(n = 20, size = 1, prob = .5))
+
+tot <- Get_MatchScore(test)
+drop <- Get_MatchScore(test, drops = 2)
+
+tot == drop
+
+dp <- integer()
+drop3 <- Get_MatchScore(test, drops = dp)
+
+tot == drop3
+drop == drop3
