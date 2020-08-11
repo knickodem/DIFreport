@@ -1,5 +1,5 @@
 ---
-title: "Bias Correction Report"
+title: "Measurement Bias Analysis of [Outcome] by [Grouping Variable] in [Dataset]"
 output:
   html_document:
     toc: yes
@@ -18,6 +18,20 @@ source("DIF_Methods_Wrappers.R")
 source("Measure_Level_Wrapper.R")
 
 ```
+# Summary
+
+(Note: this could all be pretty printed from the DIF_analysis function)
+
+Dataset: Name of study from SIEF microdata website
+Outcome variable: [assessment name (item codes)]
+Grouping variable: [variable name (levels)]
+Bias detection method: [MH / logistic regression / IRT]
+Total number of biased items: [n_biased out of N_total]
+  Type of item bias: [uniform / nonuniform] 
+    Number of items uniformly biased toward [level1]: 
+    Number of items uniformly biased toward [level2]: 
+  Summary table for robustness of treatment effects: [insert table] 
+
 
 ```{r Analysis, echo = FALSE, include = FALSE}
 
@@ -34,21 +48,19 @@ DIF_Results <- DIF_analysis(MeasureData = NumberRecog_Treated$MeasureData,
 Supplemental text:
 How were the bias items detected?
 
-## Loess
+# Descriptive analyis via Loess
 
 ```{r loess}
 print(DIF_Results$loess$plot)
 ```
 
-
+# Item-level inferences
 
 ## Mantel-Haenszel
 
 ```{r MH}
 xtable(DIF_Results$MH, digits = 2)
 ```
-
-
 
 ## Logistic Regression
 
@@ -60,8 +72,6 @@ xtable(DIF_Results$logistic$Global, digits = 2)
 ```{r Logistic Item}
 xtable(DIF_Results$logistic$Item, digits = 2)
 ```
-
-
 
 ## Item Response Theory
 
@@ -75,8 +85,3 @@ xtable(DIF_Results$IRT$Global, digits = 2)
 xtable(DIF_Results$IRT$Item, digits = 2)
 ```
 
-
-
-Table of effect sizes - refer to Table 9 in WB paper
-
-Column for original score, column for bias corrected score, mean differences, reliabilities
