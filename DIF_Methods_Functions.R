@@ -33,7 +33,7 @@ Get_smd <- function(m1, m2, sd1, sd2 = NULL, n1, n2, sample = "ind"){
   
   
   # raw mean difference
-  md <- (m1 - m2)
+  md <- (m2 - m1)
   
   # Use only SD from group 1 or an overall SD
   if(is.null(sd2)){
@@ -61,6 +61,36 @@ Get_smd <- function(m1, m2, sd1, sd2 = NULL, n1, n2, sample = "ind"){
   d <- md / sigma
   
   return(d)
+}
+
+smd_wrapper <- function(score, gp, denom = c("control", "pooled")){
+  
+  ## levels of the grouping variable
+  group1 <- levels(gp)[1] 
+  group2 <- levels(gp)[2]
+  
+  means <- tapply(score, gp, mean, na.rm = T)
+  sds <- tapply(score, gp, sd, na.rm = T)
+  
+  if(denom == "control"){
+    
+    delta <- Get_smd(m1 = means[[group1]],
+                     m2 = means[[group2]],
+                     sd1 = sds[[group1]])
+    
+  } else if(denom == "pooled"){
+    
+    ns <- tapply(score, gp, length)
+    delta <- Get_smd(m1 = means[[group1]],
+                     m2 = means[[group2]],
+                     sd1 = sds[[group1]],
+                     sd2 = sds[[group2]],
+                     n1 = ns[[group1]],
+                     n2 = ns[[group2]])
+    
+    
+  }
+  return(delta)
 }
 
 
@@ -102,7 +132,7 @@ Run_loess <- function(scaledat, theItem, group, match,
   return(loess_data)
 }
 
-#### The Mantel-Haenszel method with refinement iteration (Stage 2) ####
+#### The Mantel-Haenszel method ####
 Run_MH <- function(scaledat, theItem, group, match, strata = NULL){
   
 
@@ -113,7 +143,7 @@ Run_MH <- function(scaledat, theItem, group, match, strata = NULL){
 
     ## Runs MH test and catches any errors
     mh <- tryCatch(expr = {
-      mantelhaen.test(scaledat[drop, theItem], group[drop], match[drop], exact = T)
+      mantelhaen.test(x = scaledat[drop, theItem], y = group[drop], z = match[drop], exact = T)
     },
     error = function(e){
       message(paste("Original error:", e))
@@ -128,7 +158,7 @@ Run_MH <- function(scaledat, theItem, group, match, strata = NULL){
     
     ## Runs MH test and catches any errors
     mh <- tryCatch(expr = {
-      mantelhaen.test(scaledat[, theItem], group, stratum, exact = T)
+      mantelhaen.test(x = scaledat[, theItem], y = group, z = stratum, exact = T)
     },
     error = function(e){
       message(paste("Original error:", e))
@@ -140,7 +170,7 @@ Run_MH <- function(scaledat, theItem, group, match, strata = NULL){
   }
   
   MHout <- data.frame(item = names(scaledat)[[theItem]],
-                      OR = mh$estimate[[1]], 
+                      OR = mh$estimate[[1]],       # > 1 if item favors group2, < 1 if item favors group1
                       lower = mh$conf.int[[1]],
                       upper = mh$conf.int[[2]], 
                       pvalue = mh$p.value)

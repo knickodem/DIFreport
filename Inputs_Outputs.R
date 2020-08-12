@@ -41,78 +41,88 @@ source("DIF_Methods_Wrappers.R")
 source("Measure_Level_Wrapper.R")
 
 
-#### Temporary Test runs ####
-## Preparing Data for DIF_analysis
-NumberRecog_Gender <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline, groupvar = "cr_gender")
-NumberRecog_Treated <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline, groupvar = "treated")
+#### Number Recognition Test Run ####
 
+## Conditional effects
+NumberRecog <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
+                                 groupvar = "treated", condvar = "cr_gender")
 
-Motor_Gender <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$MDAT_motor.Midline, groupvar = "cr_gender")
-
-
-x_Gender <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$MDAT_motor.Midline, groupvar = "cr_gender")
-
-Hand_Treated <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$Kaufman_hand_movement.Endline, groupvar = "treated")
-
-## Gender_Rest
-# Total worked too
-NumberRecog_Gender_Rest <- DIF_analysis(MeasureData = NumberRecog_Gender$MeasureData,
-                                        groupvec = NumberRecog_Gender$GroupVector,
-                                        scoreType = "Rest", methods = c("loess", "MH", "logistic", "IRT"),
-                                          MHstrata = tenths)
-
-
-MeasureData = NumberRecog_Gender$MeasureData
-groupvec = NumberRecog_Gender$GroupVector
-scoreType = "Rest"
-
-## Treated_Total
-# Total worked too
-NumberRecog_Treated_Total<- DIF_analysis(MeasureData = NumberRecog_Treated$MeasureData,
-                                        groupvec = NumberRecog_Treated$GroupVector,
-                                        scoreType = "Total", methods = c("loess", "MH", "logistic", "IRT"),
-                                        MHstrata = tenths)
-
-NumberRecod_Treated_Total_Effects <- CompareTreatmentEffects(MeasureData = NumberRecog_Treated$MeasureData,
-                                                             groupvec = NumberRecog_Treated$GroupVector,
-                                                             biased.items = 7)
-
-
-Hand_Treated_Rest <- DIF_analysis(MeasureData = Hand_Treated$MeasureData,
-                                  groupvec = Hand_Treated$GroupVector,
-                                  scoreType = "Rest", methods = c("loess", "MH", "logistic", "IRT"),
+NumberRecog_Tx <- DIF_analysis(MeasureData = NumberRecog$MeasureData,
+                                  groupvec = NumberRecog$GroupVector,
+                                  scoreType = "Total", methods = c("loess", "MH", "logistic", "IRT"),
                                   MHstrata = tenths)
 
+View(NumberRecog_Tx$MH$Item)
+View(NumberRecog_Tx$logistic$Item)
+View(NumberRecog_Tx$IRT$Item)
+
+NumberRecog_Tx$MH$Biased_Items
+NumberRecog_Tx$logistic$Biased_Items
+NumberRecog_Tx$IRT$Biased_Items
 
 
-View(Hand_Treated_Rest$MH)
+## What info do we need to pull from DIF_analysis to automate CompareTreatmentEffects and report in the RMD?
+# Which items are biased? Use it in CompareTreatmentEffects - now output from DIF_analysis for each method
+# type of bias - Logistic and IRT both have indicators
+# Direction of uniform bias - can only get from MH
+
+
+NumberRecog_Gender <- DIF_analysis(MeasureData = NumberRecog$MeasureData,
+                                   groupvec = NumberRecog$CondVector,
+                                   scoreType = "Total", methods = c("loess", "MH", "logistic", "IRT"),
+                                   MHstrata = tenths)
+
+NumberRecog_Gender$loess$plot
+NumberRecog_Gender$MH$Biased_Items
+NumberRecog_Gender$logistic$Biased_Items
+NumberRecog_Gender$IRT$Biased_Items
+
+
+
+View(NumberRecog_Gender$MH$Item)
+View(NumberRecog_Gender$logistic$Item)
+
+
+Tx <- CompareTreatmentEffects(MeasureData = NumberRecog$MeasureData,
+                              groupvec = NumberRecog$GroupVector,
+                              biased.items = NumberRecog_Tx$IRT$Biased_Items,
+                              mod_scalar = NumberRecog_Tx$IRT$Scalar_Mod,
+                              IRTmethod = "WLE")
 
 
 
 
-## All measures
-library(tictoc)
+Males <- CompareTreatmentEffects(MeasureData = NumberRecog$MeasureData[NumberRecog$CondVector == "Male" ,],
+                                 groupvec = NumberRecog$GroupVector[NumberRecog$CondVector == "Male"],
+                                 biased.items = NumberRecog_Tx$IRT$Biased_Items,
+                                 mod_scalar = NULL,
+                                 IRTmethod = "WLE")
 
-tic()
-AllMeasuresPrepped <- purrr::map(.x = MalawiMeasures,
-                                         ~WB_Data_Prep(data = MalawiData, items = .x, groupvar = "cr_gender"))
-toc()
-## currently breaks at stage2IRTdf[,6:9] has incorrect number of dimensions
-tic()
-AllMeasures_Gender_Rest <- purrr::map(.x = AllMeasuresPrepped,
-                                      ~DIF_analysis(MeasureData = .x$MeasureData, groupvec = .x$GroupVector,
-                                                    scoreType = "Rest", methods = c("loess","MH", "logistic", "IRT"),
-                                                    MHstrata = tenths))
-toc()
+Females <- CompareTreatmentEffects(MeasureData = NumberRecog$MeasureData[NumberRecog$CondVector == "Female" ,],
+                                 groupvec = NumberRecog$GroupVector[NumberRecog$CondVector == "Female"],
+                                 biased.items = NumberRecog_Tx$IRT$Biased_Items,
+                                 mod_scalar = NULL,
+                                 IRTmethod = "WLE")
 
 
-freqcheck <- purrr::map(.x = names(AllMeasuresPrepped$Kaufman_hand_movement.Endline$MeasureDat),
-                        ~table(AllMeasuresPrepped$Kaufman_hand_movement.Endline$MeasureData[[.x]],
-                               AllMeasuresPrepped$Kaufman_hand_movement.Endline$GroupVector, useNA = "ifany"))
+
+#### 
+
+Language <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$MDAT_language.Midline,
+                                        groupvar = "treated", condvar = "cr_gender")
+
+Language_Tx <- DIF_analysis(MeasureData = Language$MeasureData,
+                               groupvec = Language$GroupVector,
+                               scoreType = "Rest", methods = c("loess", "MH", "logistic", "IRT"),
+                               MHstrata = tenths)
+
+Language_Tx$loess$plot
+Language_Tx$MH$Biased_Items
+Language_Tx$logistic$Item
+Language_Tx$IRT$
 
 #### Generate Report ####
 
-DIF_Results <- NumberRecog_Treated_Total
 
 rmarkdown::render("Bias_Correction_Report.Rmd")
 

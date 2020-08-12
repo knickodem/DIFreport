@@ -76,3 +76,52 @@ drop3 <- Get_MatchScore(test, drops = dp)
 
 tot == drop3
 drop == drop3
+
+
+#########################
+#### Testing scripts ####
+## All measures
+
+Motor_Gender <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$MDAT_motor.Midline, groupvar = "cr_gender")
+
+
+x_Gender <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$MDAT_motor.Midline, groupvar = "cr_gender")
+
+Hand_Treated <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$Kaufman_hand_movement.Endline, groupvar = "treated")
+
+library(tictoc)
+
+tic()
+AllMeasuresPrepped <- purrr::map(.x = MalawiMeasures,
+                                 ~WB_Data_Prep(data = MalawiData, items = .x, groupvar = "cr_gender"))
+toc()
+
+
+tic()
+AllMeasures_Gender_Rest <- purrr::map(.x = AllMeasuresPrepped,
+                                      ~DIF_analysis(MeasureData = .x$MeasureData, groupvec = .x$GroupVector,
+                                                    scoreType = "Rest", methods = c("loess","MH", "logistic", "IRT"),
+                                                    MHstrata = tenths))
+toc()
+
+
+freqcheck <- purrr::map(.x = names(AllMeasuresPrepped$Kaufman_hand_movement.Endline$MeasureDat),
+                        ~table(AllMeasuresPrepped$Kaufman_hand_movement.Endline$MeasureData[[.x]],
+                               AllMeasuresPrepped$Kaufman_hand_movement.Endline$GroupVector, useNA = "ifany"))
+
+
+
+
+library(dplyr)
+check <- MalawiData %>%
+  filter(cr_gender == "Male" & !is.na(treated)) %>%
+  select(contains("recog"), -RECOG_tot_3) %>%
+  filter(rowSums(is.na(.)) != 20)
+check[is.na(check)] <- 0
+names(check) <- gsub("_3","",names(check))
+
+check2 <-  NumberRecog_Cond$MeasureData[NumberRecog_Cond$CondVector == "Male" ,]
+
+row.names(check2) <- NULL
+all.equal(check2, check)
+identical(check, check2)
