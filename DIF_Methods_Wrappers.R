@@ -58,12 +58,12 @@ Get_loess <- function(scaledat, group, scoreType, match_on){
   loess_df$item <- factor(loess_df$item, levels = names(scaledat))
   
   ## Plotting the results
-  p <- ggplot(loess_df, aes(x = score, y = prob, group = group)) +
+  p <- ggplot(loess_df, aes(x = score, y = prob, group = group)) +  # group variable currently prints in alphabetical order
     geom_line(aes(color = group), lwd = .8) +
     geom_ribbon(aes(ymin = prob - 1.96*SE,
                     ymax = prob + 1.96*SE,
                     fill = group), alpha = .4) +
-    labs(x = paste(scoreType, "Score"), y = "Item Regression") +
+    labs(x = paste(scoreType, "Score"), y = "Pr(Correct Response)") +
     theme_bw(base_size = 16) +
     facet_wrap(~ item)
   
@@ -159,11 +159,15 @@ Get_MH <- function(scaledat, group, scoreType,
   # Output dataframe combining stage 1 and stage 2
   names(MH1)[-1] <- paste0("Initial_", names(MH1)[-1])
   names(MH2)[-1] <- paste0("Refined_", names(MH2)[-1])
-  MH <- cbind(MH1, MH2[,-1])
+  
+  MH <- list(Item = cbind(MH1, MH2[,-1]),
+             Biased_Items = which(MH2$Refined_bias == 1))   # Special use cases might throw errors here
   
   } else {
+    
     names(MH1)[-1] <- paste0("Initial_", names(MH1)[-1])
-    MH <- MH1
+    MH <- list(Item = MH1,
+               Biased_Items = "No uniform DIF was detected")
   }
   
   return(MH)
@@ -270,16 +274,18 @@ Get_Logistic <- function(scaledat, group, scoreType, match_on){
     #### Output dataframe combining stage 1 and stage 2 ####
     names(stage1modcompdf)[-c(1:2)] <- paste0("Initial_", names(stage1modcompdf)[-c(1:2)])
     names(stage2modcompdf)[-c(1:2)] <- paste0("Refined_", names(stage2modcompdf)[-c(1:2)])
-    ItemLog <- cbind(stage1modcompdf, stage2modcompdf[,c(1:2)])
+    ItemLog <- cbind(stage1modcompdf, stage2modcompdf[,-c(1:2)])
     
     
     LogisticDIF <- list(Global = globalLogistic$Model_Comparison,
-                       Item = ItemLog)
+                       Item = ItemLog,
+                       Biased_Items = which(stage2modcompdf$Refined_bias == 1))
     
   } else {
     
     LogisticDIF <- list(Global = globalLogistic$Model_Comparison,
-                        Item = "No Item DIF was detected through logistic model comparisons")
+                        Item = "No item DIF was detected through logistic model comparisons",
+                        Biased_Items = "No DIF was detected")
   }
 
   return(LogisticDIF)
@@ -356,21 +362,40 @@ Get_IRT <- function(scaledat, group){
         RefinedIRTdf <- cbind(rownames(stage2IRTdf), data.frame(stage2IRTdf[,6:9], row.names = NULL))
         names(RefinedIRTdf) <- c("Item", "Refined_X2", "Refined_df", "Refined_p", "Refined_bias")
         
+        ## Combining initial and refined output
+        ItemIRT <- merge(x = InitialIRTdf, y = RefinedIRTdf, by = "Item", all.x = TRUE, all.y = FALSE)
+        
+        ## Ordering items
+        ItemIRT$Item <- factor(ItemIRT$Item, levels = names(scaledat))
+        ItemIRT <- ItemIRT[order(ItemIRT$Item), ]
+        row.names(ItemIRT) <- NULL
+        bi <- which(ItemIRT$Refined_bias == TRUE | is.na(ItemIRT$Refined_bias))
+        
         ## Merging initial and refined stage results
         IRTdif <- list(Global = globalIRT$Model_Comparison,
-                       Item = merge(x = InitialIRTdf, y = RefinedIRTdf, by = "Item", all.x = TRUE, all.y = FALSE))
+                       Item = ItemIRT,
+                       Biased_Items = bi,
+                       Scalar_Mod = globalIRT$Scalar_Mod)
         
       } else {
         
+        InitialIRTdf$Item <- factor(InitialIRTdf$Item, levels = names(scaledat))
+        InitialIRTdf <- InitialIRTdf[order(InitialIRTdf$Item), ]
+        row.names(InitialIRTdf) <- NULL
+        
         IRTdif <- list(Global = globalIRT$Model_Comparison,
-                       Item = InitialIRTdf)
+                       Item = InitialIRTdf,
+                       Biased_Items = "No DIF was detected",
+                       Scalar_Mod = globalIRT$Scalar_Mod)
         message("Global IRT model comparisons suggested DIF, but none was found when through inidividual item comparisons.")
       }
       
     }  else {
       
       IRTdif <- list(Global = globalIRT$Model_Comparison,
-                     Item = "No Item DIF was detected through IRT model comparisons")
+                     Item = "No item DIF was detected through IRT model comparisons",
+                     Biased_Items = "No DIF was detected",
+                     Scalar_Mod = globalIRT$Scalar_Mod)
     }
   }
   
