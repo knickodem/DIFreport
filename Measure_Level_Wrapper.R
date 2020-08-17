@@ -138,7 +138,10 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
   all <- list(loess = loess,
               MH = MH,
               logistic = logistic,
-              IRT = IRT)
+              IRT = IRT,
+              Inputs = list(data = MeasureData,
+                            group = groupvec,
+                            scoreType = scoreType))
   
   return(all)
   
@@ -149,7 +152,7 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
 # biased.items - vector of items in `MeasureData` to exclude from score calculation; currently only accepts locations, not names
 # IRT based deltas will be NaNs if any IRT score is +/- Inf
 # Might need to include functionality if there are no biased.items
-CompareTreatmentEffects <- function(MeasureData, groupvec, groupvec2 = NULL,
+CompareTreatmentEffects <- function(MeasureData, groupvec,
                                     biased.items, mod_scalar = NULL, IRTmethod = "ML"){
   
   
@@ -191,9 +194,19 @@ CompareTreatmentEffects <- function(MeasureData, groupvec, groupvec2 = NULL,
   
   
   #### Compiling Results ####  
-  effects = data.frame(Measure = c("Raw Delta", "Adj. Delta", "Reliability", "Theta Delta"),
-                       All_Items = c(delta_total, (delta_total / sqrt(r_total)), r_total, delta_scalar),
-                       Bias_Omitted = c(delta_star, (delta_star / sqrt(r_star)), r_star, delta_bo))
+  # effects = data.frame(Measure = c("Raw Delta", "Adj. Delta", "Reliability", "Theta Delta"),
+  #                      All_Items = c(delta_total, (delta_total / sqrt(r_total)), r_total, delta_scalar),
+  #                      Bias_Omitted = c(delta_star, (delta_star / sqrt(r_star)), r_star, delta_bo))
+  
+  effectsdf <- data.frame(Items = c("All Items", "Bias Omitted"),
+                          `Raw Delta` = c(delta_total, delta_star),
+                          `Adj. Delta` = c((delta_total / sqrt(r_total)), (delta_star / sqrt(r_star))),
+                          Reliability = c(r_total, r_star),
+                          `Theta Delta` = c(delta_scalar, delta_bo),
+                          check.names = FALSE)
+  
+  effects <- list(Effects_Table = effectsdf,
+                  Comparison = paste(levels(groupvec)[[2]], "-", levels(groupvec)[[1]]))
   
   
   return(effects)  

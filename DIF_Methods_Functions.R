@@ -93,6 +93,18 @@ smd_wrapper <- function(score, gp, denom = c("control", "pooled")){
   return(delta)
 }
 
+#### Shortcut for extracting the biased items identified by each DIF method ####
+Biased_Items_by_Method <- function(DIF_Results){
+  
+  Methods <- DIF_Results[c("MH", "logistic", "IRT")]
+  Methods <- Methods[!sapply(Methods,is.null)]
+  
+  out <- lapply(Methods, "[[", "Biased_Items")
+  
+  
+  return(out)
+}
+
 
 
 ########################################

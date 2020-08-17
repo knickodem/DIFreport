@@ -1,87 +1,124 @@
 ---
-title: "Measurement Bias Analysis of [Outcome] by [Grouping Variable] in [Dataset]"
+author: "PFH & KKN" 
 output:
-  html_document:
+html_document:
     toc: yes
-always_allow_html: yes
+    always_allow_html: yes
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(options(knitr.kable.NA = ''))
+
 
 library(knitr)
 library(rmarkdown)
-library(xtable)
-
-source("DIF_Methods_Functions.R")
-source("DIF_Methods_Wrappers.R")
-source("Measure_Level_Wrapper.R")
+library(kableExtra)
 
 ```
+
+---
+title: "`r paste0(Measure_Name, ": ", Assessment_Name, " Report")`"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+---
+
+
 # Summary
 
-(Note: this could all be pretty printed from the DIF_analysis function)
 
-Dataset: Name of study from SIEF microdata website
-Outcome variable: [assessment name (item codes)]
-Grouping variable: [variable name (levels)]
-Bias detection method: [MH / logistic regression / IRT]
-Total number of biased items: [n_biased out of N_total]
-  Type of item bias: [uniform / nonuniform] 
-    Number of items uniformly biased toward [level1]: 
-    Number of items uniformly biased toward [level2]: 
-  Summary table for robustness of treatment effects: [insert table] 
+Dataset: `r Measure_Name`
 
+Outcome variable: `r paste0(Assessment_Name,  " (", item_name_range, ")")`
 
-```{r Analysis, echo = FALSE, include = FALSE}
+Grouping variable: `r paste0(Comparison_Name, " (", grouping_levs, ")")`
 
-## Conducting the DIF analysis
-DIF_Results <- DIF_analysis(MeasureData = NumberRecog_Treated$MeasureData,
-                                        groupvec = NumberRecog_Treated$GroupVector,
-                                        scoreType = "Total", methods = c("loess", "MH", "logistic", "IRT"),
-                                        MHstrata = tenths)
+Bias detection method: `r paste(bias_method, "using", DIF_Results$Inputs$scoreType, "scores")`
+
+Total number of biased items: `r paste(n_biased, "out of", n_items)`
+
+Type of item bias: `r bias_type`
+
+  
+```{r direction}
+if(bias_method == "MH"){
+  
+  cat("Number of items uniformly biased toward [level1]:", toward1)
+  cat("\n\n")
+  cat("Number of items uniformly biased toward [level2]:", toward2)
+  
+}
+```
+  
+
+```{r Summary Table}
+
+if(is.null(conditional)){
+  
+  cat("## Unconditional")
+  cat("\n\n")
+  cat("Summary table for robustness of unconditional treatment effects") #(comparing `r Tx$Comparison`)) 
+  cat("\n\n")
+  
+  kable(UnconditionalEffects$Effects_Table, digits = 2)
+} else {
+  
+  cat("## Conditional")
+  
+  # Summary table for robustness of conditional treatment effects for `r levels(NumberRecog$CondVector)[[1]]` (comparing `r Tx$Comparison`)
+  # 
+  # kable(ConditionalEffects1$Effects_Table, digits = 2)
+  # 
+  # Summary table for robustness of conditional treatment effects for `r levels(NumberRecog$CondVector)[[2]]` (comparing `r Tx$Comparison`)
+  # 
+  # kable(ConditionalEffects2$Effects_Table, digits = 2)
+}
 
 ```
 
 
 
-Supplemental text:
-How were the bias items detected?
 
-# Descriptive analyis via Loess
+
+# Comparing Bias Detection Methods
+
+## Descriptive analyis via Loess
 
 ```{r loess}
 print(DIF_Results$loess$plot)
 ```
 
-# Item-level inferences
 
 ## Mantel-Haenszel
 
 ```{r MH}
-xtable(DIF_Results$MH, digits = 2)
+kable(DIF_Results$MH$Item, digits = 2)
 ```
 
 ## Logistic Regression
 
+#### Global Comparison
+
 ```{r Logistic Global}
-xtable(DIF_Results$logistic$Global, digits = 2)
+kable(DIF_Results$logistic$Global, digits = 2)
 ```
 
+#### Item-level
 
 ```{r Logistic Item}
-xtable(DIF_Results$logistic$Item, digits = 2)
+kable(DIF_Results$logistic$Item, digits = 2)
 ```
 
 ## Item Response Theory
 
 
+#### Global Comparison
+
 ```{r IRT Global}
-xtable(DIF_Results$IRT$Global, digits = 2)
+kable(DIF_Results$IRT$Global, digits = 2, row.names = FALSE)
 ```
 
+#### Item-level
 
 ```{r IRT Item}
-xtable(DIF_Results$IRT$Item, digits = 2)
+kable(DIF_Results$IRT$Item, digits = 2)
 ```
-
