@@ -199,10 +199,10 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
   #                      Bias_Omitted = c(delta_star, (delta_star / sqrt(r_star)), r_star, delta_bo))
   
   effectsdf <- data.frame(Items = c("All Items", "Bias Omitted"),
+                          `Theta Delta` = c(delta_scalar, delta_bo),
                           `Raw Delta` = c(delta_total, delta_star),
                           `Adj. Delta` = c((delta_total / sqrt(r_total)), (delta_star / sqrt(r_star))),
                           Reliability = c(r_total, r_star),
-                          `Theta Delta` = c(delta_scalar, delta_bo),
                           check.names = FALSE)
   
   effects <- list(Effects_Table = effectsdf,
@@ -211,4 +211,109 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
   
   return(effects)  
   
+}
+
+# Options for bias_method are "MH", "logistic", and "IRT"
+# IRT_score_method is passed to mirt::fscores
+# To request conditional treatment effects, provide DIF_analysis results using the conditional variable to DIF_Results argument,
+# and the vector of treatment condition to conditional argument
+Get_Report <- function(DIF_Results, Assessment_Name, Measure_Name, Comparison_Name = "Treatment Condition",
+                       bias_method = "IRT", IRT_score_method = "WLE",
+                       conditional = NULL){
+  
+  ## Determining if any DIF items were detected, if so extract them
+  if(is.null(DIF_Results[[bias_method]])){
+    
+    stop(paste(bias_method, "DIF analysis was not found. Use the DIF_analysis function with", bias_method, "in the methods argument"))
+    
+  } else {
+    
+    BIs <- Biased_Items_by_Method(DIF_Results)[[bias_method]]
+    
+    if(is.character(BIs)){
+      stop(paste(BIs, "by", bias_method))}
+  }
+  
+  
+  ## Gathering information for summary report
+  n_items <- ncol(DIF_Results$Inputs$data)                    # total items in measure
+  n_biased <- length(DIF_Results[[bias_method]]$Biased_Items) # number of items identified as biased
+  item_name_range <- paste(names(DIF_Results$Inputs$data)[[1]], "-", names(DIF_Results$Inputs$data)[[n_items]])
+  
+  # levels of the comparison variable
+  comp1 <- levels(DIF_Results$Inputs$group)[[1]]
+  comp2 <- levels(DIF_Results$Inputs$group)[[2]]
+  comparison_levs <- paste(comp1, comp2, sep = ", ") 
+  
+  ## Gather info uniquely for each DIF method
+  if(bias_method == "MH"){
+    
+    bias_type <- "uniform"
+    
+    MHtemp <- DIF_Results$MH$Item
+    
+    toward1 <- nrow(MHtemp[MHtemp$Refined_bias == TRUE & MHtemp$Refined_OR < 1, ])
+    toward2 <- nrow(MHtemp[MHtemp$Refined_bias == TRUE & MHtemp$Refined_OR > 1, ])
+    
+  } else if(bias_method == "logistic"){
+    
+    bias_type <- ifelse(DIF_Results$logistic$Item$dif.type[[1]] == "uni", "uniform",
+                        ifelse(DIF_Results$logistic$Item$dif.type[[1]] == "non", "non-uniform", "uniform and non-uniform"))
+    
+    
+  } else if(bias_method == "IRT"){
+    
+    bias_type <- ifelse(DIF_Results$IRT$Item$Parameter[[1]] == "d", "uniform",
+                        ifelse(DIF_Results$IRT$Item$Parameter[[1]] == "a1", "non-uniform", "uniform and non-uniform"))
+    
+  }
+  
+  
+  
+  if(is.null(conditional)){ # For the unconditional effects
+    
+    UnconditionalEffects <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data,
+                                                    groupvec = DIF_Results$Inputs$group,
+                                                    biased.items = BIs,
+                                                    mod_scalar = DIF_Results$IRT$Scalar_Mod,  # Automatically pulls from DIF_Results, but could make this an option
+                                                    IRTmethod = IRT_score_method)
+    
+  } else if(length(levels(conditional)) == 2){
+    
+    # levels of the condition variable (currently intended to be treatment condition)
+    cond1 <- levels(conditional)[[1]]
+    cond2 <- levels(conditional)[[2]]
+    condition_levs <- paste(cond1, cond2, sep = ", ") # combining levels for printing in report
+    
+    
+    ## Treatment effect subset by comp1
+    ConditionalEffects1 <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data[DIF_Results$Inputs$group == comp1, ],
+                                                   groupvec = conditional[DIF_Results$Inputs$group == comp1],
+                                                   biased.items = BIs,
+                                                   mod_scalar = NULL,
+                                                   IRTmethod = "WLE")
+    
+    ## Treatment effect subset by comp2
+    ConditionalEffects2 <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data[DIF_Results$Inputs$group == comp2, ],
+                                                   groupvec = conditional[DIF_Results$Inputs$group == comp2],
+                                                   biased.items = BIs,
+                                                   mod_scalar = NULL,
+                                                   IRTmethod = "WLE")
+
+    ## Calculating interaction
+    cond1mat <- as.matrix(ConditionalEffects1$Effects_Table[,c(2,3,4)]) # Converting numeric columns in dataframe to matrix
+    cond2mat <- as.matrix(ConditionalEffects2$Effects_Table[,c(2,3,4)])
+    CondEffDiff <- as.data.frame(cond1mat - cond2mat)                   # Calculating the difference
+    InteractionEffects <- cbind(data.frame(Item = ConditionalEffects1$Effects_Table$Items), CondEffDiff) # converting back to dataframe
+    
+    
+  } else {
+    stop("conditional must be a factor with two levels")
+  }
+  
+  
+  ## Naming output file and running report
+  filename <- paste0(Assessment_Name, "-", Measure_Name, " by ", Comparison_Name, ".html")
+  rmarkdown::render("Bias_Correction_Report.Rmd",
+                    output_file = filename)
 }

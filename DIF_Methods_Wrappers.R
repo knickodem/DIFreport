@@ -75,7 +75,6 @@ Get_loess <- function(scaledat, group, scoreType, match_on){
 }
 
 
-
 #######################################
 
 
