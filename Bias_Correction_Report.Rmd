@@ -1,9 +1,9 @@
 ---
 author: "PFH & KKN" 
 output:
-html_document:
-    toc: yes
-    always_allow_html: yes
+   html_document:
+      toc: TRUE
+      always_allow_html: TRUE
 ---
 
 ```{r setup, include = FALSE}
@@ -13,112 +13,197 @@ knitr::opts_chunk$set(options(knitr.kable.NA = ''))
 
 library(knitr)
 library(rmarkdown)
-library(kableExtra)
+library(flextable)
 
 ```
 
 ---
-title: "`r paste0(Measure_Name, ": ", Assessment_Name, " Report")`"
+title: "`r paste0(Assessment_Name, ": ", Measure_Name, " Report")`"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 ---
-
 
 # Summary
 
 
-Dataset: `r Measure_Name`
+**Dataset:** `r Assessment_Name`
 
-Outcome variable: `r paste0(Assessment_Name,  " (", item_name_range, ")")`
+**Outcome variable:** `r paste0(Measure_Name,  " (", item_name_range, ")")`
 
-Grouping variable: `r paste0(Comparison_Name, " (", grouping_levs, ")")`
+**Comparison variable:** `r paste0(Comparison_Name, " (", comparison_levs, ")")`
 
-Bias detection method: `r paste(bias_method, "using", DIF_Results$Inputs$scoreType, "scores")`
+**Bias detection method:** `r paste(bias_method, "using", DIF_Results$Inputs$scoreType, "Scores")`
 
-Total number of biased items: `r paste(n_biased, "out of", n_items)`
+**Total number of biased items:** `r paste(n_biased, "out of", n_items)`
 
-Type of item bias: `r bias_type`
+**Type of item bias:** `r bias_type`
 
   
-```{r direction}
+```{r direction, results='asis'}
 if(bias_method == "MH"){
   
-  cat("Number of items uniformly biased toward [level1]:", toward1)
+  cat("* Number of items uniformly biased toward " ,comp1,": ", toward1, sep = "")
   cat("\n\n")
-  cat("Number of items uniformly biased toward [level2]:", toward2)
+  cat("* Number of items uniformly biased toward " ,comp2,": ", toward2, sep = "")
   
 }
 ```
   
 
-```{r Summary Table}
+```{r Summary Table, results='asis'}
 
 if(is.null(conditional)){
   
-  cat("## Unconditional")
-  cat("\n\n")
-  cat("Summary table for robustness of unconditional treatment effects") #(comparing `r Tx$Comparison`)) 
+  cat("## Unconditional Effects")
   cat("\n\n")
   
-  kable(UnconditionalEffects$Effects_Table, digits = 2)
+  cat("Summary table for robustness of unconditional treatment effects (comparing ", UnconditionalEffects$Comparison, ")", sep  ="") 
+  cat("\n\n")
+  
+  unctab <- Get_Flex(UnconditionalEffects$Effects_Table)
+  cat(knit_print(unctab))
+  cat("\n\n")
+  
 } else {
   
-  cat("## Conditional")
+  cat("## Conditional Effects")
+  cat("\n\n")
   
-  # Summary table for robustness of conditional treatment effects for `r levels(NumberRecog$CondVector)[[1]]` (comparing `r Tx$Comparison`)
-  # 
-  # kable(ConditionalEffects1$Effects_Table, digits = 2)
-  # 
-  # Summary table for robustness of conditional treatment effects for `r levels(NumberRecog$CondVector)[[2]]` (comparing `r Tx$Comparison`)
-  # 
-  # kable(ConditionalEffects2$Effects_Table, digits = 2)
+  cat("Summary table for robustness of conditional treatment effects for ", comp1, " (comparing ", ConditionalEffects1$Comparison, ")", sep  ="") 
+  cat("\n\n")
+  
+  condeff1tab <- Get_Flex(ConditionalEffects1$Effects_Table)
+  cat(knit_print(condeff1tab))
+  cat("\n\n")
+  
+  cat("&nbsp;  ")
+  cat("\n\n")
+  cat("Summary table for robustness of conditional treatment effects for ", comp2, " (comparing ", ConditionalEffects2$Comparison, ")", sep  ="") 
+  cat("\n\n")
+  
+  condeff2tab <- Get_Flex(ConditionalEffects2$Effects_Table)
+  cat(knit_print(condeff2tab))
+  cat("\n\n")
+  
+  cat("&nbsp;  ")
+  cat("\n\n")
+  cat("Interaction of treatment effect by ", Comparison_Name, " (", comp1, " - ", comp2, ")", sep = "")
+  cat("\n\n")
+  inttab <- Get_Flex(InteractionEffects)
+  cat(knit_print(inttab))
+  cat("\n\n")
 }
 
 ```
 
+*Note:* Adj. Delta  = Raw Delta / sqrt(Reliability)
 
 
 
 
 # Comparing Bias Detection Methods
 
-## Descriptive analyis via Loess
+```{r loess, results='asis'}
 
-```{r loess}
-print(DIF_Results$loess$plot)
+if(!is.null(DIF_Results$loess)){
+  cat("## Descriptive analyis via Loess")
+  cat("\n\n")
+  
+  print(DIF_Results$loess$plot)
+  
+}
 ```
 
 
-## Mantel-Haenszel
 
-```{r MH}
-kable(DIF_Results$MH$Item, digits = 2)
+
+```{r MH, results='asis'}
+
+if(!is.null(DIF_Results$MH)){
+  
+  cat("## Mantel-Haenszel")
+  cat("\n\n")
+    
+  if(class(DIF_Results$MH$Item) == "character"){
+        
+    cat(DIF_Results$MH$Item)
+    cat("\n\n")
+    
+  } else {
+    
+    MHtab <- Get_Flex(DIF_Results$MH$Item, boldbias = "item")
+    cat(knit_print(MHtab))
+    cat("\n\n")
+  }
+}
 ```
 
-## Logistic Regression
 
-#### Global Comparison
 
-```{r Logistic Global}
-kable(DIF_Results$logistic$Global, digits = 2)
+
+```{r Logistic Global, results='asis'}
+if(!is.null(DIF_Results$logistic)){
+  
+  cat("## Logistic Regression")
+  cat("\n\n")
+  
+  cat("#### Global Comparison")
+  cat("\n\n")
+
+  logglobtab <- Get_Flex(DIF_Results$logistic$Global, boldbias = "global")
+  cat(knit_print(logglobtab))
+  cat("\n\n")
+  
+  cat("&nbsp;  ")
+  cat("\n\n")
+  cat("#### Item-level")
+  cat("\n\n")
+  
+  if(class(DIF_Results$logistic$Item) == "character"){
+    
+    cat(DIF_Results$logistic$Item)
+    cat("\n\n")
+        
+  } else {
+    
+    logitemtab <- Get_Flex(DIF_Results$logistic$Item, boldbias = "item")
+    cat(knit_print(logitemtab))
+    cat("\n\n")
+  }
+
+}
 ```
 
-#### Item-level
 
-```{r Logistic Item}
-kable(DIF_Results$logistic$Item, digits = 2)
-```
+```{r IRT Global, results='asis'}
 
-## Item Response Theory
+if(!is.null(DIF_Results$IRT)){
 
+  cat("## Item Response Theory")
+  cat("\n\n")
+  
+  cat("#### Global Comparison")
+  cat("\n\n")
+  
+  irtglobtab <- Get_Flex(DIF_Results$IRT$Global, boldbias = "global")
+  cat(knit_print(irtglobtab))
+  cat("\n\n")
+ 
+  cat("&nbsp;  ")
+  cat("\n\n")
+  cat("#### Item-level")
+  cat("\n\n")
+  
+  if(class(DIF_Results$IRT$Item) == "character"){
+    
+    cat(DIF_Results$IRT$Item)
+    cat("\n\n")
+        
+  } else {
+    
+    irtitemtab <- Get_Flex(DIF_Results$IRT$Item, boldbias = "item")
+    cat(knit_print(irtitemtab))
+    cat("\n\n")
+  }
+}
 
-#### Global Comparison
-
-```{r IRT Global}
-kable(DIF_Results$IRT$Global, digits = 2, row.names = FALSE)
-```
-
-#### Item-level
-
-```{r IRT Item}
-kable(DIF_Results$IRT$Item, digits = 2)
 ```

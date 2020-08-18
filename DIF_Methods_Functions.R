@@ -8,6 +8,7 @@
 # These functions carry out the DIF analysis. Some run at the item level while others are at the measure level
 # Also included are other specialized functions, such as calculating the rest or total scores
 
+# ---- Treatment effect and Reporting functions  ------------------
 
 #### Calculate Match Score ####
 # scaledat - dataframe of item responses used to calculate the score
@@ -105,10 +106,34 @@ Biased_Items_by_Method <- function(DIF_Results){
   return(out)
 }
 
+#### Converting dataframe to print-ready table ####
+# boldbias can be "no" (default) for no bolding, "item" if an item table, or "global" for a global table
+Get_Flex <- function(df, boldbias = "no"){
+  
+  numericcols <- which(unlist(lapply(df, is.numeric)))
+  
+  ftab <- flextable(df)
+  ftab <- colformat_num(ftab, j = numericcols, digits = 2)
+  
+  if(boldbias == "item"){
+    
+    lastcol <- names(df)[[ncol(df)]]
+    ftab <- bold(ftab, i = as.formula(paste("~", lastcol,"== TRUE")), part =  "body")
+    
+  } else if(boldbias == "global"){
+    
+    ftab <- bold(ftab, i = ~ p < .05, part =  "body")
+  }
+  
+  ftab <- autofit(ftab)
+  
+  return(ftab)
+}
+
+#######################################################################
 
 
-########################################
-#### A function for each DIF method ####
+# ----- A function for each DIF method -----------------------------
 
 #### the loess method ####
 Run_loess <- function(scaledat, theItem, group, match,
@@ -221,20 +246,21 @@ Run_GlobalLogistic <- function(scaledat, group, match_list){
   
   ## Omnibus test for any DIF 
   anyDIF.test <- anova(mod0, mod1, mod2, test = "LRT")
-  anyDIF.test$Model <- c("Baseline", "Uniform", "Non-uniform")
+  anyDIF.test$model <- c("Baseline", "Uniform", "Non-uniform")
+  names(anyDIF.test) <- c("resid.df", "resid.dev", "df", "deviance", "p", "model")
   
   # Possible DIF to test for
   testfor <- c("uni", "non")
   
   # Is there non-uniform DIF?
-  if(anyDIF.test$`Pr(>Chi)`[[3]] > .05){
+  if(anyDIF.test$p[[3]] > .05){
     
     testfor <- testfor[-2] # If not, drop non-uniform indicator
     
   }
   
   # Is there uniform DIF
-  if(anyDIF.test$`Pr(>Chi)`[[2]] > .05){
+  if(anyDIF.test$p[[2]] > .05){
     
     testfor <- tryCatch(expr = testfor[-1],   # If not, then drop uniform indicator
                         error = function(e){
