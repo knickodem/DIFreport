@@ -18,24 +18,32 @@ library(flextable)
 ```
 
 ---
-title: "`r paste0(Assessment_Name, ": ", Measure_Name, " Report")`"
+title: "`r paste0("Measurement Bias Analysis of ", Measure_Name, " by ", Comparison_Name, " in ", Dataset_Name)`"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 ---
 
 # Summary
 
 
-**Dataset:** `r Assessment_Name`
+**Dataset:** `r Dataset_Name`
 
 **Outcome variable:** `r paste0(Measure_Name,  " (", item_name_range, ")")`
 
 **Comparison variable:** `r paste0(Comparison_Name, " (", comparison_levs, ")")`
+
+**Items with no variance:^a^** `r nvi`
+
+**Items with no within group variance:^b^** `r nvgi`
 
 **Bias detection method:** `r paste(bias_method, "using", DIF_Results$Inputs$scoreType, "Scores")`
 
 **Total number of biased items:** `r paste(n_biased, "out of", n_items)`
 
 **Type of item bias:** `r bias_type`
+
+^a^ Items were not included in the DIF analysis nor the IRT-based treatment effect robustness check
+
+^b^ Items were not included in the IRT-based DIF analysis nor the IRT-based treatment effect robustness check
 
   
 ```{r direction, results='asis'}
@@ -51,53 +59,61 @@ if(bias_method == "MH"){
 
 ```{r Summary Table, results='asis'}
 
-if(is.null(conditional)){
+if(!is.character(BIs)){
+    
+  if(is.null(conditional)){
+    
+    cat("## Unconditional Effects")
+    cat("\n\n")
+    
+    cat("Summary table for robustness of unconditional treatment effects (comparing ", UnconditionalEffects$Comparison, ")", sep  ="") 
+    cat("\n\n")
+    
+    unctab <- Get_Flex(UnconditionalEffects$Effects_Table)
+    cat(knit_print(unctab))
+    cat("\n\n")
+    
+  } else {
   
-  cat("## Unconditional Effects")
-  cat("\n\n")
+    cat("## Conditional Effects")
+    cat("\n\n")
   
-  cat("Summary table for robustness of unconditional treatment effects (comparing ", UnconditionalEffects$Comparison, ")", sep  ="") 
-  cat("\n\n")
+    cat("Summary table for robustness of conditional treatment effects for ", comp1, " (comparing ", ConditionalEffects1$Comparison, ")", sep  = "") 
+    cat("\n\n")
   
-  unctab <- Get_Flex(UnconditionalEffects$Effects_Table)
-  cat(knit_print(unctab))
-  cat("\n\n")
+    condeff1tab <- Get_Flex(ConditionalEffects1$Effects_Table)
+    cat(knit_print(condeff1tab))
+    cat("\n\n")
+  
+    cat("&nbsp;  ")
+    cat("\n\n")
+    cat("Summary table for robustness of conditional treatment effects for ", comp2, " (comparing ", ConditionalEffects2$Comparison, ")", sep  = "") 
+    cat("\n\n")
+    
+    condeff2tab <- Get_Flex(ConditionalEffects2$Effects_Table)
+    cat(knit_print(condeff2tab))
+    cat("\n\n")
+    
+    cat("&nbsp;  ")
+    cat("\n\n")
+    cat("Interaction of treatment effect by ", Comparison_Name, " (", comp1, " - ", comp2, ")", sep = "")
+    cat("\n\n")
+    inttab <- Get_Flex(InteractionEffects)
+    cat(knit_print(inttab))
+    cat("\n\n")
+  }
+  
+  cat("&nbsp;  ")
+  cat("*Note:* Adj. Delta  = Raw Delta / sqrt(Reliability)")
   
 } else {
   
-  cat("## Conditional Effects")
-  cat("\n\n")
-  
-  cat("Summary table for robustness of conditional treatment effects for ", comp1, " (comparing ", ConditionalEffects1$Comparison, ")", sep  ="") 
-  cat("\n\n")
-  
-  condeff1tab <- Get_Flex(ConditionalEffects1$Effects_Table)
-  cat(knit_print(condeff1tab))
-  cat("\n\n")
-  
-  cat("&nbsp;  ")
-  cat("\n\n")
-  cat("Summary table for robustness of conditional treatment effects for ", comp2, " (comparing ", ConditionalEffects2$Comparison, ")", sep  ="") 
-  cat("\n\n")
-  
-  condeff2tab <- Get_Flex(ConditionalEffects2$Effects_Table)
-  cat(knit_print(condeff2tab))
-  cat("\n\n")
-  
-  cat("&nbsp;  ")
-  cat("\n\n")
-  cat("Interaction of treatment effect by ", Comparison_Name, " (", comp1, " - ", comp2, ")", sep = "")
-  cat("\n\n")
-  inttab <- Get_Flex(InteractionEffects)
-  cat(knit_print(inttab))
-  cat("\n\n")
+    cat("\n\n")
+    cat(NoDIFmessage)
+    cat("\n\n")
 }
 
 ```
-
-*Note:* Adj. Delta  = Raw Delta / sqrt(Reliability)
-
-
 
 
 # Comparing Bias Detection Methods
