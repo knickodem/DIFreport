@@ -72,7 +72,6 @@ NumberRecog_Gender <- DIF_analysis(MeasureData = NumberRecog$MeasureData,
                                    scoreType = "Total", methods = c("loess", "MH", "IRT"),
                                    MHstrata = tenths)
 
-
 # Tx <- CompareTreatmentEffects(MeasureData = NumberRecog$MeasureData,
 #                               groupvec = NumberRecog$GroupVector,
 #                               biased.items = NumberRecog_Tx$IRT$Biased_Items,
