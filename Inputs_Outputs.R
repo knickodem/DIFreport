@@ -107,7 +107,5 @@ for (i in 1:length(MalawiMeasures)){
              bias_method = "IRT",
              conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
     
-    
-  
 }
 
