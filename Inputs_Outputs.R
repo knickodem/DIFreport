@@ -41,77 +41,45 @@ source("DIF_Methods_Functions.R")
 source("DIF_Methods_Wrappers.R")
 source("Measure_Level_Wrapper.R")
 
-WB_Measures <- purrr::map(.x = MalawiMeasures, ~WB_Data_Prep(data = MalawiData, items = .x,
-                                                             groupvar = "treated", condvar = "cr_gender"))
 
-# Uncond_DIF_Total <- purrr::map(.x = WB_Measures, ~DIF_analysis(MeasureData = .x$MeasureData,
-#                                                                groupvec = .x$GroupVector,
-#                                                                scoreType = "Total",
-#                                                                methods = c("loess", "MH", "logistic", "IRT"),
-#                                                                MHstrata = tenths))
+#### Preparing Malawi Data ####
 
-
-#### Number Recognition Test Run ####
-
-## Formatting Data
-# DIF by Treatment condition; Conditioning effects by gender
-NumberRecog <- WB_Data_Prep(data = MalawiData, items = MalawiMeasures$EGMA_number_recognition.Endline,
-                                 groupvar = "treated", condvar = "cr_gender")
+WB_Measures <- purrr::map(.x = MalawiMeasures, ~WB_Data_Prep(data = MalawiData,
+                                                             items = .x,
+                                                             groupvar = "treated",   # Treamtent condition as grouping variable
+                                                             condvar = "cr_gender")) # Gender as conditioning variable
 
 
-## Detecting DIF by Treatment condition
-# Using Total scores; deciles for MH
-NumberRecog_Tx <- DIF_analysis(MeasureData = NumberRecog$MeasureData,
-                                  groupvec = NumberRecog$GroupVector,
-                                  scoreType = "Total", methods = c("loess", "MH", "logistic", "IRT"),
-                                  MHstrata = tenths)
+#### Test Runs ####
+## Using Rest scores; deciles for MH
+# Unconditional Example
+Unconditional1 <- DIF_analysis(MeasureData = WB_Measures[[1]]$MeasureData,
+                               groupvec = WB_Measures[[1]]$GroupVector,     # For unconditional, use vector for treatment condition
+                               scoreType = "Rest",
+                               methods = c("loess", "MH", "logistic", "IRT"),
+                               MHstrata = tenths)
 
 
-NumberRecog_Gender <- DIF_analysis(MeasureData = NumberRecog$MeasureData,
-                                   groupvec = NumberRecog$CondVector,
-                                   scoreType = "Total", methods = c("loess", "MH", "IRT"),
-                                   MHstrata = tenths)
-
-# Tx <- CompareTreatmentEffects(MeasureData = NumberRecog$MeasureData,
-#                               groupvec = NumberRecog$GroupVector,
-#                               biased.items = NumberRecog_Tx$IRT$Biased_Items,
-#                               mod_scalar = NumberRecog_Tx$IRT$Scalar_Mod,
-#                               IRTmethod = "WLE")
-
-#### Generate Report ####
-
-## Unconditional
-Get_Report(DIF_Results = NumberRecog_Tx,
-           Assessment_Name = "Malawi",
-           Measure_Name = gsub("_", " ", gsub("\\.", " at ", "EGMA_number_recognition.Endline")))
-
-## Conditional
-Get_Report(DIF_Results = NumberRecog_Gender,
-           Assessment_Name = "Malawi",
-           Measure_Name = gsub("_", " ", gsub("\\.", " at ", "EGMA_number_recognition.Endline")),
-           Comparison_Name = "Gender",
-           bias_method = "MH",
-           conditional = NumberRecog$GroupVector)
-
-
-
-######################################################
-
-#### Other Test Runs ####
-# Using Rest scores; deciles for MH
-UnconditionalTest <- DIF_analysis(MeasureData = WB_Measures$MDAT_language.Midline$MeasureData,
-                                 groupvec = WB_Measures$MDAT_language.Midline$GroupVector,
-                                 scoreType = "Rest", methods = c("loess", "MH", "logistic", "IRT"),
-                                 MHstrata = tenths)
-
-Get_Report(DIF_Results = UnconditionalTest,
-           Assessment_Name = "Malawi",
+Get_Report(DIF_Results = Unconditional1,
+           Dataset_Name = "Malawi",
            Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),
-           bias_method = "IRT") # returns error that "No DIF was detected by logistic/MH/IRT"
-
-## Get_Report needs an output option when no dif was detected
-
+           bias_method = "IRT",
+           conditional = NULL) # the default
 
 
-  
+
+
+# Conditional Example
+Conditional7 <- DIF_analysis(MeasureData = WB_Measures[[7]]$MeasureData,
+                             groupvec = WB_Measures[[7]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)
+                             scoreType = "Rest",
+                             methods = c("loess", "MH", "logistic", "IRT"),
+                             MHstrata = tenths)
+
+Get_Report(DIF_Results = Conditional7,
+           Dataset_Name = "Malawi",
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),
+           bias_method = "IRT",
+           conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
+
 

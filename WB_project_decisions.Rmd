@@ -35,6 +35,15 @@ Comparing results from our code to using the difR package as a sensitivity check
  - At first glance, it does not seem like using difR would save much time/debugging issues 
 
 
+## What should Get_Report (or CompareTreatmentEffects) do if scalar_mod cannot be estimated? Just report raw score
+# Same for WB_Measures[[4]], WB_Measures[[6]] (gave all kinds of low frequency errors; use this one as the test case for removing items:
+# nr17 nr18 nr19 nr20 nr21 nr22 ),
+# sam for WB_Measures[[9]] 
+# WB_Measures[[1]], WB_Measures[[8]] don't seem to have DIF by Tx
+# WB_Measures[[3]] has 108 items; WB_Measures[[5]] has 142; these take a while
+# WB_Measures[[7]] is number recog
+
+
 
 # Decisions, assumptions, and defaults
 
