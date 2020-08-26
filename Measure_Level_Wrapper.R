@@ -30,7 +30,7 @@ WB_Data_Prep <- function(data, items, groupvar, condvar = NULL){
   group <- data[drop_cases, ][[groupvar]]    # from the grouping variable vector
   
   ## Replacing remaining NAs with 0
-  MeasureData[is.na(MeasureData)] <- 0       
+  MeasureData[is.na(MeasureData)] <- 0
   
   ## If examining conditional effects
   if(!is.null(condvar)){
@@ -60,7 +60,23 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
                          methods = c("loess", "MH", "logistic", "IRT"),        # could incorporate a shortcut for "all"
                          MHstrata = NULL){ 
   
-  ## Number of items in the measure
+  #### Identifying problematic items ####
+  MDorig <- MeasureData # saving original data with all items for use in loess
+  
+  ## Items with no variance
+  var_check <- lapply(MeasureData, var)
+  nvi <- which(var_check == 0)
+  
+  ## Items with no variance for one group (think about other ways to do this)
+  var_check_group <- lapply(MeasureData, function(x){sum(table(x, groupvec) == 0)})
+  nvgi <- which(var_check_group > 0)
+  
+  ## Removing items with no variance from the data, if they exist
+  if(length(nvi) > 0){
+  MeasureData <- MeasureData[-c(nvi)]
+  }
+  
+  ## Number of items in the measure for dif analysis
   n_items <- ncol(MeasureData)
   
   ## Calculating vector of total scores or list of rest scores
@@ -80,10 +96,31 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
   #### LOESS ####
   if("loess" %in% methods){
     
-    loess <- Get_loess(scaledat = MeasureData,
+    
+    if(length(nvi) > 0){
+      
+      ## Calculating vector of total scores or list of rest scores
+      if(scoreType == "Rest"){ # Returns a list with n_items elements of length = nrow(MeasureData)
+        
+        loess_match <- lapply(c(1:ncol(MDorig)), Get_MatchScore, scaledat = MDorig) 
+        
+      } else if(scoreType == "Total"){ # a single vector of length = nrow(MeasureData)
+        
+        loess_match <- Get_MatchScore(scaledat = MDorig, drops = NULL)
+        
+      }  else {
+        stop("that's weird")
+      } 
+    } else {
+      loess_match <- match_scores
+    }
+    
+    
+    
+    loess <- Get_loess(scaledat = MDorig,
                        group = groupvec,
                        scoreType = scoreType,
-                       match_on = match_scores)
+                       match_on = loess_match)
     
   } else{
     
@@ -100,7 +137,7 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
                  stage1.match_scores = match_scores,
                  strata = MHstrata) 
     
-  } else{
+  } else {
     
     MH <- NULL
     
@@ -127,7 +164,12 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
   #### Item Response Theory ####
   if("IRT" %in% methods){
     
-    IRT <- Get_IRT(scaledat = MeasureData, group = groupvec)
+    ## Removing items with no within group variance, if they exist
+    if(length(nvgi) > 0){
+      MeasureData <- MeasureData[-c(nvgi)]
+    }
+    
+    IRT <- Get_IRT(scaledat = MeasureData, group = groupvec) # also drops items with no variance for a particular group
     
   } else{
     
@@ -139,9 +181,11 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
               MH = MH,
               logistic = logistic,
               IRT = IRT,
-              Inputs = list(data = MeasureData,
+              Inputs = list(data = MDorig,
                             group = groupvec,
-                            scoreType = scoreType))
+                            scoreType = scoreType,
+                            No_Var_Items = nvi,
+                            No_Var_by_Group_Items = nvgi))
   
   return(all)
   
@@ -151,9 +195,9 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
 #### Use information produced from `DIF_analysis` to compare treatment effect estimates ####
 # biased.items - vector of items in `MeasureData` to exclude from score calculation; currently only accepts locations, not names
 # IRT based deltas will be NaNs if any IRT score is +/- Inf
-# Might need to include functionality if there are no biased.items
 CompareTreatmentEffects <- function(MeasureData, groupvec,
-                                    biased.items, mod_scalar = NULL, IRTmethod = "ML"){
+                                    biased.items, no.var.items = numeric(),
+                                    mod_scalar = NULL, IRTmethod = "ML"){
   
   
   #### Using Total Score ####
@@ -172,6 +216,11 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
   
 
   #### Using IRT Score ####
+  
+  # Removing items with no variance, if they exist
+  if(length(no.var.items) > 0){
+    MeasureData <- MeasureData[-c(no.var.items)]
+  }
   
   ## IRT model with parameters constrained to be equal between groups
   if(is.null(mod_scalar)){
@@ -217,11 +266,11 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
 # IRT_score_method is passed to mirt::fscores
 # To request conditional treatment effects, provide DIF_analysis results using the conditional variable to DIF_Results argument,
 # and the vector of treatment condition to conditional argument
-Get_Report <- function(DIF_Results, Assessment_Name, Measure_Name, Comparison_Name = "Treatment Condition",
+Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name = "Treatment Condition",
                        bias_method = "IRT", IRT_score_method = "WLE",
                        conditional = NULL){
   
-  ## Determining if any DIF items were detected, if so extract them
+  ## Determining whether the bias_method is was used for the DIF analysis
   if(is.null(DIF_Results[[bias_method]])){
     
     stop(paste(bias_method, "DIF analysis was not found. Use the DIF_analysis function with", bias_method, "in the methods argument"))
@@ -230,20 +279,35 @@ Get_Report <- function(DIF_Results, Assessment_Name, Measure_Name, Comparison_Na
     
     BIs <- Biased_Items_by_Method(DIF_Results)[[bias_method]]
     
-    if(is.character(BIs)){
-      stop(paste(BIs, "by", bias_method))}
   }
-  
   
   ## Gathering information for summary report
   n_items <- ncol(DIF_Results$Inputs$data)                    # total items in measure
   n_biased <- length(DIF_Results[[bias_method]]$Biased_Items) # number of items identified as biased
   item_name_range <- paste(names(DIF_Results$Inputs$data)[[1]], "-", names(DIF_Results$Inputs$data)[[n_items]])
+  nvi <- ifelse(length(DIF_Results$Inputs$No_Var_Items) !=0,
+                paste(names(DIF_Results$Inputs$No_Var_Items), collapse = ", "), "none")     # Names of items with no variance
+  nvgi <- ifelse(length(DIF_Results$Inputs$No_Var_by_Group_Items) !=0,
+                 paste(names(DIF_Results$Inputs$No_Var_by_Group_Items), collapse = ", "), "none") # names of items with no within group variance
   
   # levels of the comparison variable
   comp1 <- levels(DIF_Results$Inputs$group)[[1]]
   comp2 <- levels(DIF_Results$Inputs$group)[[2]]
   comparison_levs <- paste(comp1, comp2, sep = ", ") 
+  
+  ## Determining whether any biased items were identified. If not, run report without robustness check
+  if(is.character(BIs)){
+    
+   NoDIFmessage <- paste0(BIs, " by ", bias_method, ". Therefore, a treatment effect robustness check was not performed.")
+    
+    n_biased <- 0
+    bias_type <- "none"
+    
+    ## Naming output file and running report
+    filename <- paste0(Dataset_Name, "-", Measure_Name, " by ", Comparison_Name, ".html")
+    rmarkdown::render("Bias_Correction_Report.Rmd",
+                      output_file = filename)
+    } else {
   
   ## Gather info uniquely for each DIF method
   if(bias_method == "MH"){
@@ -275,6 +339,7 @@ Get_Report <- function(DIF_Results, Assessment_Name, Measure_Name, Comparison_Na
     UnconditionalEffects <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data,
                                                     groupvec = DIF_Results$Inputs$group,
                                                     biased.items = BIs,
+                                                    no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
                                                     mod_scalar = DIF_Results$IRT$Scalar_Mod,  # Automatically pulls from DIF_Results, but could make this an option
                                                     IRTmethod = IRT_score_method)
     
@@ -290,6 +355,7 @@ Get_Report <- function(DIF_Results, Assessment_Name, Measure_Name, Comparison_Na
     ConditionalEffects1 <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data[DIF_Results$Inputs$group == comp1, ],
                                                    groupvec = conditional[DIF_Results$Inputs$group == comp1],
                                                    biased.items = BIs,
+                                                   no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
                                                    mod_scalar = NULL,
                                                    IRTmethod = "WLE")
     
@@ -297,6 +363,7 @@ Get_Report <- function(DIF_Results, Assessment_Name, Measure_Name, Comparison_Na
     ConditionalEffects2 <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data[DIF_Results$Inputs$group == comp2, ],
                                                    groupvec = conditional[DIF_Results$Inputs$group == comp2],
                                                    biased.items = BIs,
+                                                   no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
                                                    mod_scalar = NULL,
                                                    IRTmethod = "WLE")
 
@@ -311,9 +378,9 @@ Get_Report <- function(DIF_Results, Assessment_Name, Measure_Name, Comparison_Na
     stop("conditional must be a factor with two levels")
   }
   
-  
   ## Naming output file and running report
-  filename <- paste0(Assessment_Name, "-", Measure_Name, " by ", Comparison_Name, ".html")
+  filename <- paste0(Dataset_Name, "-", Measure_Name, " by ", Comparison_Name, ".html")
   rmarkdown::render("Bias_Correction_Report.Rmd",
                     output_file = filename)
+    }
 }
