@@ -196,23 +196,26 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
 # biased.items - vector of items in `MeasureData` to exclude from score calculation; currently only accepts locations, not names
 # IRT based deltas will be NaNs if any IRT score is +/- Inf
 CompareTreatmentEffects <- function(MeasureData, groupvec,
-                                    biased.items, no.var.items = numeric(),
+                                    biased.items = NULL, no.var.items = numeric(),
                                     mod_scalar = NULL, IRTmethod = "ML"){
-  
+
   
   #### Using Total Score ####
   
-  ## Calculating scores
   total <- Get_MatchScore(MeasureData)
-  star <- Get_MatchScore(MeasureData, drops = biased.items)
-  
-  ## Standardized mean differences
   delta_total <- smd_wrapper(score = total, gp = groupvec, denom = "control")
-  delta_star <- smd_wrapper(score = star, gp = groupvec, denom = "control")
-  
-  ## Reliabilities
   r_total <- psy::cronbach(MeasureData)$alpha
-  r_star <- psy::cronbach(MeasureData[,-c(biased.items)])$alpha
+  
+  # Kludge to run without biased items
+  if (is.null(biased.items)) {
+    star <- total
+    delta_star <- delta_total
+    r_star <- r_total 
+  } else {  
+    star <- Get_MatchScore(MeasureData, drops = biased.items)
+    delta_star <- smd_wrapper(score = star, gp = groupvec, denom = "control")
+    r_star <- psy::cronbach(MeasureData[,-c(biased.items)])$alpha
+  }  
   
 
   #### Using IRT Score ####
@@ -230,8 +233,13 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
     
   }
   ## IRT model with parameter constraints freed for biased.items
-  mod_bo <-   multipleGroup(MeasureData, model = 1, group = groupvec,
-                            invariance = c(names(MeasureData)[-biased.items],'free_var','free_means'))
+  
+  if(is.null(biased.items)) { #Kludge to run without biased items
+    mod_bo <- mod_scalar 
+  } else {  
+   mod_bo <- multipleGroup(MeasureData, model = 1, group = groupvec,
+                           invariance = c(names(MeasureData)[-biased.items],'free_var','free_means'))
+  }
   
   ## Calculating IRT scores
   theta_scalar <- fscores(mod_scalar, method = IRTmethod)
@@ -248,8 +256,8 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
   #                      Bias_Omitted = c(delta_star, (delta_star / sqrt(r_star)), r_star, delta_bo))
   
   effectsdf <- data.frame(Items = c("All Items", "Bias Omitted"),
-                          `Theta Delta` = c(delta_scalar, delta_bo),
-                          `Raw Delta` = c(delta_total, delta_star),
+                          `IRT Delta` = c(delta_scalar, delta_bo),
+                          `Scale Delta` = c(delta_total, delta_star),
                           `Adj. Delta` = c((delta_total / sqrt(r_total)), (delta_star / sqrt(r_star))),
                           Reliability = c(r_total, r_star),
                           check.names = FALSE)
@@ -270,6 +278,9 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
                        bias_method = "IRT", IRT_score_method = "WLE",
                        conditional = NULL){
   
+  # Need to fix this
+  if (!is.null(conditional)) {Comparison_Name = "Gender"}
+  
   ## Determining whether the bias_method is was used for the DIF analysis
   if(is.null(DIF_Results[[bias_method]])){
     
@@ -278,12 +289,18 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
   } else {
     
     BIs <- Biased_Items_by_Method(DIF_Results)[[bias_method]]
-    
+    n_biased <- length(BIs)
+   
+    # Kludge to run even without BIs
+    if(BIs[1] == "No DIF was detected") {
+      BIs <- NULL
+      n_biased <- 0
+    }
   }
   
   ## Gathering information for summary report
   n_items <- ncol(DIF_Results$Inputs$data)                    # total items in measure
-  n_biased <- length(DIF_Results[[bias_method]]$Biased_Items) # number of items identified as biased
+  # n_biased <- length(DIF_Results[[bias_method]]$Biased_Items) # number of items identified as biased
   item_name_range <- paste(names(DIF_Results$Inputs$data)[[1]], "-", names(DIF_Results$Inputs$data)[[n_items]])
   nvi <- ifelse(length(DIF_Results$Inputs$No_Var_Items) !=0,
                 paste(names(DIF_Results$Inputs$No_Var_Items), collapse = ", "), "none")     # Names of items with no variance
@@ -295,22 +312,28 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
   comp2 <- levels(DIF_Results$Inputs$group)[[2]]
   comparison_levs <- paste(comp1, comp2, sep = ", ") 
   
-  ## Determining whether any biased items were identified. If not, run report without robustness check
-  if(is.character(BIs)){
-    
-   NoDIFmessage <- paste0(BIs, " by ", bias_method, ". Therefore, a treatment effect robustness check was not performed.")
-    
-    n_biased <- 0
-    bias_type <- "none"
-    
-    ## Naming output file and running report
-    filename <- paste0(Dataset_Name, "-", Measure_Name, " by ", Comparison_Name, ".html")
-    rmarkdown::render("Bias_Correction_Report.Rmd",
-                      output_file = filename)
-    } else {
+  # # Determining whether any biased items were identified. If not, run report without robustness check
+  # if(is.character(BIs)){
+  # 
+  #  NoDIFmessage <- paste0(BIs, " by ", bias_method, ". Therefore, a treatment effect robustness check was not performed.")
+  # 
+  #   n_biased <- 0
+  #   bias_type <- "none"
+  # 
+  #   ## Naming output file and running report
+  #   filename <- paste0(Dataset_Name, "-", Measure_Name, " by ", Comparison_Name, ".html")
+  #   rmarkdown::render("Bias_Correction_Report.Rmd",
+  #                     output_file = filename)
+  #   } else {
   
   ## Gather info uniquely for each DIF method
-  if(bias_method == "MH"){
+  
+  # Kludge to run even without BIs
+  if (is.null(BIs)) {
+    
+    bias_type <- "NA"
+    
+  } else if(bias_method == "MH"){
     
     bias_type <- "uniform"
     
@@ -321,17 +344,16 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
     
   } else if(bias_method == "logistic"){
     
-    bias_type <- ifelse(DIF_Results$logistic$Item$dif.type[[1]] == "uni", "uniform",
-                        ifelse(DIF_Results$logistic$Item$dif.type[[1]] == "non", "non-uniform", "uniform and non-uniform"))
+    bias_type <- ifelse(DIF_Results$logistic$Item[1, 3] == 1, "uniform", "non-uniform")
+            #ifelse(DIF_Results$logistic$Item$df[[1]] == 2, "non-uniform", "uniform and non-uniform"))
     
     
   } else if(bias_method == "IRT"){
     
-    bias_type <- ifelse(DIF_Results$IRT$Item$Parameter[[1]] == "d", "uniform",
-                        ifelse(DIF_Results$IRT$Item$Parameter[[1]] == "a1", "non-uniform", "uniform and non-uniform"))
+    bias_type <- ifelse(DIF_Results$IRT$Item[1, 3] == 1, "uniform", "non-uniform")
+          #ifelse(DIF_Results$IRT$Item$Parameter[[1]] == "a1", "non-uniform", "uniform and non-uniform"))
     
   }
-  
   
   
   if(is.null(conditional)){ # For the unconditional effects
@@ -382,5 +404,5 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
   filename <- paste0(Dataset_Name, "-", Measure_Name, " by ", Comparison_Name, ".html")
   rmarkdown::render("Bias_Correction_Report.Rmd",
                     output_file = filename)
-    }
+  #}
 }

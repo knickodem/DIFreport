@@ -1,0 +1,2094 @@
+sum(x == 4.61)
+sum(x == 4.59)
+sum(x == 4.60)
+x
+x[452]
+x[460]
+x[461]
+sum(x == 4.6)
+x[461] == 4.6
+x[461]
+x[461] > 4.6
+x <- round(seq(0, 10, by = .01), 2)
+x[461] > 4.6
+x[461] = 4.6
+x <- round(seq(0, 10, by = .01), 2)
+x[461] == 4.6
+t%in%x
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+l <- lambda(x, t, mu, alpha, beta)#
+lpoints <- l[x%in%t]
+lpoints
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 2) # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+ind <- which(x%in%t)
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 1) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 1) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2) fill = "white") + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 1) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), fill = "white") + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 1) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), fill = "grey") + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 1) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "grey") + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), col = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 20, col = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 19, col = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 7), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)")#
+p1
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)")#
+p2
+p1
+p2
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- round(sort(runif(8, 0, 10)), 1)#
+N <- seq(1:8)#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 7), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)")#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 7), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      ylim(c(0,10))#
+p1
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)") +#
+      ylim(c(0,10))#
+p2
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 7), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10))#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 7), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10))#
+      ylim(c(0,10))#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 7), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+t <- c(0, round(sort(runif(8, 0, 10)), 1)#
+N <- seq(1:9)#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 7), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+t <- c(0, round(sort(runif(8, 0, 10)), 1))
+t
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- seq(1:9)#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 7), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- seq(1:9)#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+df
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- seq(1:9)#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+t <- c(0, round(sort(runif(8, 0, 10)), 1))
+t
+N <- seq(1:9)
+N
+t <- c(0, round(sort(runif(8, 0, 10)), 1)#
+N <- seq(0:8)#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+df
+t <- c(0, round(sort(runif(8, 0, 10)), 1)
+t
+t <- c(0, round(sort(runif(8, 0, 10)), 1))
+t
+N <- seq(0:8)
+N
+N <- seq(0:8)
+N
+N <- 0:8
+N
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N
+df
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), -2), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_point(x = t) +  # Solid points to left#
+      geom_segment() +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(1, times = 8), 46)) +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+t
+df
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(1, times = 8))) +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(1, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(2, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(1, times = 8)), col = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}  #
+#
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)") +#
+      xlim(c(0,10))#
+p2
+x <- round(seq(0, 10, by = .01), 2)#
+l <- lambda(x, t[-1], mu, alpha, beta)#
+ind <- which(x%in%t[-1])#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)") +#
+      xlim(c(0,10))#
+p2
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("(t)") +#
+      xlim(c(0,10))#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab("expression(lambda)(t)") +#
+      xlim(c(0,10))#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(paste0(expression(lambda),"(t)")) +#
+      xlim(c(0,10))#
+p2
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(paste0(lambda,"(t)"))) +#
+      xlim(c(0,10))#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression((lambda"(t)"))) +#
+      xlim(c(0,10))#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda"(t)")) +#
+      xlim(c(0,10))#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(paste0(lambda,"(t)"))) +#
+      xlim(c(0,10))#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression((lambda,"(t)"))) +#
+      xlim(c(0,10))#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression((lambda(t)))) +#
+      xlim(c(0,10))#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10))#
+p2
+x <- seq(0, 5)
+g1 <- gamma(x, 1, 1)
+x <- seq(0, 5)#
+g1 <- dgamma(x, 1, 1)#
+g2 <- dgamma(x, 2, 1)#
+g3 <- dgamma(x, 3, 3)#
+g4 <- dgamma(x, 2, 4)
+x <- rep(seq(0, 5, by = .1), times = 4)
+x <- rep(seq(0, 5, by = .1), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 3, 3), dgamma(x, 2, 4))
+dgamma
+paste("shape = ", c(1,2,2,3), "rate =", c(1,1,4,3))
+paste("shape = ", c(1,2,2,3), ", rate =", c(1,1,4,3))
+paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3))
+parms <- paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3))
+parms <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))
+parms
+df4 <- data.frame(x, g, parms)
+p2 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line()
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line() #
+p3
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parms <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = parms))
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = parms)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) +#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = parms)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) #
+p3
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = c(1,2,3,4))) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      main("Example response functions")#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = c(1,2,3,4))) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      title("Example response functions")#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = c(1,2,3,4))) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = group)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = parms)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = parms), col = c(1,2,3,4)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = rep(c(1,2,3,4), each = length(x)))) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+c(1,2,3,4)
+rep(c(1,2,3,4), each = length(x))
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(color = rep(c(1,2,3,4), each = length(x)))) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(color = rep(c(1,2,3,4), each = length(x)))) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(color = rep(c(1,2,3,4), each = length(x))) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(linetype = rep(c(1,2,3,4), each = length(x))) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(linetype = parms)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+p2
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10))#
+p2
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8))#
+p1#
+#
+# lambda t ------------------------------------#
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count")#
+p1#
+#
+# lambda t ------------------------------------#
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}  #
+#
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function")#
+p2#
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parms <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(linetype = parms)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions")#
+p3
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count") + #
+      theme(axis.text.y = element_blank()#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count") + #
+      theme(axis.text.y = element_blank())#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count")
+p1
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count")#
+       + #
+      theme(axis.text.y = element_blank())#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count") + #
+      theme(axis.text.y = element_blank())#
+p1
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function") + #
+      theme(axis.text.y = element_blank())#
+p2
+p3 <- ggplot(df4, aes(x = x, y = g, group = parms)) + #
+      geom_line(aes(linetype = parms)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions") + #
+      theme(axis.text.y = element_blank())#
+p3
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions") + #
+      theme(axis.text.y = element_blank())#
+p3
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parameters <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions") + #
+      theme(axis.text.y = element_blank())#
+p3
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "black") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count") + #
+      theme(axis.text.y = element_blank())#
+p1#
+#
+# lambda t ------------------------------------#
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}  #
+#
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line() +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function") + #
+      theme(axis.text.y = element_blank())#
+p2#
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parameters <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters)) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "#0076BA") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count") + #
+      theme(axis.text.y = element_blank())#
+p1
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment() +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "#0076BA") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count") + #
+      theme(axis.text.y = element_blank())#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#0076BA") +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), fill = "#0076BA") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count") + #
+      theme(axis.text.y = element_blank())#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#0076BA") +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#0076BA", fill = "#0076BA") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#0076BA", fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count") + #
+      theme(axis.text.y = element_blank())#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#0076BA" size = 1) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#0076BA", fill = "#0076BA") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#0076BA", fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (Node 2)") + #
+      theme(axis.text.y = element_blank())#
+p1
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#0076BA", size = 1) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#0076BA", fill = "#0076BA") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#0076BA", fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (Node 2)") + #
+      theme(axis.text.y = element_blank())#
+p1
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#1DB100") +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#0076BA", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2)) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#1DB100") +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#0076BA", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#0076BA") + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#1DB100", size = 1) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#0076BA", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#0076BA") + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#1DB100", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#0076BA", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#0076BA") + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#F8BA00", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#F8BA00", fill = "#F8BA00") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#F8BA00", fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (Node 2)") + #
+      theme(axis.text.y = element_blank())#
+p1#
+#
+# lambda t ------------------------------------#
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}  #
+#
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#1DB100", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#F8BA00", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#F8BA00") + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#0076BA", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#0076BA", fill = "#0076BA") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#0076BA", fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (Node 2)") + #
+      theme(axis.text.y = element_blank())#
+p1
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#0076BA", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#0076BA", fill = "#0076BA") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#0076BA", fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (Node 2)") + #
+      theme(axis.text.y = element_blank())#
+p1
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#1DB100", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#0076BA", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#0076BA") + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#73FDEA", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#0076BA", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#0076BA") + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parameters <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters), col = "#73FDEA") +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#00A2FF", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#00A2FF", fill = "#00A2FF") +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#00A2FF", fill = "white") +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (Node 2)") + #
+      theme(axis.text.y = element_blank())#
+p1
+# lambda t ------------------------------------#
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}  #
+#
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#1DB100", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#00A2FF", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#00A2FF") + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters), col = "#1DB100") +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parameters <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters), col = "#1DB100") +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+scale_fill_hue()
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#00BA38", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#619cff", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#619cff") + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#00BA38", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#619cff", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#619cff", size = 1) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#00BA38", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#619cff", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#619cff", size = 3) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#00BA38", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#619cff", fill = "white") + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#619cff", size = 2) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#00BA38", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#619cff", fill = "white", size = 2) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#619cff", size = 2) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#619cff", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#619cff", fill = "#619cff", size = 2) +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#619cff", fill = "white", size = 2) +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (Node 2)") + #
+      theme(axis.text.y = element_blank())#
+p1
+# lambda t ------------------------------------#
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}  #
+#
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#00BA38", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#619cff", fill = "white", size = 2) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#619cff", size = 2) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (Node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters), col = "#00BA38") +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parameters <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters), col = "#00BA38") +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters), col = "#00BA38", size = .8) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#619cff", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#619cff", fill = "#619cff", size = 2) +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#619cff", fill = "white", size = 2) +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (node 2)") + #
+      theme(axis.text.y = element_blank())#
+p1#
+#
+# lambda t ------------------------------------#
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}  #
+#
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#00BA38", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#619cff", fill = "white", size = 2) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#619cff", size = 2) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (node 1)") + #
+      theme(axis.text.y = element_blank())#
+p2#
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parameters <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters), col = "#00BA38", size = .8) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank())#
+p3
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#619cff", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#619cff", fill = "#619cff", size = 2) +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#619cff", fill = "white", size = 2) +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (node 2)") + #
+      theme(axis.text.y = element_blank(), text = element_text(size=20))#
+p1
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#619cff", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#619cff", fill = "#619cff", size = 2) +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#619cff", fill = "white", size = 2) +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (node 2)") + #
+      theme(axis.text.y = element_blank(), text = element_text(size=20))#
+p1
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#619cff", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#619cff", fill = "#619cff", size = 2) +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#619cff", fill = "white", size = 2) +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (node 2)") + #
+      theme(axis.text.y = element_blank(), text = element_text(size=15))#
+p1
+library(ggplot2)#
+set.seed(102)#
+#
+# Nt plot ------------------------------------#
+t <- c(0, round(sort(runif(8, 0, 10)), 1))#
+N <- 0:8#
+df <- data.frame(t, N)#
+df$tend <- c(df$t[2:nrow(df)], 10)#
+df$Nend <- df$N#
+p1 <- ggplot(df, aes(x = t, y = N, xend = tend, yend = Nend)) +#
+      geom_segment(col = "#619cff", size = .8) +#
+      geom_point(x = t, shape = c(46, rep(21, times = 8)), col = "#619cff", fill = "#619cff", size = 2) +#
+      geom_point(aes(x = tend, y = N), shape = c(rep(21, times = 8), 46), col = "#619cff", fill = "white", size = 2) +#
+      xlab("t") +#
+      ylab("N[0, t)") + #
+      xlim(c(0,10)) +#
+      ylim(c(0,8)) + #
+      ggtitle("Cumulative event count (node 2)") + #
+      theme(axis.text.y = element_blank(), text = element_text(size=15))#
+p1#
+#
+# lambda t ------------------------------------#
+lambda <- function(x, t, mu, alpha, beta) {#
+  n <- length(x)#
+  out <- rep(mu, times = n)#
+  for (i in 1:n) {#
+    if (x[i] > t[1]) {#
+      out[i] <- mu + alpha * sum(dexp(beta * (x[i] - t[t < x[i]] )))  #
+    }  #
+  }#
+  out#
+}  #
+#
+mu = .2#
+alpha = .4#
+beta = 1#
+x <- round(seq(0, 10, by = .01), 2)#
+t <- t[-1]#
+l <- lambda(x, t, mu, alpha, beta)#
+ind <- which(x%in%t)#
+lpoints <- l[ind]#
+lpoints2 <- l[ind+1]#
+df2 <- data.frame(x, l)#
+df3 <- data.frame(t, lpoints, lpoints2)#
+p2 <- ggplot(df2, aes(x = x, y = l)) + #
+      geom_line(col = "#00BA38", size = .8) +#
+      geom_point(df3, mapping = aes(x = t, y = lpoints), shape = 21, col = "#619cff", fill = "white", size = 2) + #
+      geom_point(df3, mapping = aes(x = t, y = lpoints2), col = "#619cff", size = 2) + # Solid points to left#
+      xlab("t") +#
+      ylab(expression(lambda(t))) +#
+      xlim(c(0,10)) + #
+      ggtitle("Conditional intensity function (node 1)") + #
+      theme(axis.text.y = element_blank(), text = element_text(size=15))#
+p2#
+x <- rep(seq(0, 5, by = .01), times = 4)#
+g <- c(dgamma(x, 1, 1), dgamma(x, 2, 1), dgamma(x, 2, 4), dgamma(x, 3, 3))#
+parameters <- rep(paste0("shape = ", c(1,2,2,3), ", rate = ", c(1,1,4,3)), each = length(x))#
+#
+df4 <- data.frame(x, g, parms)#
+p3 <- ggplot(df4, aes(x = x, y = g, group = parameters)) + #
+      geom_line(aes(linetype = parameters), col = "#00BA38", size = .8) +  #
+      xlab("Time since event") +#
+      ylab(expression(phi(t))) + #
+      ggtitle("Example response functions (gamma density)") + #
+      theme(axis.text.y = element_blank(), text = element_text(size=15))#
+p3
+x <- runif(20)#
+tr = .2
+trimmer <- function(x, tr, na.rm = TRUE)  {#
+          n <- length(x)#
+          data <- x[order(x)]#
+          g <- trunc(tr*n)#
+          first <- g + 1#
+          last <- n - g#
+         output <- list() #
+	 output$trimmed <- data[first:last]#
+          output$trim.mean <- mean(trimmed)#
+          output$trim.var <- var(trimmed)#
+          output$trim.sd <- sd(trimmed)#
+          cat("Trimming Factor", tr*100,"Percent", "\n")#
+          cat("Trimed Mean",  output$trim.mean, "\n")#
+          cat("Trimmed Variance",  output$trim.var, "\n")#
+          cat("Trimmed Standard Deviation",  output$trim.sd, "\n")#
+          return(trimmed)#
+            }
+trimmer(x, tr)
+trimmer <- function(x, tr, na.rm = TRUE)  {#
+          n <- length(x)#
+          data <- x[order(x)]#
+          g <- trunc(tr*n)#
+          first <- g + 1#
+          last <- n - g#
+          output <- list() #
+	        output$trimmed <- data[first:last]#
+          output$trim.mean <- mean(output$trimmed)#
+          output$trim.var <- var(output$trimmed)#
+          output$trim.sd <- sd(output$trimmed)#
+          cat("Trimming Factor", tr*100,"Percent", "\n")#
+          cat("Trimed Mean",  output$trim.mean, "\n")#
+          cat("Trimmed Variance",  output$trim.var, "\n")#
+          cat("Trimmed Standard Deviation",  output$trim.sd, "\n")#
+          return(trimmed)#
+            }
+trimmer(x, tr)
+trimmer <- function(x, tr, na.rm = TRUE)  {#
+          n <- length(x)#
+          data <- x[order(x)]#
+          g <- trunc(tr*n)#
+          first <- g + 1#
+          last <- n - g#
+          output <- list() #
+	        output$trimmed <- data[first:last]#
+          output$trim.mean <- mean(output$trimmed)#
+          output$trim.var <- var(output$trimmed)#
+          output$trim.sd <- sd(output$trimmed)#
+          cat("Trimming Factor", tr*100,"Percent", "\n")#
+          cat("Trimed Mean",  output$trim.mean, "\n")#
+          cat("Trimmed Variance",  output$trim.var, "\n")#
+          cat("Trimmed Standard Deviation",  output$trim.sd, "\n")#
+          return(output)#
+            }
+trimmer(x, tr)
+result$trimmed
+result <- trimmer(x, tr)
+result$trimmed
+attach(result)
+trimmed
+result[1]
+result[][1]]
+result[[1]]
+help(persp)
+table(data)
+data <- c(7, 7, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 2, 1, 1)#
+#
+# 11#
+table(data)
+cumsum(sort(data))
+ftable[4]
+ftable <-table(data)
+ftable[4]
+cumsum(ftable)[4])
+cumsum(ftable[4])
+sum(ftable[1:4])
+ftable[4]/sum(ftable)
+which.max(ftable)
+median(data)#
+mean(data)#
+sd(data)
+median(scale(data))
+(4 - mean(data)) / sd(data)
+1200*.0023 + .4
+.0023*1000 + .4
+cov_xy / sqrt(vx * vy)
+xbar <- 1.12#
+ybar <- 5.92#
+vx <- 15.44#
+vy <- 61.66#
+cov_xy <- 20.97#
+#
+cov_xy / sqrt(vx * vy)
+(b <- cov_xy / vx)
+cov_xy / sqrt(vx * vy))#
+(b <- cov_xy / vx)#
+ybar - b * xbar
+soccer <- read.csv("soccer.csv")
+# General options#
+options(tab.width = 2)#
+options(width = 130)#
+options(graphics.record=TRUE)#
+options(prompt="R > ", digits=4)#
+options(max.print=500)#
+options(continue="... ")#
+auto.loads <- c("dplyr", "ggplot2")#
+message("\n*** Successfully
+message("\n*** Successfully loaded .Rprofile ***\n")
+q()
+#Power analysis for CSM#
+#
+alpha <- 0.05 #alpha level#
+d <- 13 #degrees of freedom#
+n <- 300 #sample size#
+rmsea0 <- 0.05 #null hypothesized RMSEA#
+rmseaa <- NaN #alternative hypothesized RMSEA#
+#
+#Code below this point need not be changed by user#
+ncp0 <- (n-1)*d*rmsea0^2#
+ncpa <- (n-1)*d*rmseaa^2#
+#
+#Compute power#
+if(rmsea0<rmseaa) {#
+    cval <- qchisq(alpha,d,ncp=ncp0,lower.tail=F)#
+    pow <- pchisq(cval,d,ncp=ncpa,lower.tail=F)#
+}#
+if(rmsea0>rmseaa) {#
+    cval <- qchisq(1-alpha,d,ncp=ncp0,lower.tail=F)#
+    pow <- 1-pchisq(cval,d,ncp=ncpa,lower.tail=F)#
+}#
+print(pow)
+#Power analysis for CSM#
+#
+alpha <- 0.05 #alpha level#
+d <- 13 #degrees of freedom#
+n <- 300 #sample size#
+rmsea0 <- 0.05 #null hypothesized RMSEA#
+rmseaa <- .08 #alternative hypothesized RMSEA#
+#
+#Code below this point need not be changed by user#
+ncp0 <- (n-1)*d*rmsea0^2#
+ncpa <- (n-1)*d*rmseaa^2#
+#
+#Compute power#
+if(rmsea0<rmseaa) {#
+    cval <- qchisq(alpha,d,ncp=ncp0,lower.tail=F)#
+    pow <- pchisq(cval,d,ncp=ncpa,lower.tail=F)#
+}#
+if(rmsea0>rmseaa) {#
+    cval <- qchisq(1-alpha,d,ncp=ncp0,lower.tail=F)#
+    pow <- 1-pchisq(cval,d,ncp=ncpa,lower.tail=F)#
+}#
+print(pow)
+alpha <- 0.05 #alpha level#
+d <- 10 #degrees of freedom#
+n <- 300 #sample size#
+rmsea0 <- 0.05 #null hypothesized RMSEA#
+rmseaa <- 0.08 #alternative hypothesized RMSEA#
+#
+#Code below this point need not be changed by user#
+ncp0 <- (n-1)*d*rmsea0^2#
+ncpa <- (n-1)*d*rmseaa^2#
+#
+#Compute power#
+if(rmsea0<rmseaa) {#
+    cval <- qchisq(alpha,d,ncp=ncp0,lower.tail=F)#
+    pow <- pchisq(cval,d,ncp=ncpa,lower.tail=F)#
+}#
+if(rmsea0>rmseaa) {#
+    cval <- qchisq(1-alpha,d,ncp=ncp0,lower.tail=F)#
+    pow <- 1-pchisq(cval,d,ncp=ncpa,lower.tail=F)#
+}#
+print(pow)
+a <- b <- Colors <- 0#
+#
+  # Get coeffs#
+  coeffs <- coef(mirt_mod, as.data.frame = T, IRTpar = T)
+.1 + .2
+library(D3)
+mice::D3
+90 + 95 + 510 425 + 215 + 215
+90 + 95 + 510 + 425 + 215 + 215
+7.33 * 7 + 8.44 + 145.42 + 70.46 + 12.47 + 12.34
+586.12 + 2542.66
+120 / 1438
+34.49 * 4
+34.49 * 4 + 593.50
+sum(c(21.14,#
+18.36,#
+18.63,#
+16.98,#
+18.93,#
+4.66 ,#
+28.70))
+53.33 * 12
+sum(c(484,	127.4,	542.76))
+1061 + 1712 + 1718 + 1711 + 1973.12
+##
+# This is a Shiny web application. You can run the application by clicking#
+# the 'Run App' button above.#
+##
+# Find out more about building applications with Shiny here:#
+##
+#    http://shiny.rstudio.com/#
+##
+#
+#download/load shiny#
+if(!require(shiny)) {#
+    install.packages("shiny")#
+}#
+library(shiny)#
+if(!require(ggplot2)) {#
+    install.packages("ggplot2")#
+}#
+library(dplyr)#
+if(!require(dplyr)) {#
+    install.packages("dplyr")#
+}#
+library(dplyr)#
+# Define UI for dataset viewer app ----#
+ui <- fluidPage(#
+    # App title ----#
+    titlePanel("Hockey Birthdays"),#
+    # Sidebar layout with input and output definitions ----#
+    sidebarLayout(#
+        # Sidebar panel for inputs ----#
+        sidebarPanel(#
+            numericInput("Q1Prob", "Probability of a Q1 Bday(%)", value=0, min=0, max=50),#
+            numericInput("Q4Prob", "Probability of a Q4 Bday(%)", value=0, min=0, max=50),#
+            actionButton("resample", "Re-Sample"),#
+            actionButton("observed", "Observed Data"),#
+            # Include clarifying text ----#
+            helpText("Use the inputs above to change the probability that a given hockey player has a 1st (Jan-March) or 4th (Oct-Dec) quarter birthday. This app will then take 33 samples of 100 players (100 people per year for each year from 1978-2011)  #
+                     and plot the simulated number of individuals with Q1 and Q4 birthdays. These will be plotted in the graph on the top right. You can also click the Re-Sample button if you want to take a new set of 33 samples. Click on the Observed Data button to view the actual data" )#
+        ),#
+        # Main panel for displaying outputs ----#
+        mainPanel(#
+            h4("Plot of Simulated 1st and 4th Quarter Bdays"),#
+            plotOutput("scatterplot",width  = "500px",height = "350px"),#
+            br(),#
+            br(),#
+            conditionalPanel("input.observed",#
+            h4("Plot of Observed 1st and 4th Quarter Bdays"),#
+            img(src='True_Plot.png', width  = "650px",height = "375px")#
+            )#
+        )#
+    )#
+)#
+#
+# Define server logic to summarize and view selected dataset ----#
+server <- function(input, output,session) {#
+    #This was from when I allowed max prob=100% for both and wanted to make sure the total#
+    #didn't exceed 100% for Q1 and Q4. For full functionality, would have to do same for Q1Prob.#
+    # observeEvent(input$Q1Prob, {#
+    #     #
+    #     x <- input$Q1Prob#
+    #     updateNumericInput(session, "Q4Prob", max = 100-x)#
+    # #
+    # })#
+    output$scatterplot <- renderPlot({#
+        input$resample#
+        # Get draft data (33 samples of 100)#
+        Q1 <- input$Q1Prob/100#
+        Q4 <- input$Q4Prob/100#
+        Q2 <- Q3 <- (1-(Q1+Q4))/2#
+        draftdata <- rmultinom(33,100,c(Q1,Q2,Q3,Q4))#
+        plot(draftdata[1,], pch=17, col=c("#FFFF00"), ylab="Percentage drafted", #
+             xlab="", ylim=c(0,60), xlim=c(0,ncol(draftdata)+1), xaxt="n", #
+             xaxs="i",yaxs="i", bty="l", tck = 0.02, cex.lab=1.5)#
+        points(1:ncol(draftdata), draftdata[1,], pch=2, cex=1.5)#
+        points(1:ncol(draftdata), draftdata[4,], pch=16, col="#04B0F0", cex=1.5)#
+        points(1:ncol(draftdata), draftdata[4,], pch=1, cex=1.5)#
+        axis(1, at=c(0,10,20,30), labels = c(1978,1988,1998,2008), tck = 0.02, cex.axis=1.3)#
+        legend("topright", c("Q1", "Q4"), col=c("#FFFF00","#04B0F0"), pch=c(17,16), bty = "n", cex=1.2)#
+        legend("topright", c("Q1", "Q4"), pch=c(2,1), bty="n", cex=1.2)#
+    })#
+}#
+#
+# Create Shiny app ----#
+shinyApp(ui, server)
+## Data#
+MalawiData <- read.csv("child.tests_items_wide.csv")#
+## Defining labels for possible grouping variables#
+MalawiData$cr_gender <- factor(MalawiData$cr_gender, labels = c("Male", "Female"))#
+MalawiData$treated <- factor(MalawiData$treated, labels = c("Control", "Tx"))#
+## Correcting data entry errors#
+MalawiData$recog4_3 <- ifelse(MalawiData$recog4_3 == 3, NA, MalawiData$recog4_3)#
+MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12_3)#
+MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)#
+## Items for each measure#
+MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",#
+                       MDAT_motor.Midline = "fm[0-9]+_2",#
+                       PPVT.Endline = "ppvt[0-9]+_3",#
+                       Kaufman_hand_movement.Endline = "hm[0-9]+_3",#
+                       Kaufman_triangles.Endline = "t[0-9]+_3",#
+                       Kaufman_number_recall.Endline = "nr[0-9]+_3",#
+                       EGMA_number_recognition.Endline = "recog[0-9]+_3",#
+                       EGMA_quantity_discrimination.Endline = "quant[0-9]+_3",#
+                       EGMA_addition.Endline = "add[0-9]+_3")#
+## Using deciles of rest (or total) score for strata (to avoid empty cells in the two-way MH tables)#
+tenths <- seq(0, 1, by = .1)#
+#####################################################
+#################################################
+#### Running analysis and Generating Report #####
+#### Importing Functions #####
+source("DIF_Methods_Functions.R")#
+source("DIF_Methods_Wrappers.R")#
+source("Measure_Level_Wrapper.R")#
+#### Preparing Malawi Data #####
+WB_Measures <- purrr::map(.x = MalawiMeasures, ~WB_Data_Prep(data = MalawiData,#
+                                                             items = .x,#
+                                                             groupvar = "treated",   # Treamtent condition as grouping variable#
+                                                             condvar = "cr_gender")) # Gender as conditioning variable#
+#### Test Runs #####
+## Using Rest scores; deciles for MH#
+# Unconditional Example#
+Unconditional1 <- DIF_analysis(MeasureData = WB_Measures[[1]]$MeasureData,#
+                               groupvec = WB_Measures[[1]]$GroupVector,     # For unconditional, use vector for treatment condition#
+                               scoreType = "Rest",#
+                               methods = c("loess", "MH", "logistic", "IRT"),#
+                               MHstrata = tenths)#
+Get_Report(DIF_Results = Unconditional1,#
+           Dataset_Name = "Malawi",#
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),#
+           bias_method = "IRT",#
+           conditional = NULL) # the default#
+# Conditional Example#
+Conditional7 <- DIF_analysis(MeasureData = WB_Measures[[7]]$MeasureData,#
+                             groupvec = WB_Measures[[7]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)#
+                             scoreType = "Rest",#
+                             methods = c("loess", "MH", "logistic", "IRT"),#
+                             MHstrata = tenths)#
+Get_Report(DIF_Results = Conditional7,#
+           Dataset_Name = "Malawi",#
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),#
+           bias_method = "IRT",#
+           conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
+setwd("~/git/WBdif")
+## Data#
+MalawiData <- read.csv("child.tests_items_wide.csv")#
+## Defining labels for possible grouping variables#
+MalawiData$cr_gender <- factor(MalawiData$cr_gender, labels = c("Male", "Female"))#
+MalawiData$treated <- factor(MalawiData$treated, labels = c("Control", "Tx"))#
+## Correcting data entry errors#
+MalawiData$recog4_3 <- ifelse(MalawiData$recog4_3 == 3, NA, MalawiData$recog4_3)#
+MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12_3)#
+MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)#
+## Items for each measure#
+MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",#
+                       MDAT_motor.Midline = "fm[0-9]+_2",#
+                       PPVT.Endline = "ppvt[0-9]+_3",#
+                       Kaufman_hand_movement.Endline = "hm[0-9]+_3",#
+                       Kaufman_triangles.Endline = "t[0-9]+_3",#
+                       Kaufman_number_recall.Endline = "nr[0-9]+_3",#
+                       EGMA_number_recognition.Endline = "recog[0-9]+_3",#
+                       EGMA_quantity_discrimination.Endline = "quant[0-9]+_3",#
+                       EGMA_addition.Endline = "add[0-9]+_3")#
+## Using deciles of rest (or total) score for strata (to avoid empty cells in the two-way MH tables)#
+tenths <- seq(0, 1, by = .1)#
+#####################################################
+#################################################
+#### Running analysis and Generating Report #####
+#### Importing Functions #####
+source("DIF_Methods_Functions.R")#
+source("DIF_Methods_Wrappers.R")#
+source("Measure_Level_Wrapper.R")#
+#### Preparing Malawi Data #####
+WB_Measures <- purrr::map(.x = MalawiMeasures, ~WB_Data_Prep(data = MalawiData,#
+                                                             items = .x,#
+                                                             groupvar = "treated",   # Treamtent condition as grouping variable#
+                                                             condvar = "cr_gender")) # Gender as conditioning variable#
+#### Test Runs #####
+## Using Rest scores; deciles for MH#
+# Unconditional Example#
+Unconditional1 <- DIF_analysis(MeasureData = WB_Measures[[1]]$MeasureData,#
+                               groupvec = WB_Measures[[1]]$GroupVector,     # For unconditional, use vector for treatment condition#
+                               scoreType = "Rest",#
+                               methods = c("loess", "MH", "logistic", "IRT"),#
+                               MHstrata = tenths)#
+Get_Report(DIF_Results = Unconditional1,#
+           Dataset_Name = "Malawi",#
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),#
+           bias_method = "IRT",#
+           conditional = NULL) # the default#
+# Conditional Example#
+Conditional7 <- DIF_analysis(MeasureData = WB_Measures[[7]]$MeasureData,#
+                             groupvec = WB_Measures[[7]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)#
+                             scoreType = "Rest",#
+                             methods = c("loess", "MH", "logistic", "IRT"),#
+                             MHstrata = tenths)#
+Get_Report(DIF_Results = Conditional7,#
+           Dataset_Name = "Malawi",#
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),#
+           bias_method = "IRT",#
+           conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
+install.pakcages("ggplot2")
+install.packages("ggplot2")
+install.packages("purrr")
+######################################
+#### Importing Input Information #####
+require(ggplot2, purrr)#
+## Data#
+MalawiData <- read.csv("child.tests_items_wide.csv")#
+## Defining labels for possible grouping variables#
+MalawiData$cr_gender <- factor(MalawiData$cr_gender, labels = c("Male", "Female"))#
+MalawiData$treated <- factor(MalawiData$treated, labels = c("Control", "Tx"))#
+## Correcting data entry errors#
+MalawiData$recog4_3 <- ifelse(MalawiData$recog4_3 == 3, NA, MalawiData$recog4_3)#
+MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12_3)#
+MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)#
+## Items for each measure#
+MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",#
+                       MDAT_motor.Midline = "fm[0-9]+_2",#
+                       PPVT.Endline = "ppvt[0-9]+_3",#
+                       Kaufman_hand_movement.Endline = "hm[0-9]+_3",#
+                       Kaufman_triangles.Endline = "t[0-9]+_3",#
+                       Kaufman_number_recall.Endline = "nr[0-9]+_3",#
+                       EGMA_number_recognition.Endline = "recog[0-9]+_3",#
+                       EGMA_quantity_discrimination.Endline = "quant[0-9]+_3",#
+                       EGMA_addition.Endline = "add[0-9]+_3")#
+## Using deciles of rest (or total) score for strata (to avoid empty cells in the two-way MH tables)#
+tenths <- seq(0, 1, by = .1)#
+#####################################################
+#################################################
+#### Running analysis and Generating Report #####
+#### Importing Functions #####
+source("DIF_Methods_Functions.R")#
+source("DIF_Methods_Wrappers.R")#
+source("Measure_Level_Wrapper.R")#
+#### Preparing Malawi Data #####
+WB_Measures <- purrr::map(.x = MalawiMeasures, ~WB_Data_Prep(data = MalawiData,#
+                                                             items = .x,#
+                                                             groupvar = "treated",   # Treamtent condition as grouping variable#
+                                                             condvar = "cr_gender")) # Gender as conditioning variable#
+#### Test Runs #####
+## Using Rest scores; deciles for MH#
+# Unconditional Example#
+Unconditional1 <- DIF_analysis(MeasureData = WB_Measures[[1]]$MeasureData,#
+                               groupvec = WB_Measures[[1]]$GroupVector,     # For unconditional, use vector for treatment condition#
+                               scoreType = "Rest",#
+                               methods = c("loess", "MH", "logistic", "IRT"),#
+                               MHstrata = tenths)#
+Get_Report(DIF_Results = Unconditional1,#
+           Dataset_Name = "Malawi",#
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),#
+           bias_method = "IRT",#
+           conditional = NULL) # the default#
+# Conditional Example#
+Conditional7 <- DIF_analysis(MeasureData = WB_Measures[[7]]$MeasureData,#
+                             groupvec = WB_Measures[[7]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)#
+                             scoreType = "Rest",#
+                             methods = c("loess", "MH", "logistic", "IRT"),#
+                             MHstrata = tenths)#
+Get_Report(DIF_Results = Conditional7,#
+           Dataset_Name = "Malawi",#
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),#
+           bias_method = "IRT",#
+           conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
+help(require)
+require(ggplot2)#
+require(purrr)#
+require(mirt)
+install.packages("mirt")
+require(ggplot2)#
+require(purrr)#
+require(mirt)
+## Data#
+MalawiData <- read.csv("child.tests_items_wide.csv")#
+## Defining labels for possible grouping variables#
+MalawiData$cr_gender <- factor(MalawiData$cr_gender, labels = c("Male", "Female"))#
+MalawiData$treated <- factor(MalawiData$treated, labels = c("Control", "Tx"))#
+## Correcting data entry errors#
+MalawiData$recog4_3 <- ifelse(MalawiData$recog4_3 == 3, NA, MalawiData$recog4_3)#
+MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12_3)#
+MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)#
+## Items for each measure#
+MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",#
+                       MDAT_motor.Midline = "fm[0-9]+_2",#
+                       PPVT.Endline = "ppvt[0-9]+_3",#
+                       Kaufman_hand_movement.Endline = "hm[0-9]+_3",#
+                       Kaufman_triangles.Endline = "t[0-9]+_3",#
+                       Kaufman_number_recall.Endline = "nr[0-9]+_3",#
+                       EGMA_number_recognition.Endline = "recog[0-9]+_3",#
+                       EGMA_quantity_discrimination.Endline = "quant[0-9]+_3",#
+                       EGMA_addition.Endline = "add[0-9]+_3")#
+## Using deciles of rest (or total) score for strata (to avoid empty cells in the two-way MH tables)#
+tenths <- seq(0, 1, by = .1)
+#### Importing Functions #####
+source("DIF_Methods_Functions.R")#
+source("DIF_Methods_Wrappers.R")#
+source("Measure_Level_Wrapper.R")
+install.packages("xtable")
+#### Importing Functions #####
+source("DIF_Methods_Functions.R")#
+source("DIF_Methods_Wrappers.R")#
+source("Measure_Level_Wrapper.R")
+######################################
+#### Importing Input Information #####
+## Data#
+MalawiData <- read.csv("child.tests_items_wide.csv")#
+## Defining labels for possible grouping variables#
+MalawiData$cr_gender <- factor(MalawiData$cr_gender, labels = c("Male", "Female"))#
+MalawiData$treated <- factor(MalawiData$treated, labels = c("Control", "Tx"))#
+## Correcting data entry errors#
+MalawiData$recog4_3 <- ifelse(MalawiData$recog4_3 == 3, NA, MalawiData$recog4_3)#
+MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12_3)#
+MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)#
+## Items for each measure#
+MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",#
+                       MDAT_motor.Midline = "fm[0-9]+_2",#
+                       PPVT.Endline = "ppvt[0-9]+_3",#
+                       Kaufman_hand_movement.Endline = "hm[0-9]+_3",#
+                       Kaufman_triangles.Endline = "t[0-9]+_3",#
+                       Kaufman_number_recall.Endline = "nr[0-9]+_3",#
+                       EGMA_number_recognition.Endline = "recog[0-9]+_3",#
+                       EGMA_quantity_discrimination.Endline = "quant[0-9]+_3",#
+                       EGMA_addition.Endline = "add[0-9]+_3")#
+## Using deciles of rest (or total) score for strata (to avoid empty cells in the two-way MH tables)#
+tenths <- seq(0, 1, by = .1)#
+#####################################################
+#################################################
+#### Running analysis and Generating Report #####
+#### Importing Functions #####
+source("DIF_Methods_Functions.R")#
+source("DIF_Methods_Wrappers.R")#
+source("Measure_Level_Wrapper.R")#
+#### Preparing Malawi Data #####
+WB_Measures <- purrr::map(.x = MalawiMeasures, ~WB_Data_Prep(data = MalawiData,#
+                                                             items = .x,#
+                                                             groupvar = "treated",   # Treamtent condition as grouping variable#
+                                                             condvar = "cr_gender")) # Gender as conditioning variable#
+#### Test Runs #####
+## Using Rest scores; deciles for MH#
+# Unconditional Example#
+Unconditional1 <- DIF_analysis(MeasureData = WB_Measures[[1]]$MeasureData,#
+                               groupvec = WB_Measures[[1]]$GroupVector,     # For unconditional, use vector for treatment condition#
+                               scoreType = "Rest",#
+                               methods = c("loess", "MH", "logistic", "IRT"),#
+                               MHstrata = tenths)#
+Get_Report(DIF_Results = Unconditional1,#
+           Dataset_Name = "Malawi",#
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),#
+           bias_method = "IRT",#
+           conditional = NULL) # the default#
+# Conditional Example#
+Conditional7 <- DIF_analysis(MeasureData = WB_Measures[[7]]$MeasureData,#
+                             groupvec = WB_Measures[[7]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)#
+                             scoreType = "Rest",#
+                             methods = c("loess", "MH", "logistic", "IRT"),#
+                             MHstrata = tenths)#
+Get_Report(DIF_Results = Conditional7,#
+           Dataset_Name = "Malawi",#
+           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),#
+           bias_method = "IRT",#
+           conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here

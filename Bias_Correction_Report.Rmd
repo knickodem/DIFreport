@@ -33,17 +33,17 @@ date: "`r format(Sys.Date(), '%B %d, %Y')`"
 
 **Items with no variance:^a^** `r nvi`
 
-**Items with no within group variance:^b^** `r nvgi`
+**Items with no variance within levels of comparison variable:^b^** `r nvgi`
 
-**Bias detection method:** `r paste(bias_method, "using", DIF_Results$Inputs$scoreType, "Scores")`
+**Bias detection method:** `r if (bias_method == "IRT")  bias_method  else  paste(bias_method, "using", DIF_Results$Inputs$scoreType, "Scores")`
 
 **Total number of biased items:** `r paste(n_biased, "out of", n_items)`
 
 **Type of item bias:** `r bias_type`
 
-^a^ Items were not included in the DIF analysis nor the IRT-based treatment effect robustness check
+^a^ Items were not included in any DIF analysis and were not used to compute IRT-based robustness checks of treatment effects. 
 
-^b^ Items were not included in the IRT-based DIF analysis nor the IRT-based treatment effect robustness check
+^b^ Items were not included in the IRT-based DIF analysis and were not used to compute IRT-based robustness checks of treatment effects. 
 
   
 ```{r direction, results='asis'}
@@ -63,7 +63,7 @@ if(!is.character(BIs)){
     
   if(is.null(conditional)){
     
-    cat("## Unconditional Effects")
+    cat("## Robustness Checks for Treatment Effects")
     cat("\n\n")
     
     cat("Summary table for robustness of unconditional treatment effects (comparing ", UnconditionalEffects$Comparison, ")", sep  ="") 
@@ -75,7 +75,7 @@ if(!is.character(BIs)){
     
   } else {
   
-    cat("## Conditional Effects")
+    cat("## Robustness Checks for Treatment Effects Conditional on Comparison Variable")
     cat("\n\n")
   
     cat("Summary table for robustness of conditional treatment effects for ", comp1, " (comparing ", ConditionalEffects1$Comparison, ")", sep  = "") 
@@ -104,7 +104,7 @@ if(!is.character(BIs)){
   }
   
   cat("&nbsp;  ")
-  cat("*Note:* Adj. Delta  = Raw Delta / sqrt(Reliability)")
+  cat("*Note:* Adj. Delta  = Scale Delta / sqrt(Reliability)")
   
 } else {
   
@@ -116,12 +116,12 @@ if(!is.character(BIs)){
 ```
 
 
-# Comparing Bias Detection Methods
+# Bias Detection Methods
 
 ```{r loess, results='asis'}
 
 if(!is.null(DIF_Results$loess)){
-  cat("## Descriptive analyis via Loess")
+  cat("## Graphical Analyis via Loess")
   cat("\n\n")
   
   print(DIF_Results$loess$plot)
@@ -162,7 +162,7 @@ if(!is.null(DIF_Results$logistic)){
   cat("## Logistic Regression")
   cat("\n\n")
   
-  cat("#### Global Comparison")
+  cat("#### Model Comparisons")
   cat("\n\n")
 
   logglobtab <- Get_Flex(DIF_Results$logistic$Global, boldbias = "global")
@@ -171,7 +171,7 @@ if(!is.null(DIF_Results$logistic)){
   
   cat("&nbsp;  ")
   cat("\n\n")
-  cat("#### Item-level")
+  cat("#### Item-level Tests")
   cat("\n\n")
   
   if(class(DIF_Results$logistic$Item) == "character"){
@@ -197,7 +197,7 @@ if(!is.null(DIF_Results$IRT)){
   cat("## Item Response Theory")
   cat("\n\n")
   
-  cat("#### Global Comparison")
+  cat("#### Model Comparisons")
   cat("\n\n")
   
   irtglobtab <- Get_Flex(DIF_Results$IRT$Global, boldbias = "global")
@@ -206,7 +206,7 @@ if(!is.null(DIF_Results$IRT)){
  
   cat("&nbsp;  ")
   cat("\n\n")
-  cat("#### Item-level")
+  cat("#### Item-level Tests")
   cat("\n\n")
   
   if(class(DIF_Results$IRT$Item) == "character"){

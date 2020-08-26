@@ -1,5 +1,3 @@
-
-
 #####################################
 #### Importing Input Information ####
 
@@ -44,10 +42,11 @@ source("Measure_Level_Wrapper.R")
 
 #### Preparing Malawi Data ####
 
-WB_Measures <- purrr::map(.x = MalawiMeasures, ~WB_Data_Prep(data = MalawiData,
-                                                             items = .x,
-                                                             groupvar = "treated",   # Treamtent condition as grouping variable
-                                                             condvar = "cr_gender")) # Gender as conditioning variable
+WB_Measures <- purrr::map(.x = MalawiMeasures, 
+                          ~WB_Data_Prep(data = MalawiData,
+                                        items = .x,
+                                        groupvar = "treated",   # Treamtent condition as grouping variable
+                                        condvar = "cr_gender")) # Gender as conditioning variable
 
 
 #### Test Runs ####
@@ -59,14 +58,11 @@ Unconditional1 <- DIF_analysis(MeasureData = WB_Measures[[1]]$MeasureData,
                                methods = c("loess", "MH", "logistic", "IRT"),
                                MHstrata = tenths)
 
-
 Get_Report(DIF_Results = Unconditional1,
            Dataset_Name = "Malawi",
            Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),
            bias_method = "IRT",
            conditional = NULL) # the default
-
-
 
 
 # Conditional Example
@@ -82,4 +78,36 @@ Get_Report(DIF_Results = Conditional7,
            bias_method = "IRT",
            conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
 
+
+# Run all 
+
+for (i in 1:length(MalawiMeasures)){
+  
+  Unconditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
+                                 groupvec = WB_Measures[[i]]$GroupVector,     # For unconditional, use vector for treatment condition
+                                 scoreType = "Rest",
+                                 methods = c("loess", "MH", "logistic", "IRT"),
+                                 MHstrata = tenths)
+  
+  Get_Report(DIF_Results = Unconditional,
+             Dataset_Name = "Malawi",
+             Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),
+             bias_method = "IRT",
+             conditional = NULL) # the default
+  
+  Conditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
+                               groupvec = WB_Measures[[i]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)
+                               scoreType = "Rest",
+                               methods = c("loess", "MH", "logistic", "IRT"),
+                               MHstrata = tenths)
+  
+  Get_Report(DIF_Results = Conditional,
+             Dataset_Name = "Malawi",
+             Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),
+             bias_method = "IRT",
+             conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
+    
+    
+  
+}
 

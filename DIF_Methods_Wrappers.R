@@ -63,8 +63,8 @@ Get_loess <- function(scaledat, group, scoreType, match_on){
     geom_ribbon(aes(ymin = prob - 1.96*SE,
                     ymax = prob + 1.96*SE,
                     fill = group), alpha = .4) +
-    labs(x = paste(scoreType, "Score"), y = "Pr(Correct Response)") +
-    theme_bw(base_size = 16) +
+    labs(x = paste(scoreType, "Score"), y = "Prob(Correct)") +
+    #theme_bw(base_size = 16) +
     facet_wrap(~ item)
   
   ## Output data and plot in a list
@@ -113,7 +113,8 @@ Get_MH <- function(scaledat, group, scoreType,
   MH1 <- Reduce(rbind, stage1)
   
   # Benjamini–Hochberg procedure for false discovery rate < 5%
-  MH1$bias <- p.adjust(MH1$pvalue, method = "BH") < .05
+  names(MH1)[names(MH1 == "pvalue")] <- "p"
+  MH1$bias <- p.adjust(MH1$p, method = "BH") < .05
   
   #### MH testing stage 2 - Refinement/purification of match_score criterion ####
   # The items to exclude based on initial MH DIF analysis
@@ -121,50 +122,51 @@ Get_MH <- function(scaledat, group, scoreType,
   
   if(length(MH_drops) > 0){
   
-  if(scoreType == "Rest"){
-    
-    # Storage
-    stage2 <- list()
-    
-    # Loop over items
-    for(i in 1:n_items) {
+    if(scoreType == "Rest"){
+      
+      # Storage
+      stage2 <- list()
+      
+      # Loop over items
+      for(i in 1:n_items) {
+        
+        # Recalculate rest score while also removing biased items identified in stage 1
+        stage2.match_scores <- Get_MatchScore(scaledat = scaledat, drops = c(i, MH_drops))
+        
+        stage2[[i]] <- Run_MH(scaledat = scaledat, theItem = i, 
+                         group = group, match = stage2.match_scores,
+                         strata = strata)
+        
+      }
+      
+    } else if(scoreType == "Total") {
       
       # Recalculate rest score while also removing biased items identified in stage 1
-      stage2.match_scores <- Get_MatchScore(scaledat = scaledat, drops = c(i, MH_drops))
+      stage2.match_scores <- Get_MatchScore(scaledat = scaledat, drops = c(MH_drops))
       
-      stage2[[i]] <- Run_MH(scaledat = scaledat, theItem = i, 
+      stage2 <- lapply(1:n_items, Run_MH, scaledat = scaledat, 
                        group = group, match = stage2.match_scores,
                        strata = strata)
       
     }
     
-  } else if(scoreType == "Total"){
+    # Converting list elements into single dataframe
+    MH2 <- Reduce(rbind, stage2)
     
-    # Recalculate rest score while also removing biased items identified in stage 1
-    stage2.match_scores <- Get_MatchScore(scaledat = scaledat, drops = c(MH_drops))
+    # Benjamini–Hochberg procedure for false discovery rate = 5%
+    names(MH2)[names(MH2 == "pvalue")] <- "p"
+    MH2$bias <- p.adjust(MH2$p, method = "BH") < .05
     
-    stage2 <- lapply(1:n_items, Run_MH, scaledat = scaledat, 
-                     group = group, match = stage2.match_scores,
-                     strata = strata)
+    # Output dataframe combining stage 1 and stage 2
+    names(MH1)[-1] <- paste0("Initial_", names(MH1)[-1])
+    names(MH2)[-1] <- paste0("Refined_", names(MH2)[-1])
     
-  }
-  
-  # Converting list elements into single dataframe
-  MH2 <- Reduce(rbind, stage2)
-  
-  # Benjamini–Hochberg procedure for false discovery rate = 5%
-  MH2$bias <- p.adjust(MH2$pvalue, method = "BH") < .05
-  
-  # Output dataframe combining stage 1 and stage 2
-  names(MH1)[-1] <- paste0("Initial_", names(MH1)[-1])
-  names(MH2)[-1] <- paste0("Refined_", names(MH2)[-1])
-  
-  MH <- list(Item = cbind(MH1, MH2[,-1]),
-             Biased_Items = which(MH2$Refined_bias == 1))   # Special use cases might throw errors here
-  
+    MH <- list(Item = cbind(MH1, MH2[,-1]),
+               Biased_Items = which(MH2$Refined_bias == 1))   # Special use cases might throw errors here
+    
   } else {
     
-    names(MH1)[-1] <- paste0("Initial_", names(MH1)[-1])
+    #names(MH1)[-1] <- paste0("Initial_", names(MH1)[-1])
     MH <- list(Item = MH1,
                Biased_Items = "No uniform DIF was detected")
   }
@@ -215,7 +217,8 @@ Get_Logistic <- function(scaledat, group, scoreType, match_on){
     stage1modcompdf <- Reduce(rbind, stage1Log)
     
     # Benjamini–Hochberg procedure for false discovery rate < 5%
-    stage1modcompdf$bias <- p.adjust(stage1modcompdf$pvalue, method = "BH") < .05
+    names(stage1modcompdf)[names(stage1modcompdf == "pvalue")] <- "p"
+    stage1modcompdf$bias <- p.adjust(stage1modcompdf$p, method = "BH") < .05
     
     # ## Based on OR
     # stage1paramsdf <- lapply(stage1Log, function(x){Reduce(rbind, x["Parameter_Estimates"])})
@@ -228,57 +231,65 @@ Get_Logistic <- function(scaledat, group, scoreType, match_on){
     # The items to exclude based on initial Logistic DIF analysis
     Log_drops <- which(stage1modcompdf$bias == 1)
     
-    # Storage
-    stage2Log <- list()
-    
-    if(scoreType == "Rest"){
+    if(length(Log_drops) > 0){
       
-      for(i in 1:n_items){
+      # Storage
+      stage2Log <- list()
+      
+      if(scoreType == "Rest"){
         
-        # Recalculate rest score while also removing biased items identified in stage 1
-        stage2.match_on <- Get_MatchScore(scaledat = scaledat, drops = c(i, Log_drops))
+        for(i in 1:n_items){
+          
+          # Recalculate rest score while also removing biased items identified in stage 1
+          stage2.match_on <- Get_MatchScore(scaledat = scaledat, drops = c(i, Log_drops))
+          
+          # filtering based on the item and adding re-calculated rest score
+          tempitemlogdf <- globalLogistic$Data[globalLogistic$Data$item == names(scaledat)[[i]], ]
+          tempitemlogdf$score <- stage2.match_on
+          
+          stage2Log[[i]] <- Run_ItemLogistic(itemlogdf = tempitemlogdf,
+                                             which.type = globalLogistic$DIF_type)
+          
+        }
         
-        # filtering based on the item and adding re-calculated rest score
-        tempitemlogdf <- globalLogistic$Data[globalLogistic$Data$item == names(scaledat)[[i]], ]
-        tempitemlogdf$score <- stage2.match_on
+      } else if(scoreType == "Total"){
         
-        stage2Log[[i]] <- Run_ItemLogistic(itemlogdf = tempitemlogdf,
-                                           which.type = globalLogistic$DIF_type)
+        # Recalculate total score while removing biased items identified in stage 1
+        stage2.match_on <- Get_MatchScore(scaledat = scaledat, drops = c(Log_drops))
         
+        for(i in 1:n_items){
+          
+          # filtering based on the item and adding re-calculated total score
+          tempitemlogdf <- globalLogistic$Data[globalLogistic$Data$item == names(scaledat)[[i]], ]
+          tempitemlogdf$score <- stage2.match_on
+          
+          stage2Log[[i]] <- Run_ItemLogistic(itemlogdf = tempitemlogdf,
+                                             which.type = globalLogistic$DIF_type)
+        }
       }
       
-    } else if(scoreType == "Total"){
+      ## Model comparison
+      stage2modcompdf <- Reduce(rbind, stage2Log)
       
-      # Recalculate total score while removing biased items identified in stage 1
-      stage2.match_on <- Get_MatchScore(scaledat = scaledat, drops = c(Log_drops))
+      # Benjamini–Hochberg procedure for false discovery rate < 5%
+      names(stage2modcompdf)[names(stage2modcompdf == "pvalue")] <- "p"
+      stage2modcompdf$bias <- p.adjust(stage2modcompdf$p, method = "BH") < .05
       
-      for(i in 1:n_items){
-        
-        # filtering based on the item and adding re-calculated total score
-        tempitemlogdf <- globalLogistic$Data[globalLogistic$Data$item == names(scaledat)[[i]], ]
-        tempitemlogdf$score <- stage2.match_on
-        
-        stage2Log[[i]] <- Run_ItemLogistic(itemlogdf = tempitemlogdf,
-                                           which.type = globalLogistic$DIF_type)
-      }
-    }
+      
+      #### Output dataframe combining stage 1 and stage 2 ####
+      names(stage1modcompdf)[-c(1:2)] <- paste0("Initial_", names(stage1modcompdf)[-c(1:2)])
+      names(stage2modcompdf)[-c(1:2)] <- paste0("Refined_", names(stage2modcompdf)[-c(1:2)])
+      ItemLog <- cbind(stage1modcompdf, stage2modcompdf[,-c(1:2)])
+      
+      LogisticDIF <- list(Global = globalLogistic$Model_Comparison,
+                         Item = ItemLog,
+                         Biased_Items = which(stage2modcompdf$Refined_bias == 1))
+    } else {
     
-    ## Model comparison
-    stage2modcompdf <- Reduce(rbind, stage2Log)
-    
-    # Benjamini–Hochberg procedure for false discovery rate < 5%
-    stage2modcompdf$bias <- p.adjust(stage2modcompdf$pvalue, method = "BH") < .05
-    
-    
-    #### Output dataframe combining stage 1 and stage 2 ####
-    names(stage1modcompdf)[-c(1:2)] <- paste0("Initial_", names(stage1modcompdf)[-c(1:2)])
-    names(stage2modcompdf)[-c(1:2)] <- paste0("Refined_", names(stage2modcompdf)[-c(1:2)])
-    ItemLog <- cbind(stage1modcompdf, stage2modcompdf[,-c(1:2)])
-    
-    
-    LogisticDIF <- list(Global = globalLogistic$Model_Comparison,
-                       Item = ItemLog,
-                       Biased_Items = which(stage2modcompdf$Refined_bias == 1))
+     LogisticDIF <- list(Global = globalLogistic$Model_Comparison,
+                         Item = stage1modcompdf,
+                         Biased_Items = "No DIF was detected")
+    } 
     
   } else {
     
@@ -320,7 +331,7 @@ Get_IRT <- function(scaledat, group){
     if(length(globalIRT$Params_With_DIF) > 0){
       
       ## Stage 1 - Initial DIF
-      stage1IRT <- lapply(cols, Run_ItemIRT, GlobalResults = globalIRT, which.model = "Scalar_Mod")
+      stage1IRT <- lapply(cols, Run_ItemIRT, GlobalResults = globalIRT, which.model = "nodif_mod")
       # if we want more flexibility in the code, might need to use a for loop instead
       
       # convert list to df
@@ -334,15 +345,16 @@ Get_IRT <- function(scaledat, group){
       
       # Extracting X2 test results from initial run for output
       InitialIRTdf <- cbind(rownames(stage1IRTdf),
-                            data.frame(Parameter = globalIRT$Params_With_DIF),
+                            #data.frame(Parameter = globalIRT$Params_With_DIF),
                             data.frame(stage1IRTdf[,6:9], row.names = NULL))
-      names(InitialIRTdf) <- c("Item", "Parameter","Initial_X2", "Initial_df", "Initial_p", "Initial_bias")
+      names(InitialIRTdf) <- c("Item", #"Parameter",
+                               "X2", "df", "p", "bias")
       
       
       if(length(IRT_free) > 0){
+        names(InitialIRTdf)[2:5] <- paste0("Initial_", names(InitialIRTdf)[2:5])
         
         ## Stage 2 - Refine/Purify
-        
         # Re-estimate scalar model while freeing IRT_free items
         globalIRT$Stage2_Scalar_Mod <- multipleGroup(scaledat, model = 1, group = group,
                                                      invariance = c('free_var','free_means', names(scaledat)[-IRT_free]))
