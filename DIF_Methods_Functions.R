@@ -119,6 +119,7 @@ Get_Flex <- function(df, boldbias = "no", digits = 3){
 
     lastcol <- names(df)[[ncol(df)]]
     ftab <- bold(ftab, i = as.formula(paste("~", lastcol,"== TRUE")), part =  "body")
+    ftab <- bold(ftab, i = as.formula(paste("~ is.na(", lastcol,")")), part =  "body")
 
   } else if(boldbias == "global"){
 

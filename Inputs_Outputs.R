@@ -52,6 +52,7 @@ WB_Measures <- purrr::map(.x = MalawiMeasures,
 #### Test Runs ####
 ## Using Rest scores; deciles for MH
 # Unconditional Example
+tictoc::tic()
 Unconditional1 <- DIF_analysis(MeasureData = WB_Measures[[1]]$MeasureData,
                                groupvec = WB_Measures[[1]]$GroupVector,     # For unconditional, use vector for treatment condition
                                scoreType = "Rest",
@@ -63,9 +64,11 @@ Get_Report(DIF_Results = Unconditional1,
            Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),
            bias_method = "IRT",
            conditional = NULL) # the default
+tictoc::toc() #  seconds
 
 
 # Conditional Example
+tictoc::tic()
 Conditional7 <- DIF_analysis(MeasureData = WB_Measures[[7]]$MeasureData,
                              groupvec = WB_Measures[[7]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)
                              scoreType = "Rest",
@@ -75,8 +78,10 @@ Conditional7 <- DIF_analysis(MeasureData = WB_Measures[[7]]$MeasureData,
 Get_Report(DIF_Results = Conditional7,
            Dataset_Name = "Malawi",
            Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),
-           bias_method = "IRT",
+           Comparison_Name = "Gender",
+           bias_method = "MH",
            conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
+tictoc::toc() # 613 seconds
 
 
 # Run all 
@@ -103,9 +108,10 @@ for (i in 1:length(MalawiMeasures)){
   
   Get_Report(DIF_Results = Conditional,
              Dataset_Name = "Malawi",
-             Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),
+             Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
+             Comparison_Name = "Gender",
              bias_method = "IRT",
-             conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
+             conditional = WB_Measures[[i]]$GroupVector) # use the treatment condition vector here
     
 }
 

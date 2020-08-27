@@ -31,35 +31,51 @@ date: "`r format(Sys.Date(), '%B %d, %Y')`"
 
 **Comparison variable:** `r paste0(Comparison_Name, " (", comparison_levs, ")")`
 
-**Items with no variance:^a^** `r nvi`
+**Items with no variance:** `r nvi`
 
-**Items with no variance within levels of comparison variable:^b^** `r nvgi`
+**Items with no variance within levels of comparison variable:** `r nvgi`
 
-**Bias detection method:** `r if (bias_method == "IRT")  bias_method  else  paste(bias_method, "using", DIF_Results$Inputs$scoreType, "Scores")`
+**Bias detection method:** `r if(bias_method == "IRT") bias_method else paste(bias_method, "using", DIF_Results$Inputs$scoreType, "Scores")`
 
 **Total number of biased items:** `r paste(n_biased, "out of", n_items)`
 
 **Type of item bias:** `r bias_type`
 
-^a^ Items were not included in any DIF analysis and were not used to compute IRT-based robustness checks of treatment effects. 
-
-^b^ Items were not included in the IRT-based DIF analysis and were not used to compute IRT-based robustness checks of treatment effects. 
-
-  
 ```{r direction, results='asis'}
 if(bias_method == "MH"){
+  if(!is.null(BIs)){
   
   cat("* Number of items uniformly biased toward " ,comp1,": ", toward1, sep = "")
   cat("\n\n")
   cat("* Number of items uniformly biased toward " ,comp2,": ", toward2, sep = "")
-  
+  }
 }
 ```
   
 
+```{r No Var, results='asis'}
+if(nvi != "none"){
+  
+  cat("\n\n")
+  cat("^a^ Items were not included in any DIF analysis and were not used to compute IRT-based robustness checks of treatment effects.")
+  cat("\n\n")
+}
+
+
+if(nvgi != "none"){
+  
+  cat("\n\n")
+  cat("^b^ Items were not included in the IRT-based DIF analysis and were not used to compute IRT-based robustness checks of treatment effects.")
+  cat("\n\n")
+}
+
+```
+
+
+
 ```{r Summary Table, results='asis'}
 
-if(!is.character(BIs)){
+if(!is.null(BIs)){
     
   if(is.null(conditional)){
     
@@ -118,10 +134,10 @@ if(!is.character(BIs)){
 
 # Bias Detection Methods
 
-```{r loess, results='asis'}
+```{r loess, results='asis', fig.width = 10, fig.height = ceiling(n_items / 6)*2 + 1}
 
 if(!is.null(DIF_Results$loess)){
-  cat("## Graphical Analyis via Loess")
+  cat("## Graphical Analysis via Loess")
   cat("\n\n")
   
   print(DIF_Results$loess$plot)

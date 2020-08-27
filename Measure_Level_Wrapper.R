@@ -197,7 +197,7 @@ DIF_analysis <- function(MeasureData, groupvec, scoreType = c("Rest", "Total"),
 # IRT based deltas will be NaNs if any IRT score is +/- Inf
 CompareTreatmentEffects <- function(MeasureData, groupvec,
                                     biased.items = NULL, no.var.items = numeric(),
-                                    mod_scalar = NULL, IRTmethod = "ML"){
+                                    nodif_mod = NULL, IRTmethod = "ML"){
 
   
   #### Using Total Score ####
@@ -206,7 +206,7 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
   delta_total <- smd_wrapper(score = total, gp = groupvec, denom = "control")
   r_total <- psy::cronbach(MeasureData)$alpha
   
-  # Kludge to run without biased items
+  # Kludge to run without biased items (KN: In Get_Report, this function is only run when there are BIs. So this decision is currently never made)
   if (is.null(biased.items)) {
     star <- total
     delta_star <- delta_total
@@ -226,23 +226,23 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
   }
   
   ## IRT model with parameters constrained to be equal between groups
-  if(is.null(mod_scalar)){
+  if(is.null(nodif_mod)){
     
-    mod_scalar <- multipleGroup(MeasureData, model = 1, group = groupvec,
+    nodif_mod <- multipleGroup(MeasureData, model = 1, group = groupvec,
                                 invariance = c('slopes', 'intercepts', 'free_var','free_means'))
     
   }
   ## IRT model with parameter constraints freed for biased.items
   
   if(is.null(biased.items)) { #Kludge to run without biased items
-    mod_bo <- mod_scalar 
+    mod_bo <- nodif_mod 
   } else {  
    mod_bo <- multipleGroup(MeasureData, model = 1, group = groupvec,
                            invariance = c(names(MeasureData)[-biased.items],'free_var','free_means'))
   }
   
   ## Calculating IRT scores
-  theta_scalar <- fscores(mod_scalar, method = IRTmethod)
+  theta_scalar <- fscores(nodif_mod, method = IRTmethod)
   theta_bo <- fscores(mod_bo, method = IRTmethod)
   
   ## Calculating standardized mean differences
@@ -274,12 +274,10 @@ CompareTreatmentEffects <- function(MeasureData, groupvec,
 # IRT_score_method is passed to mirt::fscores
 # To request conditional treatment effects, provide DIF_analysis results using the conditional variable to DIF_Results argument,
 # and the vector of treatment condition to conditional argument
-Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name = "Treatment Condition",
+Get_Report <- function(DIF_Results,
+                       Dataset_Name, Measure_Name, Comparison_Name = "Treatment Condition",
                        bias_method = "IRT", IRT_score_method = "WLE",
                        conditional = NULL){
-  
-  # Need to fix this
-  if (!is.null(conditional)) {Comparison_Name = "Gender"}
   
   ## Determining whether the bias_method is was used for the DIF analysis
   if(is.null(DIF_Results[[bias_method]])){
@@ -295,6 +293,7 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
     if(BIs[1] == "No DIF was detected") {
       BIs <- NULL
       n_biased <- 0
+      NoDIFmessage <- paste0("No DIF was detected by ", bias_method, ". Therefore, robustness checks of treatment effects were not performed.")
     }
   }
   
@@ -303,9 +302,9 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
   # n_biased <- length(DIF_Results[[bias_method]]$Biased_Items) # number of items identified as biased
   item_name_range <- paste(names(DIF_Results$Inputs$data)[[1]], "-", names(DIF_Results$Inputs$data)[[n_items]])
   nvi <- ifelse(length(DIF_Results$Inputs$No_Var_Items) !=0,
-                paste(names(DIF_Results$Inputs$No_Var_Items), collapse = ", "), "none")     # Names of items with no variance
+                paste("^a^", paste(names(DIF_Results$Inputs$No_Var_Items), collapse = ", ")), "none")     # Names of items with no variance
   nvgi <- ifelse(length(DIF_Results$Inputs$No_Var_by_Group_Items) !=0,
-                 paste(names(DIF_Results$Inputs$No_Var_by_Group_Items), collapse = ", "), "none") # names of items with no within group variance
+                 paste("^b^", paste(names(DIF_Results$Inputs$No_Var_by_Group_Items), collapse = ", ")), "none") # names of items with no within group variance
   
   # levels of the comparison variable
   comp1 <- levels(DIF_Results$Inputs$group)[[1]]
@@ -362,7 +361,7 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
                                                     groupvec = DIF_Results$Inputs$group,
                                                     biased.items = BIs,
                                                     no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
-                                                    mod_scalar = DIF_Results$IRT$Scalar_Mod,  # Automatically pulls from DIF_Results, but could make this an option
+                                                    nodif_mod = DIF_Results$IRT$nodif_mod,  # Automatically pulls from DIF_Results, but could make this an option
                                                     IRTmethod = IRT_score_method)
     
   } else if(length(levels(conditional)) == 2){
@@ -378,7 +377,7 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
                                                    groupvec = conditional[DIF_Results$Inputs$group == comp1],
                                                    biased.items = BIs,
                                                    no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
-                                                   mod_scalar = NULL,
+                                                   nodif_mod = NULL,
                                                    IRTmethod = "WLE")
     
     ## Treatment effect subset by comp2
@@ -386,7 +385,7 @@ Get_Report <- function(DIF_Results, Dataset_Name, Measure_Name, Comparison_Name 
                                                    groupvec = conditional[DIF_Results$Inputs$group == comp2],
                                                    biased.items = BIs,
                                                    no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
-                                                   mod_scalar = NULL,
+                                                   nodif_mod = NULL,
                                                    IRTmethod = "WLE")
 
     ## Calculating interaction

@@ -10,8 +10,6 @@
 # Note: these could be placed in more strategic places given that they are not always needed depending on the analysis choices
 library(ggplot2)
 library(mirt)
-library(xtable)
-
 
 
 # ------------------- Loess ------------------------------------
@@ -65,7 +63,8 @@ Get_loess <- function(scaledat, group, scoreType, match_on){
                     fill = group), alpha = .4) +
     labs(x = paste(scoreType, "Score"), y = "Prob(Correct)") +
     #theme_bw(base_size = 16) +
-    facet_wrap(~ item)
+    facet_wrap(~ item, ncol = 6) +
+    theme(legend.position = "top")
   
   ## Output data and plot in a list
   loess <- list(data = loess_df,
@@ -168,7 +167,7 @@ Get_MH <- function(scaledat, group, scoreType,
     
     #names(MH1)[-1] <- paste0("Initial_", names(MH1)[-1])
     MH <- list(Item = MH1,
-               Biased_Items = "No uniform DIF was detected")
+               Biased_Items = "No DIF was detected")
   }
   
   return(MH)
@@ -309,7 +308,7 @@ Get_Logistic <- function(scaledat, group, scoreType, match_on){
 
 Get_IRT <- function(scaledat, group){
   
-  #### Comparing configural, metric, and scalar models ####
+  #### Comparing no dif, uniform dif, and nonuniform dif models ####
   globalIRT <- tryCatch(expr = {
     Run_GlobalIRT(scaledat = scaledat, group = group)
   },
@@ -355,12 +354,12 @@ Get_IRT <- function(scaledat, group){
         names(InitialIRTdf)[2:5] <- paste0("Initial_", names(InitialIRTdf)[2:5])
         
         ## Stage 2 - Refine/Purify
-        # Re-estimate scalar model while freeing IRT_free items
-        globalIRT$Stage2_Scalar_Mod <- multipleGroup(scaledat, model = 1, group = group,
+        # Re-estimate no dif model while freeing IRT_free items
+        globalIRT$Stage2_nodif_mod <- multipleGroup(scaledat, model = 1, group = group,
                                                      invariance = c('free_var','free_means', names(scaledat)[-IRT_free]))
         
         
-        stage2IRT <- lapply(cols[-IRT_free], Run_ItemIRT, GlobalResults = globalIRT, which.model = "Stage2_Scalar_Mod")
+        stage2IRT <- lapply(cols[-IRT_free], Run_ItemIRT, GlobalResults = globalIRT, which.model = "Stage2_nodif_mod")
         # if we want more flexiblity in the code, might need to use a for loop instead
         
         # convert list to df
@@ -386,7 +385,7 @@ Get_IRT <- function(scaledat, group){
         IRTdif <- list(Global = globalIRT$Model_Comparison,
                        Item = ItemIRT,
                        Biased_Items = bi,
-                       Scalar_Mod = globalIRT$Scalar_Mod)
+                       nodif_mod = globalIRT$nodif_mod)
         
       } else {
         
@@ -397,7 +396,7 @@ Get_IRT <- function(scaledat, group){
         IRTdif <- list(Global = globalIRT$Model_Comparison,
                        Item = InitialIRTdf,
                        Biased_Items = "No DIF was detected",
-                       Scalar_Mod = globalIRT$Scalar_Mod)
+                       nodif_mod = globalIRT$nodif_mod)
         message("Global IRT model comparisons suggested DIF, but none was found when through inidividual item comparisons.")
       }
       
@@ -406,7 +405,7 @@ Get_IRT <- function(scaledat, group){
       IRTdif <- list(Global = globalIRT$Model_Comparison,
                      Item = "No item DIF was detected through IRT model comparisons",
                      Biased_Items = "No DIF was detected",
-                     Scalar_Mod = globalIRT$Scalar_Mod)
+                     nodif_mod = globalIRT$nodif_mod)
     }
   }
   
