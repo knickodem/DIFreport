@@ -384,7 +384,7 @@ Get_Report <- function(DIF_Results,
     ConditionalEffects2 <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data[DIF_Results$Inputs$group == comp2, ],
                                                    groupvec = conditional[DIF_Results$Inputs$group == comp2],
                                                    biased.items = BIs,
-                                                   no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
+                                                   no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$Inputs$No_Var_by_Group_Items),
                                                    nodif_mod = NULL,
                                                    IRTmethod = "WLE")
 

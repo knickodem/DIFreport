@@ -85,8 +85,10 @@ tictoc::toc() # 613 seconds
 
 
 # Run all 
-
+library(tictoc)
 for (i in 1:length(MalawiMeasures)){
+  
+  tic(as.character(i))          # Record time to run all replications for each condition
   
   Unconditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
                                  groupvec = WB_Measures[[i]]$GroupVector,     # For unconditional, use vector for treatment condition
@@ -96,7 +98,7 @@ for (i in 1:length(MalawiMeasures)){
   
   Get_Report(DIF_Results = Unconditional,
              Dataset_Name = "Malawi",
-             Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),
+             Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
              bias_method = "IRT",
              conditional = NULL) # the default
   
@@ -112,6 +114,10 @@ for (i in 1:length(MalawiMeasures)){
              Comparison_Name = "Gender",
              bias_method = "IRT",
              conditional = WB_Measures[[i]]$GroupVector) # use the treatment condition vector here
+  
+  ## logging time to run condition
+  toc(quiet = TRUE, log = TRUE)
     
 }
 
+TimingLog <- tic.log(format = TRUE)
