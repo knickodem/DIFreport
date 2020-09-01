@@ -14,11 +14,11 @@ MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12
 MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)
 
 ## Items for each measure
-MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",
+MalawiMeasures <- list(MDAT_language.Midline = "^l[0-9]+_2",
                        MDAT_motor.Midline = "fm[0-9]+_2",
                        PPVT.Endline = "ppvt[0-9]+_3",
                        Kaufman_hand_movement.Endline = "hm[0-9]+_3",
-                       Kaufman_triangles.Endline = "t[0-9]+_3",
+                       Kaufman_triangles.Endline = "^t[0-9]+_3",
                        Kaufman_number_recall.Endline = "nr[0-9]+_3",
                        EGMA_number_recognition.Endline = "recog[0-9]+_3",
                        EGMA_quantity_discrimination.Endline = "quant[0-9]+_3",
@@ -86,7 +86,7 @@ tictoc::toc() # 613 seconds
 
 # Run all 
 library(tictoc)
-for (i in 1:length(MalawiMeasures)){
+for (i in 5:length(MalawiMeasures)){
   
   tic(as.character(i))          # Record time to run all replications for each condition
   
