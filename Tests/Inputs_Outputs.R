@@ -35,14 +35,14 @@ tenths <- seq(0, 1, by = .1)
 
 
 #### Importing Functions ####
-source("DIF_Methods_Functions.R")
-source("DIF_Methods_Wrappers.R")
-source("Measure_Level_Wrapper.R")
+source("R/DIF_Methods_Functions.R")
+source("R/DIF_Methods_Wrappers.R")
+source("R/Measure_Level_Wrapper.R")
 
 
 #### Preparing Malawi Data ####
 
-WB_Measures <- purrr::map(.x = MalawiMeasures, 
+WB_Measures <- purrr::map(.x = MalawiMeasures,
                           ~WB_Data_Prep(data = MalawiData,
                                         items = .x,
                                         groupvar = "treated",   # Treamtent condition as grouping variable
@@ -84,40 +84,40 @@ Get_Report(DIF_Results = Conditional7,
 tictoc::toc() # 613 seconds
 
 
-# Run all 
+# Run all
 library(tictoc)
 for (i in 5:length(MalawiMeasures)){
-  
+
   tic(as.character(i))          # Record time to run all replications for each condition
-  
+
   Unconditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
                                  groupvec = WB_Measures[[i]]$GroupVector,     # For unconditional, use vector for treatment condition
                                  scoreType = "Rest",
                                  methods = c("loess", "MH", "logistic", "IRT"),
                                  MHstrata = tenths)
-  
+
   Get_Report(DIF_Results = Unconditional,
              Dataset_Name = "Malawi",
              Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
              bias_method = "IRT",
              conditional = NULL) # the default
-  
+
   Conditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
                                groupvec = WB_Measures[[i]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)
                                scoreType = "Rest",
                                methods = c("loess", "MH", "logistic", "IRT"),
                                MHstrata = tenths)
-  
+
   Get_Report(DIF_Results = Conditional,
              Dataset_Name = "Malawi",
              Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
              Comparison_Name = "Gender",
              bias_method = "IRT",
              conditional = WB_Measures[[i]]$GroupVector) # use the treatment condition vector here
-  
+
   ## logging time to run condition
   toc(quiet = TRUE, log = TRUE)
-    
+
 }
 
 TimingLog <- tic.log(format = TRUE)
