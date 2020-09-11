@@ -1,1 +1,6 @@
 exportPattern("^[[:alpha:]]+")
+import(flextable)
+import(ggplot2)
+import(knitr)
+import(mirt)
+import(rmarkdown)
