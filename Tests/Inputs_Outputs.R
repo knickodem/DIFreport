@@ -1,3 +1,15 @@
+# Notes on testing:
+
+ # For tests it is better to build and then load the package instead of sourcing the R
+
+ # When the package is built, we can find the Rmd templates using the following command which
+ # returns the path to the file if it is included in inst/rmd
+
+ # system.file("rmd", "file.Rmd", package = "packagename")
+
+  # more info here:
+  # https://stackoverflow.com/questions/30377213/how-to-include-rmarkdown-file-in-r-package
+
 #####################################
 #### Importing Input Information ####
 
