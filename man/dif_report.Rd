@@ -2,7 +2,7 @@
 % Please edit documentation in R/DIF-Report.R
 \name{dif_report}
 \alias{dif_report}
-\title{Produces a report (via .Rmd) that summarizes. measurement bias analysis for a given
+\title{Produces a report (via .Rmd) that summarizes measurement bias analysis for a given
 scale and given grouping variable}
 \usage{
 dif_report(
@@ -16,8 +16,6 @@ dif_report(
 )
 }
 \arguments{
-\item{dif.results}{desc}
-
 \item{dataset.name}{desc}
 
 \item{measure.name}{desc}
@@ -29,12 +27,14 @@ dif_report(
 \item{irt.method}{desc}
 
 \item{conditional}{desc}
+
+\item{dif.analysis}{desc}
 }
 \value{
 Uses the template file "Bias_Correction_Report.Rmd" to produce a report summarizing whether any items on `measure.name` are biased with respect to `comparison.name`, and, if so, to what extent this affects treatment contrasts on `measure.name`.
 }
 \description{
-Produces a report (via .Rmd) that summarizes. measurement bias analysis for a given
+Produces a report (via .Rmd) that summarizes measurement bias analysis for a given
 scale and given grouping variable
 }
 \note{

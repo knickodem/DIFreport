@@ -1,136 +1,175 @@
+#' Differential item functioning
+#'
+#' Evaluates differential item functioning (DIF) using loess, Mantel-Haenszel (MH),
+#' logistic regression, and item response theory (IRT) approaches.
+#'
+#' @param measure.data data frame of dichotomous item responses with subjects in rows
+#' and items in columns
+#' @param dif.group factor or character vector of group membership for which DIF
+#' is evaluated. If a character vector, this will be transformed to a [base::factor()].
+#' @param methods character vector with one or more of the four available methods:
+#' "loess", "MH", "logistic", and "IRT".
+#' The default is all four methods.
+#' @param score.type character indicating whether the total summed score ("Total") or the
+#' summed score excluding the item under investigation ("Rest") should be used for the
+#' matching variable in the loess, MH, or logistic regression methods.
+#' @param match.bins optional vector of bin sizes for stratifying the matching variable in
+#' the MH method. This is passed to the `probs` argument of [stats::quantile()}.
+#'
+#' @details
+#' This function primarily serves as a wrapper around the method specific functions, but
+#' also identifies and reports items with no variance (e.g., all 0 responses) or no
+#' variance within the levels of `dif.group`. The "loess" method produces loess curves
+#' for every item in `measure.data`. Items with no variance are removed from
+#' `measure.data` for the "MH", "logistic", and "IRT" methods because response
+#' variance is a prerequisite for DIF. Additionally, items with no variance within
+#' a `dif.group` level are removed from the "IRT" method because these lead to
+#' the models being under-identified.
+#'
+#' @return a list with DIF results from each selected method
+#'
+#' @export
+
 dif_analysis <- function(measure.data,
-                         group,
+                         dif.group,
+                         methods = c("loess", "MH", "logistic", "IRT"),
                          score.type = c("Rest", "Total"),
-                         methods = c("loess", "MH", "logistic", "IRT"),   # could incorporate a shortcut for "all"
-                         strata = NULL){ 
-  
+                         match.bins = NULL){
+
+  ## Need dif.group to be a factor
+  if(is.factor(dif.group) == FALSE){
+    dif.group <- factor(dif.group)
+  }
+
   #### Identifying problematic items ####
   md.orig <- measure.data # saving original data with all items for use in loess
-  
+
   ## Items with no variance
   var.check <- lapply(measure.data, var)
   nvi <- which(var.check == 0)
-  
-  ## Items with no variance for one group (think about other ways to do this)
-  var.check.group <- lapply(measure.data, function(x) { sum(table(x, group) == 0) })
+
+  ## Items with no variance for one group (different interpretation for polytomous item)
+  # current function: does any cell in table == 0?
+  # These items are only removed from IRT analysis
+  var.check.group <- lapply(measure.data, function(x) { sum(table(x, dif.group) == 0) })
   nvgi <- which(var.check.group > 0)
-  
-  ## Removing items with no variance from the data, if they exist
+
+  ## No variance = No DIF so removing no variance items from measure.data.
   if(length(nvi) > 0){
     measure.data <- measure.data[-c(nvi)]
   }
-  
+
   ## Number of items in the measure for dif analysis
   n.items <- ncol(measure.data)
-  
+
   ## Calculating vector of total scores or list of rest scores
-  if(score.type == "Rest"){ # Returns a list with n_items elements of length = nrow(measure.data)
-    
-    match.scores <- lapply(c(1:n.items), sum_score, scale.data = measure.data) 
-    
-  } else if(score.type == "Total"){ # a single vector of length = nrow(measure.data)
-    
+  if(score.type == "Rest"){ # Returns a list with n.items elements of length = nrow(measure.data)
+
+    match.scores <- lapply(c(1:n.items), sum_score, scale.data = measure.data)
+
+  } else if(score.type == "Total"){ # returns a single vector of length = nrow(measure.data)
+
     match.scores <- sum_score(scale.data = measure.data, drops = NULL)
-    
+
   } else {
     stop("score.type argument must be 'Rest' or 'Total'")
   }
-  
-  
+
+
   #### LOESS ####
   if("loess" %in% methods){
-    
-    
+
+    # Need to recalculate match.scores if there were items with no variance
     if(length(nvi) > 0){
-      
+
       ## Calculating vector of total scores or list of rest scores
       if(score.type == "Rest"){ # Returns a list with n_items elements of length = nrow(measure.data)
-        
-        loess.match <- lapply(c(1:ncol(md.orig)), sum_score, scale.data = md.orig) 
-        
+
+        loess.match <- lapply(c(1:ncol(md.orig)), sum_score, scale.data = md.orig)
+
       } else if(score.type == "Total"){ # a single vector of length = nrow(measure.data)
-        
+
         loess.match <- sum_score(scale.data = md.orig, drops = NULL)
-        
+
       }  else {
         stop("that's weird")
-      } 
+      }
     } else {
       loess.match <- match.scores
     }
-    
-    
-    
+
     loess <- get_loess(scale.data = md.orig,
-                       group = group,
+                       dif.group = dif.group,
                        score.type = score.type,
-                       match.on = loess.match)
-    
+                       match = loess.match)
+
   } else{
-    
+
     loess <- NULL
-    
+
   }
-  
+
   #### Mantel-Haenszel ####
   if("MH" %in% methods){
-    
-    mh <- get_mh(scale.data = measure.data,
-                 group = group,
+
+    MH <- get_mh(scale.data = measure.data,
+                 dif.group = dif.group,
                  score.type = score.type,
-                 match.on = match.scores,
-                 strata = strata) 
-    
+                 match = match.scores,
+                 match.bins = match.bins)
+
   } else {
-    
-    mh <- NULL
-    
+
+    MH <- NULL
+
   }
-  
+
   #### Logistic Regression ####
   if("logistic" %in% methods){
-    
-    
-    
-    logistic <- get_Logistic(scale.data = measure.data,
-                             group = group,
+
+
+
+    logistic <- get_logistic(scale.data = measure.data,
+                             dif.group = dif.group,
                              score.type = score.type,
-                             match.on = match.scores)
-    
-    
+                             match = match.scores)
+
+
   } else{
-    
+
     logistic <- NULL
-    
+
   }
-  
-  
+
+
   #### Item Response Theory ####
   if("IRT" %in% methods){
-    
+
     ## Removing items with no within group variance, if they exist
     if(length(nvgi) > 0){
       measure.data <- measure.data[-c(nvgi)]
     }
-    
-    irt <- get_IRT(scale.data = measure.data, group = group) # also drops items with no variance for a particular group
-    
+
+    IRT <- get_irt(scale.data = measure.data,
+                   dif.group = dif.group)
+
   } else{
-    
-    irt <- NULL
-    
+
+    IRT <- NULL
+
   }
-  
-  all <- list(loess = loess,
-              mh = mh,
+
+  dif.analysis <- list(loess = loess,
+              MH = MH,
               logistic = logistic,
-              irt = irt,
+              IRT = IRT,
               inputs = list(data = md.orig,
-                            group = group,
+                            dif.group = dif.group,
                             score.type = score.type,
                             no.var.items = nvi,
                             no.var.by.group.items = nvgi))
-  
-  return(all)
-  
+
+  return(dif.analysis)
+
 }
+

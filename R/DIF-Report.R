@@ -1,54 +1,80 @@
-# Options for bias.method are "MH", "logistic", and "IRT"
-# irt.method is passed to mirt::fscores
-# To request conditional treatment effects, provide DIF_analysis results using the conditional variable to dif.results argument,
-# and the vector of treatment condition to conditional argument
-
-#' Produces a report (via .Rmd) that summarizes. measurement bias analysis for a given
-#' scale and given grouping variable
+#' Generate report of DIF analysis
 #'
-#' @param dif.results desc
-#' @param dataset.name desc
-#' @param measure.name desc
-#' @param comparison.name desc
-#' @param bias.method desc
-#' @param irt.method desc
-#' @param conditional desc
+#' Produces a report (via .Rmd) that summarizes measurement bias analysis for a given
+#' scale and grouping variable
 #'
-#' @return Uses the template file "Bias_Correction_Report.Rmd" to produce a report summarizing whether any items on `measure.name` are biased with respect to `comparison.name`, and, if so, to what extent this affects treatment contrasts on `measure.name`.
+#' @param dif.analysis an object returned from `dif_analysis`
+#' @param dataset.name character; name of the dataset where the measure and
+#' item responses came from. This is printed in the report title and summary.
+#' For World Bank data, this will typically be a country.
+#' @param measure.name character; name of the measure being evaluated for DIF.
+#' This is printed in the report title and summary.
+#' @param dif.group.name character; name of the group used in the DIF analysis.
+#' @param bias.method options are "MH", "logistic", or "IRT" (default).
+#' Which method in the `dif.analysis` object should the biased items, if detected, be
+#' extracted?
+#' @param irt.scoring factor score estimation method, which is passed to [mirt::fscores()].
+#' Default is "WLE". See [mirt::fscores()] documentation for other options.
+#' @param tx.group When `NULL` (default) unconditional treatment effects are assessed
+#' for robustness with the assumption that the treatment indicator was used as the
+#' grouping variable in `dif_analysis`. If treatment indicator was not the grouping
+#' variable in `dif_analysis`, the factor vector for treatment indicator needs to be
+#' supplied here. Robustness of the conditional treatment effects is then assessed.
 #'
-#' @note If `conditional = NULL` the grouping variable given in `comparison.name` is taken to be the treatment constrast. If `conditional = some.variable` ... actually this is kind of complicated.
+#' @return Uses the template "Bias_Correction_Report.Rmd" to produce a
+#' report summarizing whether any items on `measure.name` are biased with
+#' respect to `dif.group.name`, and, if so, to what extent this affects
+#' treatment contrasts on `measure.name`.
+#'
 #' @export
 
-dif_report <- function(dif.results,
+dif_report <- function(dif.analysis,
                        dataset.name,
                        measure.name,
-                       comparison.name = "Treatment Condition",
-                       bias.method = "IRT", irt.method = "WLE",
-                       conditional = NULL){
+                       dif.group.name,
+                       bias.method = "IRT",
+                       irt.scoring = "WLE",
+                       tx.group = NULL){
 
   ## Determining whether the bias.method is was used for the DIF analysis
-  if(is.null(dif.results[[bias.method]])){
+  if(is.null(dif.analysis[[bias.method]])){
 
-    stop(paste(bias.method, "DIF analysis was not found. Use the DIF_analysis function with", bias.method, "in the methods argument"))
+    stop(paste(bias.method, "DIF analysis was not found. Use the dif_analysis function
+               with", bias.method, "in the methods argument"))
 
-  } else {
-
-    bi <- extract_biased_items(dif.results)[[bias.method]]
-    n.biased <- length(bi)
-
-    # Kludge to run even without bi
-    if(bi[1] == "No DIF was detected") {
-      bi <- NULL
-      n.biased <- 0
-      nodifmessage <- paste0("No DIF was detected by ", bias.method, ". Therefore, robustness checks of treatment effects were not performed.")
-    }
   }
 
-  ## Gathering information for summary report
-  all.inputs <- dif.results$inputs   # shortcut to make code easier to read
+  # shortcut to make code easier to read
+  all.inputs <- dif.analysis$inputs
 
+  ## Gathering biased item information for summary report
+  # extracting biased items from each method
+  bi.list <- extract_bi(dif.analysis)
+
+  # obtaining item names and putting in a table for report
+  bi.df <- lapply(bi.list,
+                  function(x){names(all.inputs$data)[x]})
+  bi.df <- stack(bi.df)[c(2,1)]
+  names(bi.df) <- c("method", "biased.items")
+
+  # If no biased items
+  if(bi.list[[bias.method]][1] == "No DIF was detected") {
+
+    n.biased <- 0
+    nodifmessage <- paste0("No DIF was detected by ", bias.method, ". Therefore,
+                             robustness checks of treatment effects were not performed.")
+  } else {
+
+    # biased items for selected detection method
+    bi <- bi.list[[bias.method]]
+    n.biased <- length(bi.list[[bias.method]])
+
+  }
+
+  ## Gathering input information for summary report
+  # item info to print
   n.items <- ncol(all.inputs$data)
-  item_name_range <- paste(names(all.inputs$data)[[1]], "-",
+  item.name.range <- paste(names(all.inputs$data)[[1]], "-",
                            names(all.inputs$data)[[n.items]])
 
   # Names of items with no variance
@@ -57,108 +83,105 @@ dif_report <- function(dif.results,
                 "none")
 
   # names of items with no within group variance
-  nvgi <- ifelse(length(all.inputs$No_Var_by_Group_Items) !=0,
-                 paste("^b^", paste(names(all.inputs$no.var.by.group.items), collapse = ", ")),
+  nvgi <- ifelse(length(all.inputs$no.var.by.group.items) !=0,
+                 paste("^b^", paste(names(all.inputs$no.var.by.group.items),
+                                    collapse = ", ")),
                  "none")
 
-  # levels of the comparison variable
-  comp1 <- levels(all.inputs$group)[[1]]
-  comp2 <- levels(all.inputs$group)[[2]]
-  comparison_levs <- paste(comp1, comp2, sep = ", ")
+  # levels of the dif.group variable
+  dif.group1 <- levels(all.inputs$dif.group)[[1]]
+  dif.group2 <- levels(all.inputs$dif.group)[[2]]
+  dif.group.levs <- paste(dif.group1, dif.group2, sep = ", ")
 
-  # # Determining whether any biased items were identified. If not, run report without robustness check
-  # if(is.character(bi)){
-  #
-  #  NoDIFmessage <- paste0(bi, " by ", bias.method, ". Therefore, a treatment effect robustness check was not performed.")
-  #
-  #   n.biased <- 0
-  #   bias_type <- "none"
-  #
-  #   ## Naming output file and running report
-  #   filename <- paste0(Dataset_Name, "-", Measure_Name, " by ", Comparison_Name, ".html")
-  #   rmarkdown::render("Bias_Correction_Report.Rmd",
-  #                     output_file = filename)
-  #   } else {
+  # type of dif
+  dif.type <- dif.analysis[[bias.method]]$dif.type
 
-  ## Gather info uniquely for each DIF method
+  ## Gathering directionality If uniform dif
+  if (dif.type == "uniform"){
+    if(bias.method %in% c("MH", "logistic")){
 
-  # Kludge to run even without bi
-  if (is.null(bi)) {
+      uni.temp <- dif.analysis[[bias.method]]$item.level
 
-    bias.type <- "NA"
+      toward1 <- nrow(uni.temp[uni.temp$refined.bias == TRUE & uni.temp$refined.OR < 1, ])
+      toward2 <- nrow(uni.temp[uni.temp$refined.bias == TRUE & uni.temp$refined.OR > 1, ])
 
-  } else if(bias.method == "MH"){
+    } else if(bias.method == "IRT"){
 
-    bias.type <- "uniform"
+      ## extract biased item parameter estimates for each dif.group
+      ## from global.irt uniform.mod
+      g1 <- coef(dif.analysis$irt$uniform.mod)[[1]][bi]
+      g1.df <- as.data.frame(Reduce(rbind, g1))
 
-    mhtemp <- dif.results$mh$item.results
+      g2 <- coef(dif.analysis$irt$uniform.mod)[[2]][bi]
+      g2.df <- as.data.frame(Reduce(rbind, g2))
 
-    toward1 <- nrow(mhtemp[mhtemp$Refined_bias == TRUE & mhtemp$Refined_OR < 1, ])
-    toward2 <- nrow(mhtemp[mhtemp$Refined_bias == TRUE & mhtemp$Refined_OR > 1, ])
+      # calculate difference in d parameter
+      irt.direct <- data.frame(item = names(g1),
+                               diff = g2.df$d - g1.df$d)
 
-  } else if(bias.method == "logistic"){
+      toward1 <- nrow(irt.direct$diff > 0)
+      toward1 <- nrow(irt.direct$diff < 0)
 
-    bias.type <- ifelse(dif.results$logistic$item.results[1, 3] == 1,
-                        "uniform", "non-uniform")
-
-  } else if(bias.method == "IRT"){
-
-    bias.type <- ifelse(dif.results$IRT$item.results[1, 3] == 1,
-                        "uniform", "non-uniform")
+    }
   }
 
+  ## Should robustness checks be run?
+  if(n.biased > 0){
+    # For the unconditional effects
+    if(is.null(tx.group)){ # tx indicator is pulled from dif.analysis rather than provided
 
-  if(is.null(conditional)){ # For the unconditional effects
+      uncond.effects <- get_robustness(scale.data = all.inputs$data,
+                                       dif.group = all.inputs$dif.group,
+                                       biased.items = bi,
+                                       no.var.items = c(all.inputs$no.var.items,
+                                                        all.inputs$no.var.by.group.items),
+                                       no.dif.mod = dif.analysis$irt$no.dif.mod,
+                                       irt.scoring = irt.scoring)
 
-    uncond.effects <- get_robustness(scale.data = all.inputs$data,
-                                     groupvec = all.inputs$group,
-                                     biased.items = bi,
-                                     no.var.items = c(all.inputs$no.var.items,
-                                                      all.inputs$no.var.by.group.items),
-                                     nodif.mod = dif.results$irt$nodif.mod,  # Automatically pulls from dif.results, but could make this an option
-                                     irt.method = irt.method)
+    } else if(length(levels(tx.group)) == 2){
 
-  } else if(length(levels(conditional)) == 2){
-
-    # levels of the condition variable (currently intended to be treatment condition)
-    cond1 <- levels(conditional)[[1]]
-    cond2 <- levels(conditional)[[2]]
-    cond.levs <- paste(cond1, cond2, sep = ", ") # combining levels for printing in report
-
-
-    ## Treatment effect subset by comp1
-    cond.effects1 <- get_robustness(scale.data = all.inputs$data[all.inputs$group == comp1, ],
-                                    group = conditional[all.inputs$group == comp1],
-                                    biased.items = bi,
-                                    no.var.items = c(all.inputs$no.var.items,
-                                                     all.inputs$no.var.by.group.items),
-                                    nodif.mod = NULL,
-                                    irt.method = irt.method)
-
-    ## Treatment effect subset by comp2
-    cond.effects2 <- get_robustness(scale.data = all.inputs$data[all.inputs$group == comp2, ],
-                                    group = conditional[all.inputs$group == comp2],
-                                    biased.items = bi,
-                                    no.var.items = c(all.inputs$no.var.items,
-                                                     all.inputs$no.var.by.group.items),
-                                    nodif.mod = NULL,
-                                    irt.method = irt.method)
-
-    ## Calculating interaction
-    cond1mat <- as.matrix(cond.effects1$effects.table[,c(2,3,4)]) # Converting numeric columns in dataframe to matrix
-    cond2mat <- as.matrix(cond.effects2$effects.table[,c(2,3,4)])
-    cediff <- as.data.frame(cond1mat - cond2mat)                   # Calculating the difference
-    InteractionEffects <- cbind(data.frame(Item = cond.effects1$effects.table$Items),
-                                cediff) # converting back to dataframe
+      # levels of the condition variable (currently intended to be treatment condition)
+      tx.group1 <- levels(tx.group)[[1]]
+      tx.group2 <- levels(tx.group)[[2]]
+      tx.group.levs <- paste(tx.group1, tx.group2, sep = ", ") # for printing in report
 
 
-  } else {
-    stop("conditional must be a factor with two levels")
+      ## Treatment effect subset by tx.group1
+      cond.effects1 <- get_robustness(scale.data = all.inputs$data[all.inputs$dif.group == tx.group1, ],
+                                      dif.group = all.inputs$dif.group[all.inputs$dif.group == tx.group1],
+                                      biased.items = bi,
+                                      no.var.items = c(all.inputs$no.var.items,
+                                                       all.inputs$no.var.by.group.items),
+                                      no.dif.mod = NULL,
+                                      irt.scoring = irt.scoring)
+
+      ## Treatment effect subset by comp2
+      cond.effects2 <- get_robustness(scale.data = all.inputs$data[all.inputs$dif.group == tx.group2, ],
+                                      dif.group = all.inputs$dif.group[all.inputs$dif.group == tx.group2],
+                                      biased.items = bi,
+                                      no.var.items = c(all.inputs$no.var.items,
+                                                       all.inputs$no.var.by.group.items),
+                                      no.dif.mod = NULL,
+                                      irt.scoring = irt.scoring)
+
+      ## Calculating interaction - STILL NEEDS UPDATING
+      cond1mat <- as.matrix(cond.effects1$effects.table[,c(2,3,4)]) # Converting numeric columns in dataframe to matrix
+      cond2mat <- as.matrix(cond.effects2$effects.table[,c(2,3,4)])
+      cediff <- as.data.frame(cond1mat - cond2mat)                   # Calculating the difference
+      interaction.effects <- cbind(data.frame(Item = cond.effects1$effects.table$Items),
+                                  cediff) # converting back to dataframe
+
+
+    } else {
+      stop("conditional must be a factor with two levels")
+    }
   }
 
   ## Naming output file and running report
-  filename <- paste0(dataset.name, "-", measure.name, " by ", comparison.name, ".html")
-  rmarkdown::render("Bias_Correction_Report.Rmd",
-                    output_file = filename)
-  #}
+  template <- system.file("Bias-Correction-Report.Rmd", package = "WB")
+  dir <- getwd()
+  filename <- paste0(dataset.name, "-", measure.name, " by ", dif.group.name, ".html")
+  rmarkdown::render(template,
+                    output_file = filename,
+                    output_dir = dir)
 }
