@@ -74,7 +74,7 @@ if(nvgi != "none"){
 
 
 
-```{r Summary Table, results='asis'}
+```{r Summary Table, results='asis', ft.align="left"}
 
 if(n.biased > 0){
     
@@ -117,9 +117,9 @@ if(n.biased > 0){
     cat("&nbsp;  ")
     cat("\n\n")
     cat("Interaction of treatment effect by ", dif.group.name, 
-        " (", dif.group1, " - ", dif.group2, ")", sep = "")
+        " (", interaction.effects$comparison, ")", sep = "")
     cat("\n\n")
-    inttab <- format_flex(interaction.effects)
+    inttab <- format_flex(interaction.effects$effects.table)
     cat(knit_print(inttab))
     cat("\n\n")
   }
@@ -130,7 +130,7 @@ if(n.biased > 0){
 } else {
   
     cat("\n\n")
-    cat(NoDIFmessage)
+    cat(nodifmessage)
     cat("\n\n")
 }
 
@@ -141,7 +141,7 @@ if(n.biased > 0){
 
 ## Biased Item Summary
 
-```{r bi summary}
+```{r bi summary, ft.align="left"}
 
 bi.flex <- format_flex(bi.df)
 knit_print(bi.flex)
@@ -149,7 +149,7 @@ knit_print(bi.flex)
 ```
 
 
-```{r loess, results='asis', fig.width = 10, fig.height = ceiling(n_items / 6)*2 + 1}
+```{r loess, results='asis', fig.width = 10, fig.height = ceiling(n.items / 6)*2 + 1}
 
 if(!is.null(dif.analysis$loess)){
   cat("## Graphical Analysis via loess")
@@ -163,7 +163,7 @@ if(!is.null(dif.analysis$loess)){
 
 
 
-```{r MH, results='asis'}
+```{r MH, results='asis', ft.align="left"}
 
 if(!is.null(dif.analysis$MH)){
   
@@ -177,7 +177,7 @@ if(!is.null(dif.analysis$MH)){
     
   } else {
     
-    MHtab <- format_flex(dif.analysis$MH$Item, boldbias = "item")
+    MHtab <- format_flex(dif.analysis$MH$item.level, bold.bias = "item")
     cat(knit_print(MHtab))
     cat("\n\n")
   }
@@ -187,7 +187,7 @@ if(!is.null(dif.analysis$MH)){
 
 
 
-```{r Logistic Global, results='asis'}
+```{r Logistic Global, results='asis', ft.align="left"}
 if(!is.null(dif.analysis$logistic)){
   
   cat("## Logistic Regression")
@@ -196,7 +196,7 @@ if(!is.null(dif.analysis$logistic)){
   cat("#### Model Comparisons")
   cat("\n\n")
 
-  logglobtab <- format_flex(dif.analysis$logistic$global.level, boldbias = "global")
+  logglobtab <- format_flex(dif.analysis$logistic$global.level, bold.bias = "global")
   cat(knit_print(logglobtab))
   cat("\n\n")
   
@@ -212,7 +212,7 @@ if(!is.null(dif.analysis$logistic)){
         
   } else {
     
-    logitemtab <- format_flex(dif.analysis$logistic$item.level, boldbias = "item")
+    logitemtab <- format_flex(dif.analysis$logistic$item.level, bold.bias = "item")
     cat(knit_print(logitemtab))
     cat("\n\n")
   }
@@ -221,7 +221,7 @@ if(!is.null(dif.analysis$logistic)){
 ```
 
 
-```{r IRT Global, results='asis'}
+```{r IRT Global, results='asis', ft.align="left"}
 
 if(!is.null(dif.analysis$IRT)){
 
@@ -231,7 +231,7 @@ if(!is.null(dif.analysis$IRT)){
   cat("#### Model Comparisons")
   cat("\n\n")
   
-  irtglobtab <- format_flex(dif.analysis$IRT$global.level, boldbias = "global")
+  irtglobtab <- format_flex(dif.analysis$IRT$global.level, bold.bias = "global")
   cat(knit_print(irtglobtab))
   cat("\n\n")
  
@@ -247,7 +247,7 @@ if(!is.null(dif.analysis$IRT)){
         
   } else {
     
-    irtitemtab <- format_flex(dif.analysis$IRT$item.level, boldbias = "item")
+    irtitemtab <- format_flex(dif.analysis$IRT$item.level, bold.bias = "item")
     cat(knit_print(irtitemtab))
     cat("\n\n")
   }

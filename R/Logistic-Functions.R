@@ -102,7 +102,7 @@ get_logistic <- function(scale.data, dif.group, score.type, match){
           temp.df$match <- match2
 
           stage2[[i]] <- run_item_logistic(item.data = temp.df,
-                                          dif.type = global.log$dif.type)
+                                           dif.type = global.log$dif.type)
         }
       }
 
@@ -237,17 +237,17 @@ run_item_logistic <- function(item.data, dif.type){
   if(dif.type == "uniform"){
 
     item.log <- data.frame(item = item.data$item[[1]],
-                            OR = OR,
-                            deviance = modcomp$Deviance[-1],
-                            df = modcomp$Df[-1],
-                            p = modcomp$`Pr(>Chi)`[-1])
+                           OR = OR,
+                           deviance = modcomp$Deviance[-1],
+                           df = modcomp$Df[-1],
+                           p = modcomp$`Pr(>Chi)`[-1])
 
   } else {
 
     item.log <- data.frame(item = item.data$item[[1]],
-                            deviance = modcomp$Deviance[-1],
-                            df = modcomp$Df[-1],
-                            p = modcomp$`Pr(>Chi)`[-1])
+                           deviance = modcomp$Deviance[-1],
+                           df = modcomp$Df[-1],
+                           p = modcomp$`Pr(>Chi)`[-1])
   }
 
   return(item.log)

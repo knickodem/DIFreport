@@ -70,9 +70,9 @@ get_irt <- function(scale.data, dif.group){
         ## Stage 2 - Refine/Purify
         # Re-estimate no dif model while freeing IRT_free items
         global.irt$no.dif.mod2 <- mirt::multipleGroup(scale.data, model = 1,
-                                                group = dif.group,
-                                                invariance = c('free_var','free_means',
-                                                               names(scale.data)[-irt.free]))
+                                                      group = dif.group,
+                                                      invariance = c('free_var','free_means',
+                                                                     names(scale.data)[-irt.free]))
 
 
         stage2 <- lapply(nitems[-irt.free], run_item_irt,
@@ -152,11 +152,11 @@ run_global_irt <- function(scale.data, dif.group){
   nonuniform.mod <- mirt::multipleGroup(scale.data, model = 1, group = dif.group, SE = F)
 
   uniform.mod <- mirt::multipleGroup(scale.data, model = 1, group = dif.group,
-                               invariance = c('slopes', 'free_var'), SE = F)
+                                     invariance = c('slopes', 'free_var'), SE = F)
 
   no.dif.mod <- mirt::multipleGroup(scale.data, model = 1, group = dif.group,
-                              invariance = c('slopes', 'intercepts',
-                                             'free_var','free_means'), SE = F)
+                                    invariance = c('slopes', 'intercepts',
+                                                   'free_var','free_means'), SE = F)
 
   ## Model comparisons
   uniform.tab <- anova(no.dif.mod, uniform.mod, verbose = FALSE)
@@ -210,11 +210,11 @@ run_item_irt <- function(global.irt,
 
   ## Identifying items with DIF
   item.irt <- mirt::DIF(global.irt[[which.model]],
-                  which.par = global.irt$dif.params,
-                  items2test = items2test,
-                  scheme = "drop", #seq_stat = .05, max_run = 2,
-                  Wald = FALSE,
-                  return_models = FALSE) # , p.adjust = "BH", ...
+                        which.par = global.irt$dif.params,
+                        items2test = items2test,
+                        scheme = "drop", #seq_stat = .05, max_run = 2,
+                        Wald = FALSE,
+                        return_models = FALSE) # , p.adjust = "BH", ...
 
   return(item.irt)
 }

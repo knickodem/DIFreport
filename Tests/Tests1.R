@@ -47,90 +47,89 @@ tenths <- seq(0, 1, by = .1)
 #### Running analysis and Generating Report ####
 
 
-#### Importing Functions ####
-source("R/DIF_Methods_Functions.R")
-source("R/DIF_Methods_Wrappers.R")
-source("R/Measure_Level_Wrapper.R")
-
-
 #### Preparing Malawi Data ####
 
 WB_Measures <- purrr::map(.x = MalawiMeasures,
-                          ~WB_Data_Prep(data = MalawiData,
-                                        items = .x,
-                                        groupvar = "treated",   # Treamtent condition as grouping variable
-                                        condvar = "cr_gender")) # Gender as conditioning variable
+                          ~wb_data_prep(data = MalawiData,
+                                        wb.items = .x,
+                                        tx.group.name = "treated",   # Treatment condition as grouping variable
+                                        dif.group.name = "cr_gender")) # Gender as conditioning variable
 
 
 #### Test Runs ####
 ## Using Rest scores; deciles for MH
-# Unconditional Example
-tictoc::tic()
-Unconditional1 <- DIF_analysis(MeasureData = WB_Measures[[1]]$MeasureData,
-                               groupvec = WB_Measures[[1]]$GroupVector,     # For unconditional, use vector for treatment condition
-                               scoreType = "Rest",
-                               methods = c("loess", "MH", "logistic", "IRT"),
-                               MHstrata = tenths)
 
-Get_Report(DIF_Results = Unconditional1,
-           Dataset_Name = "Malawi",
-           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),
-           bias_method = "IRT",
-           conditional = NULL) # the default
+# unconditional Example
+tictoc::tic()
+unconditional1 <- dif_analysis(measure.data = WB_Measures[[1]]$measure.data,
+                               dif.group = WB_Measures[[1]]$tx.group,     # For unconditional, use vector for treatment condition
+                               score.type = "Rest",
+                               methods = c("loess", "MH", "logistic", "IRT"),
+                               match.bins = tenths)
+
+dif_report(dif.analysis = unconditional1,
+           dataset.name = "Malawi",
+           measure.name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),
+           dif.group.name = "Treatment Condition",
+           bias.method = "IRT",
+           irt.scoring = "WLE")
+tictoc::toc() # seconds
+# conditional Example
+tictoc::tic()
+conditional1 <- dif_analysis(measure.data = WB_Measures[[1]]$measure.data,
+                               dif.group = WB_Measures[[1]]$dif.group,     # For unconditional, use vector for treatment condition
+                               score.type = "Rest",
+                               methods = c("loess", "MH", "logistic", "IRT"),
+                               match.bins = tenths)
+
+dif_report(dif.analysis = conditional1,
+           dataset.name = "Malawi",
+           measure.name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[1])),
+           dif.group.name = "Gender",
+           bias.method = "IRT",
+           irt.scoring = "WLE",
+           tx.group = WB_Measures[[1]]$tx.group)
 tictoc::toc() #  seconds
 
 
-# Conditional Example
+
+
+# unconditional Example
+# using Total scores
 tictoc::tic()
-Conditional7 <- DIF_analysis(MeasureData = WB_Measures[[7]]$MeasureData,
-                             groupvec = WB_Measures[[7]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)
-                             scoreType = "Rest",
-                             methods = c("loess", "MH", "logistic", "IRT"),
-                             MHstrata = tenths)
-
-Get_Report(DIF_Results = Conditional7,
-           Dataset_Name = "Malawi",
-           Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[7])),
-           Comparison_Name = "Gender",
-           bias_method = "MH",
-           conditional = WB_Measures[[7]]$GroupVector) # use the treatment condition vector here
-tictoc::toc() # 613 seconds
-
-
-# Run all
-library(tictoc)
-for (i in 5:length(MalawiMeasures)){
-
-  tic(as.character(i))          # Record time to run all replications for each condition
-
-  Unconditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
-                                 groupvec = WB_Measures[[i]]$GroupVector,     # For unconditional, use vector for treatment condition
-                                 scoreType = "Rest",
-                                 methods = c("loess", "MH", "logistic", "IRT"),
-                                 MHstrata = tenths)
-
-  Get_Report(DIF_Results = Unconditional,
-             Dataset_Name = "Malawi",
-             Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
-             bias_method = "IRT",
-             conditional = NULL) # the default
-
-  Conditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
-                               groupvec = WB_Measures[[i]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)
-                               scoreType = "Rest",
+unconditional2 <- dif_analysis(measure.data = WB_Measures[[2]]$measure.data,
+                               dif.group = WB_Measures[[2]]$tx.group,     # For unconditional, use vector for treatment condition
+                               score.type = "Total",
                                methods = c("loess", "MH", "logistic", "IRT"),
-                               MHstrata = tenths)
+                               match.bins = tenths)
 
-  Get_Report(DIF_Results = Conditional,
-             Dataset_Name = "Malawi",
-             Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
-             Comparison_Name = "Gender",
-             bias_method = "IRT",
-             conditional = WB_Measures[[i]]$GroupVector) # use the treatment condition vector here
+dif_report(dif.analysis = unconditional2,
+           dataset.name = "Malawi",
+           measure.name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[2])),
+           dif.group.name = "Treatment Condition",
+           bias.method = "IRT",
+           irt.scoring = "WLE")
+tictoc::toc() # seconds
 
-  ## logging time to run condition
-  toc(quiet = TRUE, log = TRUE)
+# conditional
 
-}
+tictoc::tic()
+conditional2 <- dif_analysis(measure.data = WB_Measures[[2]]$measure.data,
+                             dif.group = WB_Measures[[2]]$dif.group,     # For unconditional, use vector for treatment condition
+                             score.type = "Total",
+                             methods = c("loess", "MH", "logistic", "IRT"),
+                             match.bins = tenths)
 
-TimingLog <- tic.log(format = TRUE)
+dif_report(dif.analysis = conditional2,
+           dataset.name = "Malawi",
+           measure.name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[2])),
+           dif.group.name = "Gender",
+           bias.method = "IRT",
+           irt.scoring = "WLE",
+           tx.group = WB_Measures[[2]]$tx.group)
+tictoc::toc() #  seconds
+
+
+
+
+
