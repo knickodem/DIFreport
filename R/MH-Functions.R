@@ -108,11 +108,11 @@ get_mh <- function(scale.data,
     mh2$bias <- p.adjust(mh2$p, method = "BH") < .05
 
     # Output dataframe combining stage 1 and stage 2
-    names(mh1)[-1] <- paste0("initial_", names(mh1)[-1])
-    names(mh2)[-1] <- paste0("refined_", names(mh2)[-1])
+    names(mh1)[-1] <- paste0("initial.", names(mh1)[-1])
+    names(mh2)[-1] <- paste0("refined.", names(mh2)[-1])
 
     mh <- list(item.level = cbind(mh1, mh2[,-1]),
-               biased.items = which(mh2$refined_bias == 1),
+               biased.items = which(mh2$refined.bias == 1),
                dif.type = "uniform")
 
   } else {

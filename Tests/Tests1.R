@@ -73,7 +73,7 @@ dif_report(dif.analysis = unconditional1,
            dif.group.name = "Treatment Condition",
            bias.method = "IRT",
            irt.scoring = "WLE")
-tictoc::toc() # seconds
+tictoc::toc() # 70-90 seconds
 # conditional Example
 tictoc::tic()
 conditional1 <- dif_analysis(measure.data = WB_Measures[[1]]$measure.data,
@@ -89,7 +89,7 @@ dif_report(dif.analysis = conditional1,
            bias.method = "IRT",
            irt.scoring = "WLE",
            tx.group = WB_Measures[[1]]$tx.group)
-tictoc::toc() #  seconds
+tictoc::toc() # 247 seconds
 
 
 
@@ -109,7 +109,7 @@ dif_report(dif.analysis = unconditional2,
            dif.group.name = "Treatment Condition",
            bias.method = "IRT",
            irt.scoring = "WLE")
-tictoc::toc() # seconds
+tictoc::toc() # 33-46 seconds
 
 # conditional
 
@@ -131,5 +131,40 @@ tictoc::toc() #  seconds
 
 
 
+tempfunc <- function(dif.analysis, bias.method){
 
+  dif.type = dif.analysis[[bias.method]]$dif.type
+  bi.list <- extract_bi(dif.analysis)
+  bi <- bi.list[[bias.method]]
 
+  if (dif.type == "uniform"){
+    if(bias.method %in% c("MH", "logistic")){
+
+      uni.temp <- dif.analysis[[bias.method]]$item.level
+
+      toward1 <- nrow(uni.temp[uni.temp$refined.bias == TRUE & uni.temp$refined.OR < 1, ])
+      toward2 <- nrow(uni.temp[uni.temp$refined.bias == TRUE & uni.temp$refined.OR > 1, ])
+
+    } else if(bias.method == "IRT"){
+
+      ## extract biased item parameter estimates for each dif.group
+      ## from global.irt uniform.mod
+      g1 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[1]][c(bi)]
+      g1.df <- as.data.frame(Reduce(rbind, g1))
+
+      g2 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[2]][c(bi)]
+      g2.df <- as.data.frame(Reduce(rbind, g2))
+
+      # calculate difference in b (difficulty) parameter
+      b.diff <- g1.df$b - g2.df$b
+
+      toward1 <- length(d.diff[b.diff < 0])
+      toward2 <- length(d.diff[b.diff > 0])
+
+    }
+  }
+  list(toward1 = toward1,
+       toward2 = toward2)
+}
+
+tempfunc(dif.analysis = conditional2, bias.method = "IRT")

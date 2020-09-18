@@ -5,8 +5,9 @@
 #'
 #' @param measure.data data frame of dichotomous item responses with subjects in rows
 #' and items in columns
-#' @param dif.group factor or character vector of group membership for which DIF
-#' is evaluated. If a character vector, this will be transformed to a [base::factor()].
+#' @param dif.group factor or character vector with 2 levels; indicates group membership
+#' for which DIF is evaluated. If a character vector, this will be transformed
+#' to a [base::factor()].
 #' @param methods character vector with one or more of the four available methods:
 #' "loess", "MH", "logistic", and "IRT".
 #' The default is all four methods.

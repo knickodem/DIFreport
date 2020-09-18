@@ -1,6 +1,6 @@
 #' Generate report of DIF analysis
 #'
-#' Produces a report (via .Rmd) that summarizes measurement bias analysis for a given
+#' Produces a report summarizing an analysis of measurement bias for a given
 #' scale and grouping variable
 #'
 #' @param dif.analysis an object returned from `dif_analysis`
@@ -13,8 +13,9 @@
 #' @param bias.method options are "MH", "logistic", or "IRT" (default).
 #' Which method in the `dif.analysis` object should the biased items, if detected, be
 #' extracted?
-#' @param irt.scoring factor score estimation method, which is passed to [mirt::fscores()].
-#' Default is "WLE". See [mirt::fscores()] documentation for other options.
+#' @param irt.scoring factor score estimation method, which is passed to
+#' [mirt::fscores()]. Default is "WLE". See [mirt::fscores()] documentation for
+#' other options.
 #' @param tx.group When `NULL` (default) unconditional treatment effects are assessed
 #' for robustness with the assumption that the treatment indicator was used as the
 #' grouping variable in `dif_analysis`. If treatment indicator was not the grouping
@@ -109,18 +110,17 @@ dif_report <- function(dif.analysis,
 
       ## extract biased item parameter estimates for each dif.group
       ## from global.irt uniform.mod
-      g1 <- coef(dif.analysis$irt$uniform.mod)[[1]][bi]
+      g1 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[1]][c(bi)]
       g1.df <- as.data.frame(Reduce(rbind, g1))
 
-      g2 <- coef(dif.analysis$irt$uniform.mod)[[2]][bi]
+      g2 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[2]][c(bi)]
       g2.df <- as.data.frame(Reduce(rbind, g2))
 
-      # calculate difference in d parameter
-      irt.direct <- data.frame(item = names(g1),
-                               diff = g2.df$d - g1.df$d)
+      # calculate difference in b (difficulty) parameter
+      b.diff <- g1.df$b - g2.df$b
 
-      toward1 <- nrow(irt.direct$diff > 0)
-      toward1 <- nrow(irt.direct$diff < 0)
+      toward1 <- length(d.diff[b.diff < 0])
+      toward2 <- length(d.diff[b.diff > 0])
 
     }
   }
