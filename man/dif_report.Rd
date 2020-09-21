@@ -2,41 +2,51 @@
 % Please edit documentation in R/DIF-Report.R
 \name{dif_report}
 \alias{dif_report}
-\title{Produces a report (via .Rmd) that summarizes measurement bias analysis for a given
-scale and given grouping variable}
+\title{Generate report of DIF analysis}
 \usage{
 dif_report(
-  dif.results,
+  dif.analysis,
   dataset.name,
   measure.name,
-  comparison.name = "Treatment Condition",
+  dif.group.name,
   bias.method = "IRT",
-  irt.method = "WLE",
-  conditional = NULL
+  irt.scoring = "WLE",
+  tx.group = NULL
 )
 }
 \arguments{
-\item{dataset.name}{desc}
+\item{dif.analysis}{an object returned from `dif_analysis`}
 
-\item{measure.name}{desc}
+\item{dataset.name}{character; name of the dataset where the measure and
+item responses came from. This is printed in the report title and summary.
+For World Bank data, this will typically be a country.}
 
-\item{comparison.name}{desc}
+\item{measure.name}{character; name of the measure being evaluated for DIF.
+This is printed in the report title and summary.}
 
-\item{bias.method}{desc}
+\item{dif.group.name}{character; name of the group used in the DIF analysis.}
 
-\item{irt.method}{desc}
+\item{bias.method}{options are "MH", "logistic", or "IRT" (default).
+Which method in the `dif.analysis` object should the biased items, if detected, be
+extracted?}
 
-\item{conditional}{desc}
+\item{irt.scoring}{factor score estimation method, which is passed to
+[mirt::fscores()]. Default is "WLE". See [mirt::fscores()] documentation for
+other options.}
 
-\item{dif.analysis}{desc}
+\item{tx.group}{When `NULL` (default) unconditional treatment effects are assessed
+for robustness with the assumption that the treatment indicator was used as the
+grouping variable in `dif_analysis`. If treatment indicator was not the grouping
+variable in `dif_analysis`, the factor vector for treatment indicator needs to be
+supplied here. Robustness of the conditional treatment effects is then assessed.}
 }
 \value{
-Uses the template file "Bias_Correction_Report.Rmd" to produce a report summarizing whether any items on `measure.name` are biased with respect to `comparison.name`, and, if so, to what extent this affects treatment contrasts on `measure.name`.
+Uses the template "Bias_Correction_Report.Rmd" to produce a
+report summarizing whether any items on `measure.name` are biased with
+respect to `dif.group.name`, and, if so, to what extent this affects
+treatment contrasts on `measure.name`.
 }
 \description{
-Produces a report (via .Rmd) that summarizes measurement bias analysis for a given
-scale and given grouping variable
-}
-\note{
-If `conditional = NULL` the grouping variable given in `comparison.name` is taken to be the treatment constrast. If `conditional = some.variable` ... actually this is kind of complicated.
+Produces a report summarizing an analysis of measurement bias for a given
+scale and grouping variable
 }

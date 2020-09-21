@@ -16,10 +16,11 @@ dif_analysis(
 \item{measure.data}{data frame of dichotomous item responses with subjects in rows
 and items in columns}
 
-\item{dif.group}{factor or character vector of group membership for which DIF
-is evaluated. If a character vector, this will be transformed to a [base::factor()].}
+\item{dif.group}{factor or character vector with 2 levels; indicates group membership
+for which DIF is evaluated. If a character vector, this will be transformed
+to a [base::factor()].}
 
-\item{methods}{Character vector with one or more of the four available methods:
+\item{methods}{character vector with one or more of the four available methods:
 "loess", "MH", "logistic", and "IRT".
 The default is all four methods.}
 

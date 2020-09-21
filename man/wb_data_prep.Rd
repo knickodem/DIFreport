@@ -4,17 +4,18 @@
 \alias{wb_data_prep}
 \title{Preparing World Bank Data}
 \usage{
-wb_data_prep(data, wb.items, tx.group, dif.group = tx.group)
+wb_data_prep(data, wb.items, tx.group.name, dif.group.name = tx.group.name)
 }
 \arguments{
 \item{data}{`data.frame` containing item responses and group indicators.}
 
 \item{wb.items}{regex character string identifying item response columns in `data`}
 
-\item{tx.group}{Character. Variable name of treatment indicator in `data`.}
+\item{tx.group.name}{character; variable name of treatment indicator in `data`.}
 
-\item{dif.group}{Character.Variable name in `data` for which DIF is evaluated.
-Default is `tx.group`}
+\item{dif.group.name}{optional character; variable name in `data` for which DIF
+is evaluated. Supply only if different from `tx.group.name`
+Default is `tx.group.name`}
 }
 \value{
 A named list where `measure.data` is the data frame of item responses
@@ -24,4 +25,8 @@ is returned in the element `tx.group`.
 }
 \description{
 Function specifically for cleaning World Bank Data to run a DIF analysis and report
+}
+\details{
+Currently, `tx.group.name` (and `dif.group.name` if supplied) must name a factor
+ with 2 (and only 2) levels
 }

@@ -7,7 +7,7 @@
 \usage{
 get_loess(scale.data, dif.group, score.type, match)
 
-run_loess(scale.data, item, dif.group, match, pred.scores, nitems)
+run_loess(scale.data, dif.group, item, match, pred.scores, nitems)
 }
 \arguments{
 \item{scale.data}{data frame of dichotomous item responses with subjects in rows
@@ -15,13 +15,15 @@ and items in columns}
 
 \item{dif.group}{factor vector of group membership for which DIF is evaluated.}
 
-\item{score.type}{character string indicating whether `match` is a
+\item{score.type}{character indicating whether `match` is a
 total summed score ("Total") or the summed score excluding the item under
 investigation ("Rest").}
 
 \item{match}{numeric vector used as the predictor in the LOESS regression.
 In `get_loess`, if `score.type` = "Rest", `match` will be a list of vectors -
 one for each item in `scale.data`.}
+
+\item{item}{integer; item in `scale.data` under investigation for DIF}
 
 \item{pred.scores}{range of scores to use in [stats::predict()] for generating
 the LOESS curves. The values are defined in `get_loess`and passed to `run_loess`.}
@@ -35,10 +37,10 @@ A two-element list containing 1) the plot of LOESS curves for each
 the plot (returned from `run_loess`).
 }
 \description{
-Visual inspection of DIF using LOESS regression curves
+Visual inspection of DIF with LOESS regression curves
 }
 \details{
-For a single item in `scale.data`, `run_loess` regresses the item responses on the
+For a each item in `scale.data`, `run_loess` regresses the item responses on the
 scores supplied to `match`. A separate model is run for each `dif.group` level.
 `get_loess` is a wrapper around `run_loess` that both initiates the call to
 `run_loess` for each item and uses the results to plot the LOESS curves.
