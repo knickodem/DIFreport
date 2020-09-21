@@ -12,6 +12,15 @@
 #' items2test argument of [mirt::DIF()].
 #'
 #' @details
+#' `run_global_irt` compares no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
+#' The models are run [mirt::multipleGroup()] by constraining slopes and intercepts,
+#' slopes only, and nothing, respectively, to be equal between the levels of `dif.group`.
+#' Model fit is compared with a likelihood ratio test.
+#' If DIF is detected through the model comparisons, the
+#' specific item(s) with DIF are identified via `run_item_irt` using
+#' [mirt::DIF()]. `get_irt` is a wrapper around the other functions that
+#' organizes the initial and refinement phases of the DIF analysis and compiles
+#' the results.
 #'
 #' @return a list containing 1) DIF model comparisons,
 #' 2) item-level DIF tests, 3) integer vector of the items showing DIF

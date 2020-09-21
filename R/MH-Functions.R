@@ -16,7 +16,11 @@
 #' @param item integer; item in `scale.data` under investigation for DIF
 #'
 #' @details
-#'
+#' `run_mh` conducts a Mantel-Haenszel test via [stats::mantelhaen.test] for each
+#' item in `scale.data` grouped by `dif.group` and stratified by the scores supplied
+#' to `match`, which, if specified, are binned by `match.bins`.
+#' `get_mh` is a wrapper around `run_mh` that organizes the initial and refinement
+#' phases of the DIF analysis and compiles the results.
 #'
 #' @return A two-element list containing 1) a data frame with MH results for each item
 #' in `scale.data` and 2) an integer vector of the items showing DIF (i.e., biased items).

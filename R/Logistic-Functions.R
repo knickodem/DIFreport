@@ -16,6 +16,13 @@
 #' determined in `run_global_logistic`.
 #'
 #' @details
+#' `run_global_logistic` compares no DIF, uniform DIF, and non-uniform DIF logistic
+#' regression models by regressing dichotomous item responses from `scale.data` on item,
+#' `match`, and `dif.group`, along with interactions. If DIF is detected through the
+#' model comparisons, the specific item(s) with DIF are identified via
+#' `run_item_logistic`. `get_logistic` is a wrapper around the other functions that
+#' organizes the initial and refinement phases of the DIF analysis and compiles
+#' the results.
 #'
 #' @return a four-element list containing 1) DIF model comparisons,
 #' 2) item-level DIF tests, 3) integer vector of the items showing DIF

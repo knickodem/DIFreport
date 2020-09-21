@@ -53,6 +53,7 @@ dif_report <- function(dif.analysis,
   bi.list <- extract_bi(dif.analysis)
 
   # obtaining item names and putting in a table for report
+  # Note: returns NA if no biased items
   bi.df <- lapply(bi.list,
                   function(x){paste(names(all.inputs$data)[x], collapse = ", ")})
   bi.df <- data.frame(method = c("MH", "logistic", "IRT"),
@@ -97,36 +98,37 @@ dif_report <- function(dif.analysis,
   # type of dif
   dif.type <- dif.analysis[[bias.method]]$dif.type
 
-  ## Gathering directionality if uniform dif
-  if (dif.type == "uniform"){
-    if(bias.method %in% c("MH", "logistic")){
-
-      uni.temp <- dif.analysis[[bias.method]]$item.level
-
-      toward1 <- nrow(uni.temp[uni.temp$refined.bias == TRUE & uni.temp$refined.OR < 1, ])
-      toward2 <- nrow(uni.temp[uni.temp$refined.bias == TRUE & uni.temp$refined.OR > 1, ])
-
-    } else if(bias.method == "IRT"){
-
-      ## extract biased item parameter estimates for each dif.group
-      ## from global.irt uniform.mod
-      g1 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[1]][c(bi)]
-      g1.df <- as.data.frame(Reduce(rbind, g1))
-
-      g2 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[2]][c(bi)]
-      g2.df <- as.data.frame(Reduce(rbind, g2))
-
-      # calculate difference in b (difficulty) parameter
-      b.diff <- g1.df$b - g2.df$b
-
-      toward1 <- length(d.diff[b.diff < 0])
-      toward2 <- length(d.diff[b.diff > 0])
-
-    }
-  }
-
   ## Should robustness checks be run?
   if(n.biased > 0){
+
+    ## Gathering directionality if uniform dif
+    if (dif.type == "uniform"){
+      if(bias.method %in% c("MH", "logistic")){
+
+        uni.temp <- dif.analysis[[bias.method]]$item.level
+
+        toward1 <- nrow(uni.temp[uni.temp$refined.bias == TRUE & uni.temp$refined.OR < 1, ])
+        toward2 <- nrow(uni.temp[uni.temp$refined.bias == TRUE & uni.temp$refined.OR > 1, ])
+
+      } else if(bias.method == "IRT"){
+
+        ## extract biased item parameter estimates for each dif.group
+        ## from global.irt uniform.mod
+        g1 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[1]][c(bi)]
+        g1.df <- as.data.frame(Reduce(rbind, g1))
+
+        g2 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[2]][c(bi)]
+        g2.df <- as.data.frame(Reduce(rbind, g2))
+
+        # calculate difference in b (difficulty) parameter
+        b.diff <- g1.df$b - g2.df$b
+
+        toward1 <- length(b.diff[b.diff < 0])
+        toward2 <- length(b.diff[b.diff > 0])
+
+      }
+    }
+
     # For the unconditional effects
     if(is.null(tx.group)){ # tx indicator is pulled from dif.analysis rather than provided
 

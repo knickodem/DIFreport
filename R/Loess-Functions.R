@@ -18,7 +18,7 @@
 #' and passed to `run_loess`.
 #'
 #' @details
-#' For a single item in `scale.data`, `run_loess` regresses the item responses on the
+#' For a each item in `scale.data`, `run_loess` regresses the item responses on the
 #' scores supplied to `match`. A separate model is run for each `dif.group` level.
 #' `get_loess` is a wrapper around `run_loess` that both initiates the call to
 #' `run_loess` for each item and uses the results to plot the LOESS curves.
