@@ -1,3 +1,15 @@
+# Notes on testing:
+
+ # For tests it is better to build and then load the package instead of sourcing the R
+
+ # When the package is built, we can find the Rmd templates using the following command which
+ # returns the path to the file if it is included in inst/rmd
+
+ # system.file("rmd", "file.Rmd", package = "packagename")
+
+  # more info here:
+  # https://stackoverflow.com/questions/30377213/how-to-include-rmarkdown-file-in-r-package
+
 #####################################
 #### Importing Input Information ####
 
@@ -14,11 +26,11 @@ MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12
 MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)
 
 ## Items for each measure
-MalawiMeasures <- list(MDAT_language.Midline = "l[0-9]+_2",
+MalawiMeasures <- list(MDAT_language.Midline = "^l[0-9]+_2",
                        MDAT_motor.Midline = "fm[0-9]+_2",
                        PPVT.Endline = "ppvt[0-9]+_3",
                        Kaufman_hand_movement.Endline = "hm[0-9]+_3",
-                       Kaufman_triangles.Endline = "t[0-9]+_3",
+                       Kaufman_triangles.Endline = "^t[0-9]+_3",
                        Kaufman_number_recall.Endline = "nr[0-9]+_3",
                        EGMA_number_recognition.Endline = "recog[0-9]+_3",
                        EGMA_quantity_discrimination.Endline = "quant[0-9]+_3",
@@ -35,14 +47,14 @@ tenths <- seq(0, 1, by = .1)
 
 
 #### Importing Functions ####
-source("DIF_Methods_Functions.R")
-source("DIF_Methods_Wrappers.R")
-source("Measure_Level_Wrapper.R")
+source("R/DIF_Methods_Functions.R")
+source("R/DIF_Methods_Wrappers.R")
+source("R/Measure_Level_Wrapper.R")
 
 
 #### Preparing Malawi Data ####
 
-WB_Measures <- purrr::map(.x = MalawiMeasures, 
+WB_Measures <- purrr::map(.x = MalawiMeasures,
                           ~WB_Data_Prep(data = MalawiData,
                                         items = .x,
                                         groupvar = "treated",   # Treamtent condition as grouping variable
@@ -84,40 +96,40 @@ Get_Report(DIF_Results = Conditional7,
 tictoc::toc() # 613 seconds
 
 
-# Run all 
+# Run all
 library(tictoc)
-for (i in 1:length(MalawiMeasures)){
-  
+for (i in 5:length(MalawiMeasures)){
+
   tic(as.character(i))          # Record time to run all replications for each condition
-  
+
   Unconditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
                                  groupvec = WB_Measures[[i]]$GroupVector,     # For unconditional, use vector for treatment condition
                                  scoreType = "Rest",
                                  methods = c("loess", "MH", "logistic", "IRT"),
                                  MHstrata = tenths)
-  
+
   Get_Report(DIF_Results = Unconditional,
              Dataset_Name = "Malawi",
              Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
              bias_method = "IRT",
              conditional = NULL) # the default
-  
+
   Conditional <- DIF_analysis(MeasureData = WB_Measures[[i]]$MeasureData,
                                groupvec = WB_Measures[[i]]$CondVector,        # for conditional, use vector for conditioning variable (e.g., Gender)
                                scoreType = "Rest",
                                methods = c("loess", "MH", "logistic", "IRT"),
                                MHstrata = tenths)
-  
+
   Get_Report(DIF_Results = Conditional,
              Dataset_Name = "Malawi",
              Measure_Name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
              Comparison_Name = "Gender",
              bias_method = "IRT",
              conditional = WB_Measures[[i]]$GroupVector) # use the treatment condition vector here
-  
+
   ## logging time to run condition
   toc(quiet = TRUE, log = TRUE)
-    
+
 }
 
 TimingLog <- tic.log(format = TRUE)

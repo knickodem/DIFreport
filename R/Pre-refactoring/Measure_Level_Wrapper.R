@@ -360,7 +360,7 @@ Get_Report <- function(DIF_Results,
     UnconditionalEffects <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data,
                                                     groupvec = DIF_Results$Inputs$group,
                                                     biased.items = BIs,
-                                                    no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
+                                                    no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$Inputs$No_Var_by_Group_Items),
                                                     nodif_mod = DIF_Results$IRT$nodif_mod,  # Automatically pulls from DIF_Results, but could make this an option
                                                     IRTmethod = IRT_score_method)
     
@@ -376,7 +376,7 @@ Get_Report <- function(DIF_Results,
     ConditionalEffects1 <- CompareTreatmentEffects(MeasureData = DIF_Results$Inputs$data[DIF_Results$Inputs$group == comp1, ],
                                                    groupvec = conditional[DIF_Results$Inputs$group == comp1],
                                                    biased.items = BIs,
-                                                   no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$InPuts$No_Var_by_Group_Items),
+                                                   no.var.items = c(DIF_Results$Inputs$No_Var_Items, DIF_Results$Inputs$No_Var_by_Group_Items),
                                                    nodif_mod = NULL,
                                                    IRTmethod = "WLE")
     

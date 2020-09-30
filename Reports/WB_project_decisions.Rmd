@@ -25,20 +25,20 @@ check <- MalawiData[384:403] %>%
  - recog4_3 has a value of 3 in one cell (instead of all 0s and 1s)
  - recog12_3 has a value of 2 in one cell
  - recog15_3 has a value of 9 in one cell
- 
+
 
 # Alternative approaches
 
 Comparing results from our code to using the difR package as a sensitivity check
  - Would need to write a function to extract the relevant info into the dataframe output we desire since the difR output is disjointed
  - Also a bit difficult to determine what is going on "under the hood" in difR. Need to review the workhorse functions to determine what procedures are exactly being used, and how many tests are conducted, etc...
- - At first glance, it does not seem like using difR would save much time/debugging issues 
+ - At first glance, it does not seem like using difR would save much time/debugging issues
 
 
 ## What should Get_Report (or CompareTreatmentEffects) do if scalar_mod cannot be estimated? Just report raw score
 # Same for WB_Measures[[4]], WB_Measures[[6]] (gave all kinds of low frequency errors; use this one as the test case for removing items:
 # nr17 nr18 nr19 nr20 nr21 nr22 ),
-# sam for WB_Measures[[9]] 
+# sam for WB_Measures[[9]]
 # WB_Measures[[1]], WB_Measures[[8]] don't seem to have DIF by Tx
 # WB_Measures[[3]] has 108 items; WB_Measures[[5]] has 142; these take a while
 # WB_Measures[[7]] is number recog
@@ -61,5 +61,3 @@ I am currently organizing this by function, which should be helpful if this tran
 ## DIF_analysis
 
  - Assumes the grouping variable (groupvec) is a factor with 2 levels
-
-

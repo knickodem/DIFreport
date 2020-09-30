@@ -1,0 +1,256 @@
+---
+author: "PFH & KKN" 
+output:
+   html_document:
+      toc: TRUE
+      always_allow_html: TRUE
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(options(knitr.kable.NA = ''))
+
+# library(knitr)
+# library(rmarkdown)
+# library(flextable)
+
+```
+
+---
+title: "`r paste0("Measurement Bias Analysis of ", measure.name, " by ", dif.group.name, " in ", dataset.name)`"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+---
+
+# Summary
+
+
+**Dataset:** `r dataset.name`
+
+**Outcome variable:** `r paste0(measure.name,  " (", item.name.range, ")")`
+
+**Comparison variable:** `r paste0(dif.group.name, " (", dif.group.levs, ")")`
+
+**Items with no variance:** `r nvi`
+
+**Items with no variance within levels of comparison variable:** `r nvgi`
+
+**Bias detection method:** `r if(bias.method == "IRT") bias.method else paste(bias.method,"using", all.inputs$score.type, "Scores")`
+
+**Total number of biased items:** `r paste(n.biased, "out of", n.items)`
+
+**Type of item bias:** `r dif.type`
+
+```{r direction, results='asis'}
+if(dif.type == "uniform"){
+  if(n.biased > 0){
+  
+  cat("* Number of items uniformly biased toward ", dif.group1, ": ", toward1, sep = "")
+  cat("\n\n")
+  cat("* Number of items uniformly biased toward ", dif.group2, ": ", toward2, sep = "")
+  }
+}
+```
+  
+
+```{r No Var, results='asis'}
+if(nvi != "none"){
+  
+  cat("\n\n")
+  cat("^a^ Items were not included in any DIF analysis and were not used to compute 
+      IRT-based robustness checks of treatment effects.")
+  cat("\n\n")
+}
+
+
+if(nvgi != "none"){
+  
+  cat("\n\n")
+  cat("^b^ Items were not included in the IRT-based DIF analysis and were not used 
+      to compute IRT-based robustness checks of treatment effects.")
+  cat("\n\n")
+}
+
+```
+
+
+
+```{r Summary Table, results='asis', ft.align="left"}
+
+if(n.biased > 0){
+    
+  if(is.null(tx.group)){
+    
+    cat("## Robustness Checks for Treatment Effects")
+    cat("\n\n")
+    
+    cat("Summary table for robustness of unconditional treatment effects 
+        (comparing ", uncond.effects$comparison, ")", sep  ="") 
+    cat("\n\n")
+    
+    unctab <- format_flex(uncond.effects$effects.table)
+    cat(knit_print(unctab))
+    cat("\n\n")
+    
+  } else {
+  
+    cat("## Robustness Checks for Treatment Effects Conditional on Comparison Variable")
+    cat("\n\n")
+  
+    cat("Summary table for robustness of conditional treatment effects for ", dif.group1, 
+        " (comparing ", cond.effects1$comparison, ")", sep  = "") 
+    cat("\n\n")
+  
+    condeff1tab <- format_flex(cond.effects1$effects.table)
+    cat(knit_print(condeff1tab))
+    cat("\n\n")
+  
+    cat("&nbsp;  ")
+    cat("\n\n")
+    cat("Summary table for robustness of conditional treatment effects for ", dif.group2, 
+        " (comparing ", cond.effects2$comparison, ")", sep  = "") 
+    cat("\n\n")
+    
+    condeff2tab <- format_flex(cond.effects2$effects.table)
+    cat(knit_print(condeff2tab))
+    cat("\n\n")
+    
+    cat("&nbsp;  ")
+    cat("\n\n")
+    cat("Interaction of treatment effect by ", dif.group.name, 
+        " (", interaction.effects$comparison, ")", sep = "")
+    cat("\n\n")
+    inttab <- format_flex(interaction.effects$effects.table)
+    cat(knit_print(inttab))
+    cat("\n\n")
+  }
+  
+  cat("&nbsp;  ")
+  cat("*Note:* Adj. Delta  = Scale Delta / sqrt(Reliability)")
+  
+} else {
+  
+    cat("\n\n")
+    cat(nodifmessage)
+    cat("\n\n")
+}
+
+```
+
+
+# Bias Detection Methods
+
+## Biased Item Summary
+
+```{r bi summary, ft.align="left"}
+
+bi.flex <- format_flex(bi.df)
+knit_print(bi.flex)
+
+```
+
+
+```{r loess, results='asis', fig.width = 10, fig.height = ceiling(n.items / 6)*2 + 1}
+
+if(!is.null(dif.analysis$loess)){
+  cat("## Graphical Analysis via loess")
+  cat("\n\n")
+  
+  print(dif.analysis$loess$plot)
+  
+}
+```
+
+
+
+
+```{r MH, results='asis', ft.align="left"}
+
+if(!is.null(dif.analysis$MH)){
+  
+  cat("## Mantel-Haenszel")
+  cat("\n\n")
+    
+  if(class(dif.analysis$MH$item.level) == "character"){
+        
+    cat(dif.analysis$MH$item.level)
+    cat("\n\n")
+    
+  } else {
+    
+    MHtab <- format_flex(dif.analysis$MH$item.level, bold.bias = "item")
+    cat(knit_print(MHtab))
+    cat("\n\n")
+  }
+}
+```
+
+
+
+
+```{r Logistic Global, results='asis', ft.align="left"}
+if(!is.null(dif.analysis$logistic)){
+  
+  cat("## Logistic Regression")
+  cat("\n\n")
+  
+  cat("#### Model Comparisons")
+  cat("\n\n")
+
+  logglobtab <- format_flex(dif.analysis$logistic$global.level, bold.bias = "global")
+  cat(knit_print(logglobtab))
+  cat("\n\n")
+  
+  cat("&nbsp;  ")
+  cat("\n\n")
+  cat("#### Item-level Tests")
+  cat("\n\n")
+  
+  if(class(dif.analysis$logistic$item.level) == "character"){
+    
+    cat(dif.analysis$logistic$item.level)
+    cat("\n\n")
+        
+  } else {
+    
+    logitemtab <- format_flex(dif.analysis$logistic$item.level, bold.bias = "item")
+    cat(knit_print(logitemtab))
+    cat("\n\n")
+  }
+
+}
+```
+
+
+```{r IRT Global, results='asis', ft.align="left"}
+
+if(!is.null(dif.analysis$IRT)){
+
+  cat("## Item Response Theory")
+  cat("\n\n")
+  
+  cat("#### Model Comparisons")
+  cat("\n\n")
+  
+  irtglobtab <- format_flex(dif.analysis$IRT$global.level, bold.bias = "global")
+  cat(knit_print(irtglobtab))
+  cat("\n\n")
+ 
+  cat("&nbsp;  ")
+  cat("\n\n")
+  cat("#### Item-level Tests")
+  cat("\n\n")
+  
+  if(class(dif.analysis$IRT$item.level) == "character"){
+    
+    cat(dif.analysis$IRT$item.level)
+    cat("\n\n")
+        
+  } else {
+    
+    irtitemtab <- format_flex(dif.analysis$IRT$item.level, bold.bias = "item")
+    cat(knit_print(irtitemtab))
+    cat("\n\n")
+  }
+}
+
+```
