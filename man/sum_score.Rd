@@ -15,10 +15,10 @@ format_flex(df, bold.bias = "no", digits = 3)
 \arguments{
 \item{scale.data}{data frame of dichotomous item responses used to calculate the score}
 
-\item{drops}{integer vector of item locations in `scale.data` to exclude from
+\item{drops}{integer vector of item locations in \code{scale.data} to exclude from
 score calculation}
 
-\item{dif.analysis}{an object returned from `dif_analysis`}
+\item{dif.analysis}{an object returned from \code{dif_analysis}}
 
 \item{df}{a data frame}
 
@@ -29,17 +29,17 @@ displays model comparisons ("model") or item-level tests ("item").}
 \item{digits}{integer; number decimal places to print in report tables}
 }
 \value{
-`sum_score` returns a numeric vector of summed scores
-`extract_bi` returns list of biased items from each `dif.analysis` method
-`format_flex` returns a [flextable::flextable()]` object
+\code{sum_score} returns a numeric vector of summed scores
+\code{extract_bi} returns list of biased items from each \code{dif.analysis} method
+\code{format_flex} returns a \code{\link[flextable]{flextable}} object
 }
 \description{
 Collection of convenience functions to improve automaticity and code readability
 }
 \details{
-`sum_score` sums dichotomous item responses into a scale score
-`extract_bi` extracts the biased items identified from each `dif.analysis` method.
+\code{sum_score} sums dichotomous item responses into a scale score
+\code{extract_bi} extracts the biased items identified from each \code{dif.analysis} method.
 If no biased items were detected, a character string indicated so is extracted.
-`format_flex` converts the DIF results from a data frame to a
- [flextable::flextable()]` and formats the table for printing in the report.
+\code{format_flex} converts the DIF results from a data frame to a
+\code{\link[flextable]{flextable}} and formats the table for printing in the report.
 }

@@ -3,9 +3,9 @@
 #' Collection of convenience functions to improve automaticity and code readability
 #'
 #' @param scale.data data frame of dichotomous item responses used to calculate the score
-#' @param drops integer vector of item locations in `scale.data` to exclude from
+#' @param drops integer vector of item locations in \code{scale.data} to exclude from
 #' score calculation
-#' @param dif.analysis an object returned from `dif_analysis`
+#' @param dif.analysis an object returned from \code{dif_analysis}
 #' @param df a data frame
 #' @param bold.bias character indicating whether results tables should bold instances
 #' of DIF or not ("no", the default). If so, must specify whether the table
@@ -13,16 +13,16 @@
 #' @param digits integer; number decimal places to print in report tables
 #'
 #' @details
-#' `sum_score` sums dichotomous item responses into a scale score
-#' `extract_bi` extracts the biased items identified from each `dif.analysis` method.
+#' \code{sum_score} sums dichotomous item responses into a scale score
+#' \code{extract_bi} extracts the biased items identified from each \code{dif.analysis} method.
 #' If no biased items were detected, a character string indicated so is extracted.
-#' `format_flex` converts the DIF results from a data frame to a
-#'  [flextable::flextable()]` and formats the table for printing in the report.
+#' \code{format_flex} converts the DIF results from a data frame to a
+#' \code{\link[flextable]{flextable}} and formats the table for printing in the report.
 #'
 #' @return
-#' `sum_score` returns a numeric vector of summed scores
-#' `extract_bi` returns list of biased items from each `dif.analysis` method
-#' `format_flex` returns a [flextable::flextable()]` object
+#' \code{sum_score} returns a numeric vector of summed scores
+#' \code{extract_bi} returns list of biased items from each \code{dif.analysis} method
+#' \code{format_flex} returns a \code{\link[flextable]{flextable}} object
 #'
 
 sum_score <- function(scale.data, drops = NULL){

@@ -11,6 +11,8 @@
 
   # For more info: https://stackoverflow.com/questions/30377213/how-to-include-rmarkdown-file-in-r-package
 
+
+
 #####################################
 #### Importing Input Information ####
 
@@ -54,7 +56,6 @@ WB_Measures <- purrr::map(.x = MalawiMeasures,
                                         wb.items = .x,
                                         tx.group.name = "treated",   # Treatment condition as grouping variable
                                         dif.group.name = "cr_gender")) # Gender as conditioning variable
-
 
 
 

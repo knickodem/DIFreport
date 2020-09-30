@@ -5,20 +5,20 @@
 #' @param scale.data data frame of dichotomous item responses with subjects in rows
 #' and items in columns
 #' @param dif.group factor vector of group membership for which DIF is evaluated.
-#' @param global.irt object returned from `run_global_irt`
-#' @param which.model the model in `global.irt` to use for testing DIF. The default
+#' @param global.irt object returned from \code{run_global_irt}
+#' @param which.model the model in \code{global.irt} to use for testing DIF. The default
 #' is the scalar, i.e, no DIF model ("no.dif.mod").
 #' @param items2test numeric; the item to test for DIF, which is passed to the
-#' items2test argument of [mirt::DIF()].
+#' items2test argument of \code{\link[mirt]{DIF}}.
 #'
 #' @details
-#' `run_global_irt` compares no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
-#' The models are run [mirt::multipleGroup()] by constraining slopes and intercepts,
-#' slopes only, and nothing, respectively, to be equal between the levels of `dif.group`.
-#' Model fit is compared with a likelihood ratio test.
-#' If DIF is detected through the model comparisons, the
-#' specific item(s) with DIF are identified via `run_item_irt` using
-#' [mirt::DIF()]. `get_irt` is a wrapper around the other functions that
+#' \code{run_global_irt} compares no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
+#' The models are run \code{\link[mirt]{multipleGroup}} by constraining slopes
+#' and intercepts, slopes only, and nothing, respectively, to be equal
+#' between the levels of \code{dif.group}. Model fit is compared with a
+#' likelihood ratio test. If DIF is detected through the model comparisons, the
+#' specific item(s) with DIF are identified via \code{run_item_irt} using
+#' \code{\link[mirt]{DIF}}. \code{get_irt} is a wrapper around the other functions that
 #' organizes the initial and refinement phases of the DIF analysis and compiles
 #' the results.
 #'

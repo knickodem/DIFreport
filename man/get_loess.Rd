@@ -15,33 +15,35 @@ and items in columns}
 
 \item{dif.group}{factor vector of group membership for which DIF is evaluated.}
 
-\item{score.type}{character indicating whether `match` is a
+\item{score.type}{character indicating whether \code{match} is a
 total summed score ("Total") or the summed score excluding the item under
 investigation ("Rest").}
 
 \item{match}{numeric vector used as the predictor in the LOESS regression.
-In `get_loess`, if `score.type` = "Rest", `match` will be a list of vectors -
-one for each item in `scale.data`.}
+In \code{get_loess}, if \code{score.type} = "Rest", \code{match} will be
+a list of vectors - one for each item in \code{scale.data}.}
 
-\item{item}{integer; item in `scale.data` under investigation for DIF}
+\item{item}{integer; item in \code{scale.data} under investigation for DIF}
 
-\item{pred.scores}{range of scores to use in [stats::predict()] for generating
-the LOESS curves. The values are defined in `get_loess`and passed to `run_loess`.}
+\item{pred.scores}{range of scores to use in \code{\link[stats]{predict}}
+for generating the LOESS curves. The values are defined in \code{get_loess} and
+passed to \code{run_loess}.}
 
-\item{nitem}{number of items in the scale. Calculated in `get_loess`
-and passed to `run_loess`.}
+\item{nitem}{number of items in the scale. Calculated in \code{get_loess}
+and passed to \code{run_loess}.}
 }
 \value{
 A two-element list containing 1) the plot of LOESS curves for each
-`dif.group` level for every item in `scale.data` and 2) the data used to generate
-the plot (returned from `run_loess`).
+\code{dif.group} level for every item in \code{scale.data} and 2) the data used
+to generate the plot (returned from \code{run_loess}).
 }
 \description{
 Visual inspection of DIF with LOESS regression curves
 }
 \details{
-For a each item in `scale.data`, `run_loess` regresses the item responses on the
-scores supplied to `match`. A separate model is run for each `dif.group` level.
-`get_loess` is a wrapper around `run_loess` that both initiates the call to
-`run_loess` for each item and uses the results to plot the LOESS curves.
+For a each item in \code{scale.data}, \code{run_loess} regresses the item responses
+on the scores supplied to \code{match}. A separate model is run for each
+\code{dif.group} level. \code{get_loess} is a wrapper around \code{run_loess}
+that both initiates the call to \code{run_loess} for each item and uses the
+results to plot the LOESS curves.
 }

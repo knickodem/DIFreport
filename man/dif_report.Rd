@@ -15,7 +15,7 @@ dif_report(
 )
 }
 \arguments{
-\item{dif.analysis}{an object returned from `dif_analysis`}
+\item{dif.analysis}{an object returned from \code{dif_analysis}}
 
 \item{dataset.name}{character; name of the dataset where the measure and
 item responses came from. This is printed in the report title and summary.
@@ -27,26 +27,65 @@ This is printed in the report title and summary.}
 \item{dif.group.name}{character; name of the group used in the DIF analysis.}
 
 \item{bias.method}{options are "MH", "logistic", or "IRT" (default).
-Which method in the `dif.analysis` object should the biased items, if detected, be
+Which method in the \code{dif_analysis} object should the biased items, if detected, be
 extracted?}
 
 \item{irt.scoring}{factor score estimation method, which is passed to
-[mirt::fscores()]. Default is "WLE". See [mirt::fscores()] documentation for
-other options.}
+\code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}}
+documentation for other options.}
 
 \item{tx.group}{When `NULL` (default) unconditional treatment effects are assessed
 for robustness with the assumption that the treatment indicator was used as the
-grouping variable in `dif_analysis`. If treatment indicator was not the grouping
-variable in `dif_analysis`, the factor vector for treatment indicator needs to be
+grouping variable in \code{dif_analysis}. If treatment indicator was not the grouping
+variable in \code{dif_analysis}, the factor vector for treatment indicator needs to be
 supplied here. Robustness of the conditional treatment effects is then assessed.}
 }
 \value{
 Uses the template "Bias_Correction_Report.Rmd" to produce a
-report summarizing whether any items on `measure.name` are biased with
-respect to `dif.group.name`, and, if so, to what extent this affects
-treatment contrasts on `measure.name`.
+report summarizing whether any items on \code{measure.name} are biased with
+respect to \code{dif.group.name}, and, if so, to what extent this affects
+treatment contrasts on \code{measure.name}.
 }
 \description{
 Produces a report summarizing an analysis of measurement bias for a given
 scale and grouping variable
+}
+\examples{
+wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
+                         gender = rep(c("male", "female"), each = 10),
+                         item1 = sample(c(0,1), 20, replace = TRUE),
+                         item2 = sample(c(0,1), 20, replace = TRUE),
+                         item3 = sample(c(0,1), 20, replace = TRUE),
+                         item4 = sample(c(0,1), 20, replace = TRUE),
+                         item5 = sample(c(0,1), 20, replace = TRUE))
+
+## Unconditional Treatment Effects
+# DIF analysis by treatment condition
+dif.by.tx <- dif_analysis(measure.data = wb.measure{'\['}3:7],
+                          dif.group = wb.measure$tx,
+                          score.type = "Rest",
+                          methods = c("loess", "logistic"))
+
+dif_report(dif.analysis = dif.by.tx,
+           dataset.name = "World Bank",
+           measure.name = "Letter Recognition",
+           dif.group.name = "Treatment Condition",
+           bias.method = "logistic",
+           irt.scoring = "WLE")
+
+## Conditional Treatment Effects
+# DIF analysis by gender
+dif.by.gender <- dif_analysis(measure.data = wb.measure{'\['}3:7],
+                              dif.group = wb.measure$gender,
+                              score.type = "Rest",
+                              methods = c("loess", "logistic"))
+
+dif_report(dif.analysis = dif.by.gender,
+           dataset.name = "World Bank",
+           measure.name = "Letter Recognition",
+           dif.group.name = "Gender",
+           bias.method = "logistic",
+           irt.scoring = "WLE",
+           tx.group = wb.measure$tx)
+
 }

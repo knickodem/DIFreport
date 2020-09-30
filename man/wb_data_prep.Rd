@@ -7,26 +7,26 @@
 wb_data_prep(data, wb.items, tx.group.name, dif.group.name = tx.group.name)
 }
 \arguments{
-\item{data}{`data.frame` containing item responses and group indicators.}
+\item{data}{\code{data.frame} containing item responses and group indicators.}
 
-\item{wb.items}{regex character string identifying item response columns in `data`}
+\item{wb.items}{regex character string identifying item response columns in \code{data}}
 
-\item{tx.group.name}{character; variable name of treatment indicator in `data`.}
+\item{tx.group.name}{character; variable name of treatment indicator in \code{data}.}
 
-\item{dif.group.name}{optional character; variable name in `data` for which DIF
-is evaluated. Supply only if different from `tx.group.name`
-Default is `tx.group.name`}
+\item{dif.group.name}{optional character; variable name in \code{data} for which DIF
+is evaluated. Supply only if different from \code{tx.group.name}
+Default is \code{tx.group.name}}
 }
 \value{
-A named list where `measure.data` is the data frame of item responses
-and `dif.group` is the vector of group membership for which DIF is evaluated.
-If `dif.group` is not the treatment indicator, then the vector of treatment indicators
-is returned in the element `tx.group`.
+A named list where \code{measure.data} is the data frame of item responses
+and \code{dif.group} is the vector of group membership for which DIF is evaluated.
+If \code{dif.group} is not the treatment indicator, then the vector of treatment indicators
+is returned in the element \code{tx.group}.
 }
 \description{
 Function specifically for cleaning World Bank Data to run a DIF analysis and report
 }
 \details{
-Currently, `tx.group.name` (and `dif.group.name` if supplied) must name a factor
- with 2 (and only 2) levels
+Currently, \code{tx.group.name} (and \code{dif.group.name} if supplied) must name
+a factor with 2 (and only 2) levels
 }

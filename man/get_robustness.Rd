@@ -20,15 +20,15 @@ and items in columns}
 
 \item{dif.group}{factor vector of group membership for which DIF is evaluated}
 
-\item{biased.items}{numeric vector; location of biased items in `scale.data`}
+\item{biased.items}{numeric vector; location of biased items in \code{scale.data}}
 
-\item{no.var.items}{numeric vector; location of items in `scale.data` with 0 variance}
+\item{no.var.items}{numeric vector; location of items in \code{scale.data} with 0 variance}
 
-\item{no.dif.mod}{`MultipleGroupClass` object from `mirt` where parameters are
-constrained to be equal between levels of `dif.group`}
+\item{no.dif.mod}{\code{MultipleGroupClass} object from \code{mirt} where parameters are
+constrained to be equal between levels of \code{dif.group}}
 
 \item{irt.scoring}{factor score estimation method, which is passed to the
-`method` argument of [mirt::fscores()]}
+\code{method} argument of \code{\link[mirt]{fscores}}}
 
 \item{tx.group}{factor vector for treatment indicator}
 
@@ -47,7 +47,8 @@ constrained to be equal between levels of `dif.group`}
 \item{score}{vector of scale scores}
 }
 \value{
-
+A two-item list containing 1) data.frame of treatment effect estimates
+and 2) character string of the groups being compared
 }
 \description{
 Evaluates the robustness of treatment effects when DIF is detected

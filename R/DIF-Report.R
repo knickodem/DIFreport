@@ -3,7 +3,7 @@
 #' Produces a report summarizing an analysis of measurement bias for a given
 #' scale and grouping variable
 #'
-#' @param dif.analysis an object returned from `dif_analysis`
+#' @param dif.analysis an object returned from \code{dif_analysis}
 #' @param dataset.name character; name of the dataset where the measure and
 #' item responses came from. This is printed in the report title and summary.
 #' For World Bank data, this will typically be a country.
@@ -11,21 +11,59 @@
 #' This is printed in the report title and summary.
 #' @param dif.group.name character; name of the group used in the DIF analysis.
 #' @param bias.method options are "MH", "logistic", or "IRT" (default).
-#' Which method in the `dif.analysis` object should the biased items, if detected, be
+#' Which method in the \code{dif_analysis} object should the biased items, if detected, be
 #' extracted?
 #' @param irt.scoring factor score estimation method, which is passed to
-#' [mirt::fscores()]. Default is "WLE". See [mirt::fscores()] documentation for
-#' other options.
+#' \code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}}
+#' documentation for other options.
 #' @param tx.group When `NULL` (default) unconditional treatment effects are assessed
 #' for robustness with the assumption that the treatment indicator was used as the
-#' grouping variable in `dif_analysis`. If treatment indicator was not the grouping
-#' variable in `dif_analysis`, the factor vector for treatment indicator needs to be
+#' grouping variable in \code{dif_analysis}. If treatment indicator was not the grouping
+#' variable in \code{dif_analysis}, the factor vector for treatment indicator needs to be
 #' supplied here. Robustness of the conditional treatment effects is then assessed.
 #'
 #' @return Uses the template "Bias_Correction_Report.Rmd" to produce a
-#' report summarizing whether any items on `measure.name` are biased with
-#' respect to `dif.group.name`, and, if so, to what extent this affects
-#' treatment contrasts on `measure.name`.
+#' report summarizing whether any items on \code{measure.name} are biased with
+#' respect to \code{dif.group.name}, and, if so, to what extent this affects
+#' treatment contrasts on \code{measure.name}.
+#'
+#' @examples
+#' wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
+#'                          gender = rep(c("male", "female"), each = 10),
+#'                          item1 = sample(c(0,1), 20, replace = TRUE),
+#'                          item2 = sample(c(0,1), 20, replace = TRUE),
+#'                          item3 = sample(c(0,1), 20, replace = TRUE),
+#'                          item4 = sample(c(0,1), 20, replace = TRUE),
+#'                          item5 = sample(c(0,1), 20, replace = TRUE))
+#'
+#' ## Unconditional Treatment Effects
+#' # DIF analysis by treatment condition
+#' dif.by.tx <- dif_analysis(measure.data = wb.measure{'\['}3:7],
+#'                           dif.group = wb.measure$tx,
+#'                           score.type = "Rest",
+#'                           methods = c("loess", "logistic"))
+#'
+#' dif_report(dif.analysis = dif.by.tx,
+#'            dataset.name = "World Bank",
+#'            measure.name = "Letter Recognition",
+#'            dif.group.name = "Treatment Condition",
+#'            bias.method = "logistic",
+#'            irt.scoring = "WLE")
+#'
+#' ## Conditional Treatment Effects
+#' # DIF analysis by gender
+#' dif.by.gender <- dif_analysis(measure.data = wb.measure{'\['}3:7],
+#'                               dif.group = wb.measure$gender,
+#'                               score.type = "Rest",
+#'                               methods = c("loess", "logistic"))
+#'
+#' dif_report(dif.analysis = dif.by.gender,
+#'            dataset.name = "World Bank",
+#'            measure.name = "Letter Recognition",
+#'            dif.group.name = "Gender",
+#'            bias.method = "logistic",
+#'            irt.scoring = "WLE",
+#'            tx.group = wb.measure$tx)
 #'
 #' @export
 
@@ -140,7 +178,16 @@ dif_report <- function(dif.analysis,
                                        no.dif.mod = dif.analysis$irt$no.dif.mod,
                                        irt.scoring = irt.scoring)
 
-    } else if(length(levels(tx.group)) == 2){
+    } else { # For conditional effects
+
+      ## Need tx.group to be a factor with only 2 levels
+      if(is.factor(tx.group) == FALSE){
+        tx.group <- factor(tx.group)
+      }
+
+      if(length(levels(tx.group)) != 2){
+          stop("tx.group must contain only two levels")
+        }
 
       # levels of the condition variable (currently intended to be treatment condition)
       tx.group1 <- levels(tx.group)[[1]]
@@ -176,8 +223,6 @@ dif_report <- function(dif.analysis,
                                             irt.scoring = irt.scoring,
                                             tx.group = tx.group)
 
-    } else {
-      stop("conditional must be a factor with two levels")
     }
   }
 

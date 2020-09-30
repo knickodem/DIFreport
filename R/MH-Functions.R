@@ -5,25 +5,27 @@
 #' @param scale.data data frame of dichotomous item responses with subjects in rows
 #' and items in columns
 #' @param dif.group factor vector of group membership for which DIF is evaluated.
-#' @param score.type character indicating whether `match` is a
+#' @param score.type character indicating whether \code{match} is a
 #' total summed score ("Total") or the summed score excluding the item under
 #' investigation ("Rest").
 #' @param match numeric vector used as the stratifying variable in the MH procedure.
-#' In `get_mh`, if `score.type` = "Rest", `match` will be a list of vectors -
-#' one for each item in `scale.data`.
-#' @param match.bins optional vector of bin sizes for stratifying `match` in
-#' `run_mh`. This is passed to the `probs` argument of [stats::quantile()}.
-#' @param item integer; item in `scale.data` under investigation for DIF
+#' In \code{get_mh}, if \code{score.type} = "Rest", \code{match} will be a list of vectors -
+#' one for each item in \code{scale.data}.
+#' @param match.bins optional vector of bin sizes for stratifying \code{match} in
+#' \code{run_mh}. This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.
+#' @param item integer; item in \code{scale.data} under investigation for DIF
 #'
 #' @details
-#' `run_mh` conducts a Mantel-Haenszel test via [stats::mantelhaen.test] for each
-#' item in `scale.data` grouped by `dif.group` and stratified by the scores supplied
-#' to `match`, which, if specified, are binned by `match.bins`.
-#' `get_mh` is a wrapper around `run_mh` that organizes the initial and refinement
+#' \code{run_mh} conducts a Mantel-Haenszel test via \code{\link[stats]{mantelhaen.test}} for each
+#' item in \code{scale.data} grouped by \code{dif.group} and stratified by the scores supplied
+#' to \code{match}, which, if specified, are binned by \code{match.bins}.
+#' \code{get_mh} is a wrapper around \code{run_mh} that organizes the initial and refinement
 #' phases of the DIF analysis and compiles the results.
 #'
 #' @return A two-element list containing 1) a data frame with MH results for each item
-#' in `scale.data` and 2) an integer vector of the items showing DIF (i.e., biased items).
+#' in \code{scale.data} and 2) an integer vector of the items showing DIF (i.e., biased items).
+#'
+#' @export
 
 get_mh <- function(scale.data,
                    dif.group,

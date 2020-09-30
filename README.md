@@ -18,7 +18,7 @@ Investigating DIF in World Bank early childhood outcome measures
   * **Note:** When `dif.group == tx.group`, unconditional treatment effects are assessed for robustness, i.e., delta = E(S | Tx = 1) - E(S | Tx = 0). When `dif_group != tx_group`, conditional treatment effects are assessed for robustness, i.e.,  delta_i = E(S | Tx = 1, dif = i) - E(S | Tx = 0, dif = i) , for i = 0, 1. The interaction effect delta_1 - delta_0 is also reported.
 * ...
 
-## Summary table of variable names
+## Summary table of argument names
 
 | File name       | Function name | Arg name                   | Comments                                                 |
 | --------------- | ------------- | -------------------------- | -------------------------------------------------------- |
@@ -105,20 +105,6 @@ Investigating DIF in World Bank early childhood outcome measures
 |                 |               |                            |                                                          |
 |                 |               |                            |                                                          |
 
-# To Do list (Or put this somewhere else?)
-
-## Current
-
-* Refactor code so that files are organized by functions (e.g., IRT, LOESS, Robustness) rather than by level (e.g., user-facing, wrappers, and computations)
-
-* Apply and document naming conventions over functions
-
-* Produce function level documentation via `devtools::document()`
-
-* Update report output
-  * to indicate which items are biased
-  * the direction of bias of any biased items (e.g., by comparing difficulties in IRT)
-  * report standardized interaction effect via pooled variance
 
 ## Planned
 

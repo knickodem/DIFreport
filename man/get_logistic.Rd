@@ -18,18 +18,19 @@ and items in columns}
 
 \item{dif.group}{factor vector of group membership for which DIF is evaluated.}
 
-\item{score.type}{character indicating whether `match` is a
+\item{score.type}{character indicating whether \code{match} is a
 total summed score ("Total") or the summed score excluding the item under
 investigation ("Rest").}
 
-\item{match}{list of `ncol(scale.data)` elements. Each element is a numeric vector
+\item{match}{list of \code{ncol(scale.data)} elements. Each element is a numeric vector
 of match scores used as a predictor in the logistic regression.
-In `get_logistic`, if `score.type` = "Total", `match` will be a single numeric vector.}
+In \code{get_logistic}, if \code{score.type} = "Total", \code{match} will be
+a single numeric vector.}
 
-\item{item.data}{dataframe created in `run_global_logistic`}
+\item{item.data}{dataframe created in \code{run_global_logistic}}
 
 \item{dif.type}{character indicating "No DIF", "uniform" DIF or "non-uniform" DIF as
-determined in `run_global_logistic`.}
+determined in \code{run_global_logistic}.}
 }
 \value{
 a four-element list containing 1) DIF model comparisons,
@@ -40,11 +41,11 @@ a four-element list containing 1) DIF model comparisons,
 Conducts DIF analysis with logistic regression
 }
 \details{
-`run_global_logistic` compares no DIF, uniform DIF, and non-uniform DIF logistic
-regression models by regressing dichotomous item responses from `scale.data` on item,
-`match`, and `dif.group`, along with interactions. If DIF is detected through the
-model comparisons, the specific item(s) with DIF are identified via
-`run_item_logistic`. `get_logistic` is a wrapper around the other functions that
-organizes the initial and refinement phases of the DIF analysis and compiles
-the results.
+\code{run_global_logistic} compares no DIF, uniform DIF, and non-uniform DIF logistic
+regression models by regressing dichotomous item responses from \code{scale.data}
+on item, \code{match}, and \code{dif.group}, along with interactions. If DIF is
+detected through the model comparisons, the specific item(s) with DIF are
+identified via \code{run_item_logistic}. \code{get_logistic} is a wrapper
+around the other functions that organizes the initial and refinement phases of
+the DIF analysis and compiles the results.
 }

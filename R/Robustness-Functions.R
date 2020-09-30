@@ -5,12 +5,12 @@
 #' @param scale.data data frame of dichotomous item responses with subjects in rows
 #' and items in columns
 #' @param dif.group factor vector of group membership for which DIF is evaluated
-#' @param biased.items numeric vector; location of biased items in `scale.data`
-#' @param no.var.items numeric vector; location of items in `scale.data` with 0 variance
-#' @param no.dif.mod `MultipleGroupClass` object from `mirt` where parameters are
-#' constrained to be equal between levels of `dif.group`
+#' @param biased.items numeric vector; location of biased items in \code{scale.data}
+#' @param no.var.items numeric vector; location of items in \code{scale.data} with 0 variance
+#' @param no.dif.mod \code{MultipleGroupClass} object from \code{mirt} where parameters are
+#' constrained to be equal between levels of \code{dif.group}
 #' @param irt.scoring factor score estimation method, which is passed to the
-#' `method` argument of [mirt::fscores()]
+#' \code{method} argument of \code{\link[mirt]{fscores}}
 #' @param tx.group factor vector for treatment indicator
 #' @param m1 mean for dif.group 1
 #' @param m2 mean for dif.group 2
@@ -22,7 +22,8 @@
 #'
 #' @details
 #'
-#' @return
+#' @return A two-item list containing 1) data.frame of treatment effect estimates
+#' and 2) character string of the groups being compared
 #'
 #' @export
 

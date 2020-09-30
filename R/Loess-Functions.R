@@ -5,27 +5,29 @@
 #' @param scale.data data frame of dichotomous item responses with subjects in rows
 #' and items in columns
 #' @param dif.group factor vector of group membership for which DIF is evaluated.
-#' @param score.type character indicating whether `match` is a
+#' @param score.type character indicating whether \code{match} is a
 #' total summed score ("Total") or the summed score excluding the item under
 #' investigation ("Rest").
 #' @param match numeric vector used as the predictor in the LOESS regression.
-#' In `get_loess`, if `score.type` = "Rest", `match` will be a list of vectors -
-#' one for each item in `scale.data`.
-#' @param item integer; item in `scale.data` under investigation for DIF
-#' @param pred.scores range of scores to use in [stats::predict()] for generating
-#' the LOESS curves. The values are defined in `get_loess`and passed to `run_loess`.
-#' @param nitem number of items in the scale. Calculated in `get_loess`
-#' and passed to `run_loess`.
+#' In \code{get_loess}, if \code{score.type} = "Rest", \code{match} will be
+#' a list of vectors - one for each item in \code{scale.data}.
+#' @param item integer; item in \code{scale.data} under investigation for DIF
+#' @param pred.scores range of scores to use in \code{\link[stats]{predict}}
+#' for generating the LOESS curves. The values are defined in \code{get_loess} and
+#' passed to \code{run_loess}.
+#' @param nitem number of items in the scale. Calculated in \code{get_loess}
+#' and passed to \code{run_loess}.
 #'
 #' @details
-#' For a each item in `scale.data`, `run_loess` regresses the item responses on the
-#' scores supplied to `match`. A separate model is run for each `dif.group` level.
-#' `get_loess` is a wrapper around `run_loess` that both initiates the call to
-#' `run_loess` for each item and uses the results to plot the LOESS curves.
+#' For a each item in \code{scale.data}, \code{run_loess} regresses the item responses
+#' on the scores supplied to \code{match}. A separate model is run for each
+#' \code{dif.group} level. \code{get_loess} is a wrapper around \code{run_loess}
+#' that both initiates the call to \code{run_loess} for each item and uses the
+#' results to plot the LOESS curves.
 #'
 #' @return A two-element list containing 1) the plot of LOESS curves for each
-#' `dif.group` level for every item in `scale.data` and 2) the data used to generate
-#' the plot (returned from `run_loess`).
+#' \code{dif.group} level for every item in \code{scale.data} and 2) the data used
+#' to generate the plot (returned from \code{run_loess}).
 #'
 #' @export
 

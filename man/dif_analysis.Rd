@@ -18,7 +18,7 @@ and items in columns}
 
 \item{dif.group}{factor or character vector with 2 levels; indicates group membership
 for which DIF is evaluated. If a character vector, this will be transformed
-to a [base::factor()].}
+to a \code{\link[base]{factor}}.}
 
 \item{methods}{character vector with one or more of the four available methods:
 "loess", "MH", "logistic", and "IRT".
@@ -27,6 +27,10 @@ The default is all four methods.}
 \item{score.type}{character indicating whether the total summed score ("Total") or the
 summed score excluding the item under investigation ("Rest") should be used for the
 matching variable in the loess, MH, or logistic regression methods.}
+
+\item{match.bins}{optional vector of bin sizes for stratifying the matching variable in
+the MH method. This is passed to the \code{probs} argument of
+\code{\link[stats]{quantile}}.}
 }
 \value{
 a list with DIF results from each selected method
@@ -38,10 +42,39 @@ logistic regression, and item response theory (IRT) approaches.
 \details{
 This function primarily serves as a wrapper around the method specific functions, but
 also identifies and reports items with no variance (e.g., all 0 responses) or no
-variance within the levels of `dif.group`. The "loess" method produces loess curves
-for every item in `measure.data`. Items with no variance are removed from
-`measure.data` for the "MH", "logistic", and "IRT" methods because response
+variance within the levels of \code{dif.group}. The "loess" method produces loess curves
+for every item in \code{measure.data}. Items with no variance are removed from
+\code{measure.data} for the "MH", "logistic", and "IRT" methods because response
 variance is a prerequisite for DIF. Additionally, items with no variance within
-a `dif.group` level are removed from the "IRT" method because these lead to
+a \code{dif.group} level are removed from the "IRT" method because these lead to
 the models being under-identified.
+}
+\examples{
+wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
+                         gender = rep(c("male", "female"), each = 10),
+                         item1 = sample(c(0,1), 20, replace = TRUE),
+                         item2 = sample(c(0,1), 20, replace = TRUE),
+                         item3 = sample(c(0,1), 20, replace = TRUE),
+                         item4 = sample(c(0,1), 20, replace = TRUE),
+                         item5 = sample(c(0,1), 20, replace = TRUE))
+
+## Using deciles of rest (or total) score for match.bins to
+## avoid empty cells in the two-way MH tables
+tenths <- seq(0, 1, by = .1)
+
+## DIF analysis by treatment condition using rest scores and binning by deciles for MH
+dif.by.tx <- dif_analysis(measure.data = wb.measure'\['3:7],
+                          dif.group = wb.measure$tx,
+                          score.type = "Rest",
+                          methods = c("loess", "MH", "logistic", "IRT"),
+                          match.bins = tenths)
+
+## DIF analysis by gender using total scores without binning for MH
+dif.by.gender <- dif_analysis(measure.data = wb.measure'\['3:7],
+                              dif.group = wb.measure$gender,
+                              score.type = "Total",
+                              methods = c("loess", "MH", "logistic", "IRT"),
+                              match.bins = NULL)
+
+
 }
