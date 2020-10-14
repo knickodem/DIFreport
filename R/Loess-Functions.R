@@ -31,7 +31,7 @@
 #'
 #' @export
 
-get_loess <- function(scale.data, dif.group, score.type, match){
+get_loess <- function(scale.data, dif.group, score.type, match, poly = NULL){
 
   ## Number of items in the measure
   nitems <- ncol(scale.data) # this could be different than n.items in dif_analysis
@@ -79,14 +79,26 @@ get_loess <- function(scale.data, dif.group, score.type, match){
 
   ## Plotting the results
 
+  if(!is.null(poly) & length(poly) > 0){
+
+    scales <- "free_y"
+    ylab <- "Predicted Item Score"
+
+  } else {
+
+    scales <- "fixed"
+    ylab <- "Prob(Correct)"
+  }
+
   plot <- ggplot(loess.df, aes(x = score, y = prob, group = dif.group)) +
     geom_line(aes(color = dif.group), lwd = .8) +
     geom_ribbon(aes(ymin = prob - 1.96 * se,
                     ymax = prob + 1.96 * se,
                     fill = dif.group), alpha = .4) +
-    labs(x = paste(score.type, "Score"), y = "Prob(Correct)") +
+    labs(x = paste(score.type, "Score"),
+         y = ylab) + # changing legend name trickier b/c both color and fill scales
     #theme_bw(base_size = 16) +
-    facet_wrap(~ item, ncol = 6) +
+    facet_wrap(~ item, ncol = 6, scales = scales) +
     theme(legend.position = "top")
 
   ## Output data and plot in a list

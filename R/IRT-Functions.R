@@ -69,8 +69,7 @@ get_irt <- function(scale.data, dif.group){
       # Extracting X2 test results from initial run for output
       initial.df <- cbind(rownames(stage1.df),
                           data.frame(stage1.df[,6:9], row.names = NULL))
-      names(initial.df) <- c("item",
-                             "chisq", "df", "p", "bias")
+      names(initial.df) <- c("item", "chisq", "df", "p", "bias")
 
 
       if(length(irt.free) > 0){
@@ -216,6 +215,20 @@ run_item_irt <- function(global.irt,
                          which.model = "no.dif.mod",
                          items2test){ # need to loop each item rather than 1:nitems in
   # order to get all the output we need
+
+  # identify if item is dichotomous or polytomous
+  itemtype <- extract.mirt(global.irt[[which.model]], "itemtype")[[items2test]]
+
+  if(itemtype == "graded" & ("d" %in% global.irt$dif.params)){
+
+    # from coefs of group1 (arbitrary), isolate item, then extract dim2 names except a1
+    thresh.params <- dimnames(coef(global.irt[[which.model]])[[1]][[items2test]])[[2]][-1]
+
+    # add threshold parameters, then drop initial d parameter
+    global.irt$dif.params <- c(global.irt$dif.params, thresh.params)
+    global.irt$dif.params <- global.irt$dif.params[global.irt$dif.params != "d"]
+
+  }
 
   ## Identifying items with DIF
   item.irt <- mirt::DIF(global.irt[[which.model]],

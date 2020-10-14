@@ -75,13 +75,14 @@ dif_analysis <- function(measure.data,
   md.orig <- measure.data # saving original data with all items for use in loess
 
   ## Items with no variance
-  var.check <- lapply(measure.data, var)
+  var.check <- lapply(measure.data, var, na.rm = TRUE)
   nvi <- which(var.check == 0)
 
   ## Items with no variance for one group (different interpretation for polytomous item)
   # current function: does any cell in table == 0?
   # These items are only removed from IRT analysis
-  var.check.group <- lapply(measure.data, function(x) { sum(table(x, dif.group) == 0) })
+  var.check.group <- lapply(measure.data,
+                            function(x) { sum(table(x, dif.group, useNA = "no") == 0) })
   nvgi <- which(var.check.group > 0)
 
   ## No variance = No DIF so removing no variance items from measure.data.
@@ -92,46 +93,35 @@ dif_analysis <- function(measure.data,
   ## Number of items in the measure for dif analysis
   n.items <- ncol(measure.data)
 
-  ## Calculating vector of total scores or list of rest scores
-  if(score.type == "Rest"){ # Returns a list with n.items elements of length = nrow(measure.data)
+  ## identify polytomous items
+  poly <- which(apply(measure.data, 2, max, na.rm = TRUE) > 1)
 
-    match.scores <- lapply(c(1:n.items), sum_score, scale.data = measure.data)
-
-  } else if(score.type == "Total"){ # returns a single vector of length = nrow(measure.data)
-
-    match.scores <- sum_score(scale.data = measure.data, drops = NULL)
-
-  } else {
-    stop("score.type argument must be 'Rest' or 'Total'")
-  }
-
+  ## creating match.scores object
+  match.scores <- NULL
 
   #### LOESS ####
   if("loess" %in% methods){
 
-    # Need to recalculate match.scores if there were items with no variance
-    if(length(nvi) > 0){
-
       ## Calculating vector of total scores or list of rest scores
       if(score.type == "Rest"){ # Returns a list with n_items elements of length = nrow(measure.data)
 
-        loess.match <- lapply(c(1:ncol(md.orig)), sum_score, scale.data = md.orig)
+        match.scores <- lapply(X = c(1:ncol(md.orig)), FUN = sum_score,
+                               scale.data = md.orig, poly = poly)
 
       } else if(score.type == "Total"){ # a single vector of length = nrow(measure.data)
 
-        loess.match <- sum_score(scale.data = md.orig, drops = NULL)
+        match.scores <- sum_score(scale.data = md.orig, drops = NULL, poly = poly)
 
       }  else {
-        stop("that's weird")
+        stop("score.type argument must be 'Rest' or 'Total'")
       }
-    } else {
-      loess.match <- match.scores
-    }
+
 
     loess <- get_loess(scale.data = md.orig,
                        dif.group = dif.group,
                        score.type = score.type,
-                       match = loess.match)
+                       match = match.scores,
+                       poly = poly)
 
   } else{
 
@@ -141,6 +131,24 @@ dif_analysis <- function(measure.data,
 
   #### Mantel-Haenszel ####
   if("MH" %in% methods){
+
+    # Need to recalculate match.scores if there were items with no variance
+    if(is.null(match.scores) | length(nvi) > 0){
+
+      ## Calculating vector of total scores or list of rest scores
+      if(score.type == "Rest"){ # Returns a list with n_items elements of length = nrow(measure.data)
+
+        match.scores <- lapply(X = c(1:ncol(md.orig)), FUN = sum_score,
+                               scale.data = md.orig, poly = poly)
+
+      } else if(score.type == "Total"){ # a single vector of length = nrow(measure.data)
+
+        match.scores <- sum_score(scale.data = md.orig, drops = NULL, poly = poly)
+
+      }  else {
+        stop("score.type argument must be 'Rest' or 'Total'")
+      }
+    }
 
     MH <- get_mh(scale.data = measure.data,
                  dif.group = dif.group,
@@ -157,6 +165,29 @@ dif_analysis <- function(measure.data,
   #### Logistic Regression ####
   if("logistic" %in% methods){
 
+    # if match.scores was previously calculated in loess & no items need to be dropped
+    # OR match.scores was previously calculated in the MH method, use it.
+    # Otherwise, (re-)calculate match.scores
+    if(!is.null(match.scores) & (length(nvi) == 0 | ("MH" %in% methods))){
+
+      match.scores <- match.scores
+
+    } else {
+
+      ## Calculating vector of total scores or list of rest scores
+      if(score.type == "Rest"){ # Returns a list with n_items elements of length = nrow(measure.data)
+
+        match.scores <- lapply(X = c(1:ncol(md.orig)), FUN = sum_score,
+                               scale.data = md.orig, poly = poly)
+
+      } else if(score.type == "Total"){ # a single vector of length = nrow(measure.data)
+
+        match.scores <- sum_score(scale.data = md.orig, drops = NULL, poly = poly)
+
+      }  else {
+        stop("score.type argument must be 'Rest' or 'Total'")
+      }
+    }
 
 
     logistic <- get_logistic(scale.data = measure.data,
@@ -196,6 +227,7 @@ dif_analysis <- function(measure.data,
                        inputs = list(data = md.orig,
                                      dif.group = dif.group,
                                      score.type = score.type,
+                                     poly.items = poly,
                                      no.var.items = nvi,
                                      no.var.by.group.items = nvgi))
 

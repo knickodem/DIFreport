@@ -25,15 +25,23 @@
 #' \code{format_flex} returns a \code{\link[flextable]{flextable}} object
 #'
 
-sum_score <- function(scale.data, drops = NULL){
+sum_score <- function(scale.data, drops = NULL, poly = NULL){
 
-  # calculating rest or total score
+  # unit scale all polytomous items
+  if(!is.null(poly) & length(poly) > 0){
+
+    scale.data[,poly] <- apply(scale.data[,poly], 2, function(x) x / max(x, na.rm = TRUE))
+
+  }
+
   if(!is.null(drops)){
 
+    # calculating rest score
     score <- apply(scale.data[,-c(drops)], 1, sum)
 
   } else {
 
+    # calculating total score
     score <- apply(scale.data, 1, sum)
   }
 

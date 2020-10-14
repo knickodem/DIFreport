@@ -91,7 +91,7 @@ dif_report <- function(dif.analysis,
   bi.list <- extract_bi(dif.analysis)
 
   # obtaining item names and putting in a table for report
-  # Note: returns NA if no biased items
+  # Note: returns NA if no biased items; blank if method not in dif.analysis
   bi.df <- lapply(bi.list,
                   function(x){paste(names(all.inputs$data)[x], collapse = ", ")})
   bi.df <- data.frame(method = c("MH", "logistic", "IRT"),
@@ -153,13 +153,18 @@ dif_report <- function(dif.analysis,
         ## extract biased item parameter estimates for each dif.group
         ## from global.irt uniform.mod
         g1 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[1]][c(bi)]
-        g1.df <- as.data.frame(Reduce(rbind, g1))
+        g1 <- lapply(g1, function(x) x[, 2]) # extracts b parameter (or first threshold)
+        g1.df <- as.data.frame(Reduce(rbind, g1)) # single column
 
         g2 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[2]][c(bi)]
+        g2 <- lapply(g2, function(x) x[, 2]) # extracts b parameter (or first threshold)
         g2.df <- as.data.frame(Reduce(rbind, g2))
 
+        # alternative parameter extraction, especially for using 2nd threshold
+        # g1 <- lapply(g1, function(x) x[,grepl("b$|b2", dimnames(x)[[2]])])
+
         # calculate difference in b (difficulty) parameter
-        b.diff <- g1.df$b - g2.df$b
+        b.diff <- g1.df[[1]] - g2.df[[1]]
 
         toward1 <- length(b.diff[b.diff < 0])
         toward2 <- length(b.diff[b.diff > 0])
