@@ -1,2 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+Reports/*.Rmd
+Tests/*.R
+inst/rmd/Bias-Correction-Report.Rmd

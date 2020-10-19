@@ -20,7 +20,7 @@ end.se <- bang.recode[bang.recode$line == "End", domain.items$Social_Emotional]
 ## Unconditional
 en.un <- dif_analysis(measure.data = end.en,
                       dif.group = end.tx,
-                      methods = c("loess", "IRT"),
+                      methods = c("loess, IRT"),
                       score.type = "Rest")
 
 
@@ -29,12 +29,12 @@ en.un <- dif_analysis(measure.data = end.en,
 # regardless of which threshold is used and we know there has to be at least 2
 # so could use either b1 or b2
 
-dif_report(dif.analysis = en.un,
-           dataset.name = "Bangladesh",
-           measure.name = "Emergent Numeracy",
-           dif.group.name = "Treatment Condition",
-           bias.method = "IRT",
-           irt.scoring = "WLE")
+# dif_report(dif.analysis = en.un,
+#            dataset.name = "Bangladesh",
+#            measure.name = "Emergent Numeracy",
+#            dif.group.name = "Treatment Condition",
+#            bias.method = "IRT",
+#            irt.scoring = "WLE")
 
 
 ## Unconditional
@@ -54,12 +54,16 @@ dif_report(dif.analysis = en.conditional,
 
 #Log-likelihood was decreasing near the ML solution. EM method may be unstable
 
-el.un <- dif_analysis(measure.data = temp,
+el.un <- dif_analysis(measure.data = end.el,
                       dif.group = end.tx,
                       methods = c("loess", "IRT"),
                       score.type = "Rest")
 
-apply(end.el, 2, mean, na.rm = T)
+
+
+is.na(el.un)
+
+apply(end.el, 1, mean, na.rm = T)
 is.na(end.el)
 temp <- as.data.frame(end.el)
 head(temp)
