@@ -1,65 +1,81 @@
-#' Preparing World Bank Data
+#' Preparing data for DIF analysis
 #'
-#' Function specifically for cleaning World Bank Data to run a DIF analysis and report
+#' Handle missing data to run a DIF analysis and report
 #'
-#' @param data \code{data.frame} containing item responses and group indicators.
-#' @param wb.items regex character string identifying item response columns in \code{data}
-#' @param tx.group.name character; variable name of treatment indicator in \code{data}.
-#' @param dif.group.name optional character; variable name in \code{data} for which DIF
-#' is evaluated. Supply only if different from \code{tx.group.name}
-#' Default is \code{tx.group.name}
+#' @param measure.data \code{data.frame} containing item responses and group indicators.
+#' @param dif.group vector of group membership by which DIF is evaluated.
+#' @param tx.group vector indicating treatment condition unless treatment indicator was
+#' already supplied to \code{dif.group].
+#' @param na0 after removing empty rows, should remaining NAs be converted to 0?
+#' Default is FALSE.
 #'
 #' @details
-#' Currently, \code{tx.group.name} (and \code{dif.group.name} if supplied) must name
-#' a factor with 2 (and only 2) levels
+#' Identifies empty rows in measure.data (i.e., rows with all NAs) and rows with NA for
+#' the \code{dif.group} and, if supplied, \code{tx.group}. These rows are removed.
+#' Remaining NAs in \code{measure.data} can either stay NA or be converted to 0.
 #'
-#' @return A named list where \code{measure.data} is the data frame of item responses
-#' and \code{dif.group} is the vector of group membership for which DIF is evaluated.
-#' If \code{dif.group} is not the treatment indicator, then the vector of treatment indicators
-#' is returned in the element \code{tx.group}.
+#' @return list containing \code{measure.data} and \code{dif.group} (and \code{tx.group},
+#' if supplied) after consistent handling of missing data.
+#'
+#' @examples
+#' measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
+#'                       gender = rep(c("male", "female"), each = 10),
+#'                       item1 = sample(c(0,1), 20, replace = TRUE),
+#'                       item2 = sample(c(0,1), 20, replace = TRUE),
+#'                       item3 = sample(c(0,1), 20, replace = TRUE),
+#'                       item4 = sample(c(0,1), 20, replace = TRUE),
+#'                       item5 = sample(c(0,1), 20, replace = TRUE))
+#' ## add missing data
+#' measure <- measure'['c(1, 4), ] <- NA
+#' measure <- measure'['c(2, 5), 1] <- NA
+#'
+#' dif_prep(measure'[', -c(1, 2)],
+#'          dif.group = measure$gender,
+#'          tx.group = measure$tx,
+#'          na0 = TRUE)
 #'
 #' @export
 
-wb_data_prep <- function(data, wb.items, tx.group.name, dif.group.name = tx.group.name){
+dif_prep <- function(measure.data, dif.group, tx.group = dif.group, na0 = FALSE){
 
-  ## Subsetting measure specific data and removing wave identifier from column names
-  measure.data <- data[grep(wb.items, names(data))]
-  names(measure.data) <- substr(names(measure.data), 1, nchar(names(measure.data)) - 2)
+  # Only examining unconditional effects (i.e., DIF by treatment condition)?
+  unconditional <- identical(dif.group, tx.group)
 
   ## Identifying cases to drop based on missing data
   # Note: FALSE elements in drop.cases are the cases removed from analysis
   drop.cases <- apply(is.na(measure.data), 1, mean) != 1    # cases with NA for all items
-  drop.cases <- ifelse(is.na(data[[tx.group.name]]), FALSE, drop.cases)  # NA for tx.group
+  drop.cases <- ifelse(is.na(dif.group), FALSE, drop.cases)  # NA for dif.group
 
   # If examining conditional effects
-  if(dif.group.name != tx.group.name){
-    drop.cases <- ifelse(is.na(data[[dif.group.name]]), FALSE, drop.cases)  # NA for dif.group
+  if(unconditional == FALSE){
+    drop.cases <- ifelse(is.na(tx.group), FALSE, drop.cases)  # NA for dif.group
   }
 
-
   ## Dropping the identified missing data cases
-  measure.data <- measure.data[drop.cases, ]   # from the measure response dataframe
-  tx.group <- data[drop.cases, ][[tx.group.name]]    # from the grouping variable vector
+  measure.data <- measure.data[drop.cases, ] # from the measure response dataframe
+  dif.group <- dif.group[drop.cases]         # from the grouping variable vector
 
   ## Replacing remaining NAs with 0
+  if(na0 == TRUE){
   measure.data[is.na(measure.data)] <- 0
+}
 
   ## If examining conditional effects
-  if(dif.group.name != tx.group.name){
+  if(unconditional == FALSE){
 
     # Dropping missing data cases from the conditional variable vector
-    dif.group <- data[drop.cases, ][[dif.group.name]]
+    tx.group <- tx.group[drop.cases]
 
-    # Output with tx indicator vector (tx.group) and dif variable vector (dif.group)
+    # Output dif variable vector (dif.group) and tx indicator vector (tx.group)
     output <- list(measure.data = measure.data,
-                   tx.group = tx.group,
-                   dif.group = dif.group)
+                   dif.group = dif.group,
+                   tx.group = tx.group)
 
   } else {
 
-    # Output tx indicator vector AS the dif variable vector (dif.group)
+    # Output dif variable vector (dif.group) which is the tx indicator
     output <- list(measure.data = measure.data,
-                   dif.group = tx.group)
+                   dif.group = dif.group)
   }
 
   return(output)

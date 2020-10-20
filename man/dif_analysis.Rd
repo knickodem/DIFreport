@@ -13,7 +13,7 @@ dif_analysis(
 )
 }
 \arguments{
-\item{measure.data}{data frame of dichotomous item responses with subjects in rows
+\item{measure.data}{data frame of item responses with subjects in rows
 and items in columns}
 
 \item{dif.group}{factor or character vector with 2 levels; indicates group membership
@@ -63,14 +63,14 @@ wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
 tenths <- seq(0, 1, by = .1)
 
 ## DIF analysis by treatment condition using rest scores and binning by deciles for MH
-dif.by.tx <- dif_analysis(measure.data = wb.measure'\['3:7],
+dif.by.tx <- dif_analysis(measure.data = wb.measure'['3:7],
                           dif.group = wb.measure$tx,
                           score.type = "Rest",
                           methods = c("loess", "MH", "logistic", "IRT"),
                           match.bins = tenths)
 
 ## DIF analysis by gender using total scores without binning for MH
-dif.by.gender <- dif_analysis(measure.data = wb.measure'\['3:7],
+dif.by.gender <- dif_analysis(measure.data = wb.measure'['3:7],
                               dif.group = wb.measure$gender,
                               score.type = "Total",
                               methods = c("loess", "MH", "logistic", "IRT"),

@@ -26,7 +26,7 @@ date: "`r format(Sys.Date(), '%B %d, %Y')`"
 
 **Dataset:** `r dataset.name`
 
-**Outcome variable:** `r paste0(measure.name,  " (", item.name.range, ")")`
+**Outcome:** `r paste0(measure.name,  " (", item.name.range, ")")`
 
 **Comparison variable:** `r paste0(dif.group.name, " (", dif.group.levs, ")")`
 
@@ -57,7 +57,7 @@ if(nvi != "none"){
   
   cat("\n\n")
   cat("^a^ Items were not included in any DIF analysis and were not used to compute 
-      IRT-based robustness checks of treatment effects.")
+      treatment effects.")
   cat("\n\n")
 }
 
@@ -66,7 +66,7 @@ if(nvgi != "none"){
   
   cat("\n\n")
   cat("^b^ Items were not included in the IRT-based DIF analysis and were not used 
-      to compute IRT-based robustness checks of treatment effects.")
+      to compute IRT-based treatment effects.")
   cat("\n\n")
 }
 
@@ -76,64 +76,69 @@ if(nvgi != "none"){
 
 ```{r Summary Table, results='asis', ft.align="left"}
 
-if(n.biased > 0){
-    
-  if(is.null(tx.group)){
-    
-    cat("## Robustness Checks for Treatment Effects")
-    cat("\n\n")
-    
-    cat("Summary table for robustness of unconditional treatment effects 
-        (comparing ", uncond.effects$comparison, ")", sep  ="") 
-    cat("\n\n")
-    
-    unctab <- format_flex(uncond.effects$effects.table)
-    cat(knit_print(unctab))
-    cat("\n\n")
-    
-  } else {
+if(is.null(tx.group)){
   
-    cat("## Robustness Checks for Treatment Effects Conditional on Comparison Variable")
-    cat("\n\n")
+  cat("## Robustness Checks for Treatment Effects")
+  cat("\n\n")
   
-    cat("Summary table for robustness of conditional treatment effects for ", dif.group1, 
-        " (comparing ", cond.effects1$comparison, ")", sep  = "") 
-    cat("\n\n")
+  if(n.biased == 0){
   
-    condeff1tab <- format_flex(cond.effects1$effects.table)
-    cat(knit_print(condeff1tab))
-    cat("\n\n")
+  cat("\n\n")
+  cat(nodifmessage)
+  cat("\n\n")
+}
   
-    cat("&nbsp;  ")
-    cat("\n\n")
-    cat("Summary table for robustness of conditional treatment effects for ", dif.group2, 
-        " (comparing ", cond.effects2$comparison, ")", sep  = "") 
-    cat("\n\n")
-    
-    condeff2tab <- format_flex(cond.effects2$effects.table)
-    cat(knit_print(condeff2tab))
-    cat("\n\n")
-    
-    cat("&nbsp;  ")
-    cat("\n\n")
-    cat("Interaction of treatment effect by ", dif.group.name, 
-        " (", interaction.effects$comparison, ")", sep = "")
-    cat("\n\n")
-    inttab <- format_flex(interaction.effects$effects.table)
-    cat(knit_print(inttab))
-    cat("\n\n")
-  }
+  cat("Summary table for robustness of unconditional treatment effects 
+      (comparing ", uncond.effects$comparison, ")", sep  ="") 
+  cat("\n\n")
   
-  cat("&nbsp;  ")
-  cat("*Note:* Adj. Delta  = Scale Delta / sqrt(Reliability)")
+  unctab <- format_flex(uncond.effects$effects.table)
+  cat(knit_print(unctab))
+  cat("\n\n")
   
 } else {
+
+  cat("## Robustness Checks for Treatment Effects Conditional on Comparison Variable")
+  cat("\n\n")
   
-    cat("\n\n")
-    cat(nodifmessage)
-    cat("\n\n")
+  if(n.biased == 0){
+  
+  cat("\n\n")
+  cat(nodifmessage)
+  cat("\n\n")
 }
 
+  cat("Summary table for robustness of conditional treatment effects for ", dif.group1, 
+      " (comparing ", cond.effects1$comparison, ")", sep  = "") 
+  cat("\n\n")
+
+  condeff1tab <- format_flex(cond.effects1$effects.table)
+  cat(knit_print(condeff1tab))
+  cat("\n\n")
+
+  cat("&nbsp;  ")
+  cat("\n\n")
+  cat("Summary table for robustness of conditional treatment effects for ", dif.group2, 
+      " (comparing ", cond.effects2$comparison, ")", sep  = "") 
+  cat("\n\n")
+  
+  condeff2tab <- format_flex(cond.effects2$effects.table)
+  cat(knit_print(condeff2tab))
+  cat("\n\n")
+  
+  cat("&nbsp;  ")
+  cat("\n\n")
+  cat("Interaction of treatment effect by ", dif.group.name, 
+      " (", interaction.effects$comparison, ")", sep = "")
+  cat("\n\n")
+  inttab <- format_flex(interaction.effects$effects.table)
+  cat(knit_print(inttab))
+  cat("\n\n")
+}
+
+cat("&nbsp;  ")
+cat("*Note:* Adj. Delta  = Scale Delta / sqrt(Reliability)")
+  
 ```
 
 

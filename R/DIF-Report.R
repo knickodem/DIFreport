@@ -100,13 +100,14 @@ dif_report <- function(dif.analysis,
   # If no biased items
   if(bi.list[[bias.method]][1] == "No DIF was detected") {
 
+    biased.items <- NULL   # need to define biased.items for robustness check
     n.biased <- 0
-    nodifmessage <- paste0("No DIF was detected by ", bias.method, ". Therefore,
-                             robustness checks of treatment effects were not performed.")
+    nodifmessage <- paste0("No DIF was detected by ", bias.method, ".")
+
   } else {
 
     # biased items for selected detection method
-    bi <- bi.list[[bias.method]]
+    biased.items <- bi.list[[bias.method]]    # integer vector of column locations
     n.biased <- length(bi.list[[bias.method]])
 
   }
@@ -137,10 +138,10 @@ dif_report <- function(dif.analysis,
   dif.type <- dif.analysis[[bias.method]]$dif.type
 
   ## Should robustness checks be run?
-  if(n.biased > 0){
+  if(n.biased >= 0){ # Remove equal to only run when biased items were detected.
 
-    ## Gathering directionality if uniform dif
-    if (dif.type == "uniform"){
+    ## Gathering directionality if uniform dif (and double-checking for biased items)
+    if (dif.type == "uniform" & !is.null(biased.items)){
       if(bias.method %in% c("MH", "logistic")){
 
         uni.temp <- dif.analysis[[bias.method]]$item.level
@@ -152,11 +153,11 @@ dif_report <- function(dif.analysis,
 
         ## extract biased item parameter estimates for each dif.group
         ## from global.irt uniform.mod
-        g1 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[1]][c(bi)]
+        g1 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[1]][c(biased.items)]
         g1 <- lapply(g1, function(x) x[, 2]) # extracts b parameter (or first threshold)
         g1.df <- as.data.frame(Reduce(rbind, g1)) # single column
 
-        g2 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[2]][c(bi)]
+        g2 <- mirt::coef(dif.analysis$IRT$uniform.mod, IRTpars = TRUE)[[2]][c(biased.items)]
         g2 <- lapply(g2, function(x) x[, 2]) # extracts b parameter (or first threshold)
         g2.df <- as.data.frame(Reduce(rbind, g2))
 
@@ -177,9 +178,10 @@ dif_report <- function(dif.analysis,
 
       uncond.effects <- get_robustness(scale.data = all.inputs$data,
                                        dif.group = all.inputs$dif.group,
-                                       biased.items = bi,
-                                       no.var.items = c(all.inputs$no.var.items,
-                                                        all.inputs$no.var.by.group.items),
+                                       biased.items = biased.items,
+                                       no.var.items = all.inputs$no.var.items,
+                                       no.var.by.group.items = all.inputs$no.var.by.group.items,
+                                       poly = all.inputs$poly.items,
                                        no.dif.mod = dif.analysis$irt$no.dif.mod,
                                        irt.scoring = irt.scoring)
 
@@ -203,27 +205,30 @@ dif_report <- function(dif.analysis,
       ## Treatment effect subset by dif.group1
       cond.effects1 <- get_robustness(scale.data = all.inputs$data[all.inputs$dif.group == dif.group1, ],
                                       dif.group = tx.group[all.inputs$dif.group == dif.group1],
-                                      biased.items = bi,
-                                      no.var.items = c(all.inputs$no.var.items,
-                                                       all.inputs$no.var.by.group.items),
+                                      biased.items = biased.items,
+                                      no.var.items = all.inputs$no.var.items,
+                                      no.var.by.group.items = all.inputs$no.var.by.group.items,
+                                      poly = all.inputs$poly.items,
                                       no.dif.mod = NULL,
                                       irt.scoring = irt.scoring)
 
       ## Treatment effect subset by dif.group2
       cond.effects2 <- get_robustness(scale.data = all.inputs$data[all.inputs$dif.group == dif.group2, ],
                                       dif.group = tx.group[all.inputs$dif.group == dif.group2],
-                                      biased.items = bi,
-                                      no.var.items = c(all.inputs$no.var.items,
-                                                       all.inputs$no.var.by.group.items),
+                                      biased.items = biased.items,
+                                      no.var.items = all.inputs$no.var.items,
+                                      no.var.by.group.items = all.inputs$no.var.by.group.items,
+                                      poly = all.inputs$poly.items,
                                       no.dif.mod = NULL,
                                       irt.scoring = irt.scoring)
 
       ## Interaction effects
       interaction.effects <- get_robustness(scale.data = all.inputs$data,
                                             dif.group = all.inputs$dif.group,
-                                            biased.items = bi,
-                                            no.var.items = c(all.inputs$no.var.items,
-                                                             all.inputs$no.var.by.group.items),
+                                            biased.items = biased.items,
+                                            no.var.items = all.inputs$no.var.items,
+                                            no.var.by.group.items = all.inputs$no.var.by.group.items,
+                                            poly = all.inputs$poly.items,
                                             no.dif.mod = dif.analysis$irt$no.dif.mod,
                                             irt.scoring = irt.scoring,
                                             tx.group = tx.group)

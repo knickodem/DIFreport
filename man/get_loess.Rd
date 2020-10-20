@@ -5,12 +5,12 @@
 \alias{run_loess}
 \title{LOESS DIF method}
 \usage{
-get_loess(scale.data, dif.group, score.type, match)
+get_loess(scale.data, dif.group, score.type, match, poly = integer())
 
 run_loess(scale.data, dif.group, item, match, pred.scores, nitems)
 }
 \arguments{
-\item{scale.data}{data frame of dichotomous item responses with subjects in rows
+\item{scale.data}{data frame of item responses with subjects in rows
 and items in columns}
 
 \item{dif.group}{factor vector of group membership for which DIF is evaluated.}
@@ -22,6 +22,8 @@ investigation ("Rest").}
 \item{match}{numeric vector used as the predictor in the LOESS regression.
 In \code{get_loess}, if \code{score.type} = "Rest", \code{match} will be
 a list of vectors - one for each item in \code{scale.data}.}
+
+\item{poly}{integer vector; location of polytomous items in \code{scale.data}}
 
 \item{item}{integer; item in \code{scale.data} under investigation for DIF}
 

@@ -2,7 +2,7 @@
 #'
 #' Visual inspection of DIF with LOESS regression curves
 #'
-#' @param scale.data data frame of dichotomous item responses with subjects in rows
+#' @param scale.data data frame of item responses with subjects in rows
 #' and items in columns
 #' @param dif.group factor vector of group membership for which DIF is evaluated.
 #' @param score.type character indicating whether \code{match} is a
@@ -11,6 +11,7 @@
 #' @param match numeric vector used as the predictor in the LOESS regression.
 #' In \code{get_loess}, if \code{score.type} = "Rest", \code{match} will be
 #' a list of vectors - one for each item in \code{scale.data}.
+#' @param poly integer vector; location of polytomous items in \code{scale.data}
 #' @param item integer; item in \code{scale.data} under investigation for DIF
 #' @param pred.scores range of scores to use in \code{\link[stats]{predict}}
 #' for generating the LOESS curves. The values are defined in \code{get_loess} and
@@ -31,7 +32,7 @@
 #'
 #' @export
 
-get_loess <- function(scale.data, dif.group, score.type, match, poly = NULL){
+get_loess <- function(scale.data, dif.group, score.type, match, poly = integer()){
 
   ## Number of items in the measure
   nitems <- ncol(scale.data) # this could be different than n.items in dif_analysis
@@ -79,7 +80,7 @@ get_loess <- function(scale.data, dif.group, score.type, match, poly = NULL){
 
   ## Plotting the results
 
-  if(!is.null(poly) & length(poly) > 0){
+  if(length(poly) > 0){
 
     scales <- "free_y"
     ylab <- "Predicted Item Score"

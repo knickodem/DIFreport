@@ -51,6 +51,51 @@ tenths <- seq(0, 1, by = .1)
 
 
 #### Preparing Malawi Data ####
+wb_data_prep <- function(data, wb.items, tx.group.name, dif.group.name = tx.group.name){
+
+  ## Subsetting measure specific data and removing wave identifier from column names
+  measure.data <- data[grep(wb.items, names(data))]
+  names(measure.data) <- substr(names(measure.data), 1, nchar(names(measure.data)) - 2)
+
+  ## Identifying cases to drop based on missing data
+  # Note: FALSE elements in drop.cases are the cases removed from analysis
+  drop.cases <- apply(is.na(measure.data), 1, mean) != 1    # cases with NA for all items
+  drop.cases <- ifelse(is.na(data[[tx.group.name]]), FALSE, drop.cases)  # NA for tx.group
+
+  # If examining conditional effects
+  if(dif.group.name != tx.group.name){
+    drop.cases <- ifelse(is.na(data[[dif.group.name]]), FALSE, drop.cases)  # NA for dif.group
+  }
+
+
+  ## Dropping the identified missing data cases
+  measure.data <- measure.data[drop.cases, ]   # from the measure response dataframe
+  tx.group <- data[drop.cases, ][[tx.group.name]]    # from the grouping variable vector
+
+  ## Replacing remaining NAs with 0
+  measure.data[is.na(measure.data)] <- 0
+
+  ## If examining conditional effects
+  if(dif.group.name != tx.group.name){
+
+    # Dropping missing data cases from the conditional variable vector
+    dif.group <- data[drop.cases, ][[dif.group.name]]
+
+    # Output with tx indicator vector (tx.group) and dif variable vector (dif.group)
+    output <- list(measure.data = measure.data,
+                   tx.group = tx.group,
+                   dif.group = dif.group)
+
+  } else {
+
+    # Output tx indicator vector AS the dif variable vector (dif.group)
+    output <- list(measure.data = measure.data,
+                   dif.group = tx.group)
+  }
+
+  return(output)
+
+}
 
 WB_Measures <- purrr::map(.x = MalawiMeasures,
                           ~wb_data_prep(data = MalawiData,
@@ -130,18 +175,20 @@ tictoc::tic()
 unconditional3 <- dif_analysis(measure.data = WB_Measures[[3]]$measure.data,
                                dif.group = WB_Measures[[3]]$tx.group,     # For unconditional, use vector for treatment condition
                                score.type = "Rest",
-                               methods = c("loess", "MH", "logistic", "IRT"),
+                               methods = c("loess", "logistic"),
                                match.bins = tenths)
 
 extract_bi(unconditional3)
 
 dif_report(dif.analysis = unconditional3,
-           dataset.name = "Malawi",
+           dataset.name = "Test",
            measure.name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[3])),
            dif.group.name = "Treatment Condition",
-           bias.method = "IRT",
+           bias.method = "logistic",
            irt.scoring = "WLE")
 tictoc::toc() # 70-90 seconds
+
+
 # conditional Example
 tictoc::tic()
 conditional1 <- dif_analysis(measure.data = WB_Measures[[1]]$measure.data,

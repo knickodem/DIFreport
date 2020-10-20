@@ -3,7 +3,7 @@
 #' Evaluates differential item functioning (DIF) using loess, Mantel-Haenszel (MH),
 #' logistic regression, and item response theory (IRT) approaches.
 #'
-#' @param measure.data data frame of dichotomous item responses with subjects in rows
+#' @param measure.data data frame of item responses with subjects in rows
 #' and items in columns
 #' @param dif.group factor or character vector with 2 levels; indicates group membership
 #' for which DIF is evaluated. If a character vector, this will be transformed
@@ -44,14 +44,14 @@
 #' tenths <- seq(0, 1, by = .1)
 #'
 #' ## DIF analysis by treatment condition using rest scores and binning by deciles for MH
-#' dif.by.tx <- dif_analysis(measure.data = wb.measure'\['3:7],
+#' dif.by.tx <- dif_analysis(measure.data = wb.measure'['3:7],
 #'                           dif.group = wb.measure$tx,
 #'                           score.type = "Rest",
 #'                           methods = c("loess", "MH", "logistic", "IRT"),
 #'                           match.bins = tenths)
 #'
 #' ## DIF analysis by gender using total scores without binning for MH
-#' dif.by.gender <- dif_analysis(measure.data = wb.measure'\['3:7],
+#' dif.by.gender <- dif_analysis(measure.data = wb.measure'['3:7],
 #'                               dif.group = wb.measure$gender,
 #'                               score.type = "Total",
 #'                               methods = c("loess", "MH", "logistic", "IRT"),
@@ -94,7 +94,7 @@ dif_analysis <- function(measure.data,
   n.items <- ncol(measure.data)
 
   ## identify polytomous items
-  poly <- which(apply(measure.data, 2, max, na.rm = TRUE) > 1)
+  poly <- which(apply(measure.data, 2, max, na.rm = TRUE) > 1) # returns integer
 
   ## creating match.scores object
   match.scores <- NULL

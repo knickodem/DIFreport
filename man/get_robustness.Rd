@@ -2,17 +2,25 @@
 % Please edit documentation in R/Robustness-Functions.R
 \name{get_robustness}
 \alias{get_robustness}
+\alias{calc_smd}
+\alias{smd_wrapper}
 \title{Robustness of treatment effects}
 \usage{
 get_robustness(
   scale.data,
   dif.group,
   biased.items = NULL,
-  no.var.items = numeric(),
+  no.var.items = integer(),
+  no.var.by.group.items = integer(),
+  poly = integer(),
   no.dif.mod = NULL,
   irt.scoring = "WLE",
   tx.group = NULL
 )
+
+calc_smd(m1, m2, sd1, sd2 = NULL, n1, n2, sample = "ind")
+
+smd_wrapper(score, dif.group, tx.group = NULL)
 }
 \arguments{
 \item{scale.data}{data frame of dichotomous item responses with subjects in rows
@@ -20,9 +28,14 @@ and items in columns}
 
 \item{dif.group}{factor vector of group membership for which DIF is evaluated}
 
-\item{biased.items}{numeric vector; location of biased items in \code{scale.data}}
+\item{biased.items}{integer vector; location of biased items in \code{scale.data}}
 
-\item{no.var.items}{numeric vector; location of items in \code{scale.data} with 0 variance}
+\item{no.var.items}{integer vector; location of items in \code{scale.data} with 0 variance}
+
+\item{no.var.by.group.items}{integer vector; location of items in \code{scale.data}
+with 0 variance within a \code{dif.group}}
+
+\item{poly}{integer vector; location of polytomous items in \code{scale.data}}
 
 \item{no.dif.mod}{\code{MultipleGroupClass} object from \code{mirt} where parameters are
 constrained to be equal between levels of \code{dif.group}}
@@ -47,11 +60,13 @@ constrained to be equal between levels of \code{dif.group}}
 \item{score}{vector of scale scores}
 }
 \value{
-A two-item list containing 1) data.frame of treatment effect estimates
-and 2) character string of the groups being compared
+\code{get_robustness} - a two-item list containing 1) data.frame of treatment effect estimates
+and 2) character string of the groups being compared \cr
+\code{calc_smd} - numeric value
+\cod{smd_wrapper} - numeric value
 }
 \description{
-Evaluates the robustness of treatment effects when DIF is detected
+Calculates treatment effect and robustness in the presence of DIF
 }
 \details{
 

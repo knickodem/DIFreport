@@ -13,7 +13,7 @@ run_global_irt(scale.data, dif.group)
 run_item_irt(global.irt, which.model = "no.dif.mod", items2test)
 }
 \arguments{
-\item{scale.data}{data frame of dichotomous item responses with subjects in rows
+\item{scale.data}{data frame of item responses with subjects in rows
 and items in columns}
 
 \item{dif.group}{factor vector of group membership for which DIF is evaluated.}

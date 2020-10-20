@@ -2,7 +2,7 @@
 #'
 #' Conducts DIF analysis via the item response theory method
 #'
-#' @param scale.data data frame of dichotomous item responses with subjects in rows
+#' @param scale.data data frame of item responses with subjects in rows
 #' and items in columns
 #' @param dif.group factor vector of group membership for which DIF is evaluated.
 #' @param global.irt object returned from \code{run_global_irt}
