@@ -5,7 +5,7 @@
 #' @param measure.data \code{data.frame} containing item responses and group indicators.
 #' @param dif.group vector of group membership by which DIF is evaluated.
 #' @param tx.group vector indicating treatment condition unless treatment indicator was
-#' already supplied to \code{dif.group].
+#' already supplied to \code{dif.group}.
 #' @param na0 after removing empty rows, should remaining NAs be converted to 0?
 #' Default is FALSE.
 #'
@@ -26,10 +26,10 @@
 #'                       item4 = sample(c(0,1), 20, replace = TRUE),
 #'                       item5 = sample(c(0,1), 20, replace = TRUE))
 #' ## add missing data
-#' measure <- measure'['c(1, 4), ] <- NA
-#' measure <- measure'['c(2, 5), 1] <- NA
+#' measure <- measure`[`c(1, 4), `]` <- NA
+#' measure <- measure`[`c(2, 5), 1`]` <- NA
 #'
-#' dif_prep(measure'[', -c(1, 2)],
+#' dif_prep(measure`[`, -c(1, 2)`]`,
 #'          dif.group = measure$gender,
 #'          tx.group = measure$tx,
 #'          na0 = TRUE)

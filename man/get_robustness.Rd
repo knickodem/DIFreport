@@ -60,8 +60,8 @@ constrained to be equal between levels of \code{dif.group}}
 \item{score}{vector of scale scores}
 }
 \value{
-\code{get_robustness} - a two-item list containing 1) data.frame of treatment effect estimates
-and 2) character string of the groups being compared \cr
+\code{get_robustness} - a two-item list containing 1) data.frame of treatment effect
+estimates and 2) character string of the groups being compared \cr
 \code{calc_smd} - numeric value
 \cod{smd_wrapper} - numeric value
 }
@@ -69,5 +69,16 @@ and 2) character string of the groups being compared \cr
 Calculates treatment effect and robustness in the presence of DIF
 }
 \details{
+Treatment effects are calculated as the standardized mean difference.
+If \code{tx.group} is specified, the treatment effect is calculated for each group in
+\code{dif.group} as well as the \code{tx.group} by \code{dif.group} interaction.
+The interaction is calculated as difference in within-dif.group treatment effects
+divided by the pooled SD of the dif.group1 and dif.group2 control groups.
 
+The reported raw scale reliability is \alpha calculated via
+\code{\link[psy]{cronbach}}.
+}
+\references{
+Cohen, J. (1988). \emph{Statistical power analysis for the behavioral sciences}
+(2nd ed.). Hillsdale, NJ: Lawrence Erlbaum.
 }

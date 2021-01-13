@@ -11,6 +11,9 @@ dif_prep(measure.data, dif.group, tx.group = dif.group, na0 = FALSE)
 
 \item{dif.group}{vector of group membership by which DIF is evaluated.}
 
+\item{tx.group}{vector indicating treatment condition unless treatment indicator was
+already supplied to \code{dif.group}.}
+
 \item{na0}{after removing empty rows, should remaining NAs be converted to 0?
 Default is FALSE.}
 }
@@ -35,10 +38,10 @@ measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
                       item4 = sample(c(0,1), 20, replace = TRUE),
                       item5 = sample(c(0,1), 20, replace = TRUE))
 ## add missing data
-measure <- measure'['c(1, 4), ] <- NA
-measure <- measure'['c(2, 5), 1] <- NA
+measure <- measure`[`c(1, 4), `]` <- NA
+measure <- measure`[`c(2, 5), 1`]` <- NA
 
-dif_prep(measure'[', -c(1, 2)],
+dif_prep(measure`[`, -c(1, 2)`]`,
          dif.group = measure$gender,
          tx.group = measure$tx,
          na0 = TRUE)

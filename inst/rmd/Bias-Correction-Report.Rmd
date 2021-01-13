@@ -1,5 +1,4 @@
 ---
-author: "PFH & KKN" 
 output:
    html_document:
       toc: TRUE
@@ -17,18 +16,23 @@ knitr::opts_chunk$set(options(knitr.kable.NA = ''))
 ```
 
 ---
-title: "`r paste0("Measurement Bias Analysis of ", measure.name, " by ", dif.group.name, " in ", dataset.name)`"
+title: "`r report.title`"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 ---
 
 # Summary
 
+```{r dataset, results='asis'}
+if(!is.null(dataset.name)){
+  cat("**Dataset:**", dataset.name)
+  cat("\n\n")
+}
+```
+  
 
-**Dataset:** `r dataset.name`
+**Measure:** `r paste0(measure.name,  " (", item.name.range, ")")`
 
-**Outcome:** `r paste0(measure.name,  " (", item.name.range, ")")`
-
-**Comparison variable:** `r paste0(dif.group.name, " (", dif.group.levs, ")")`
+**Comparison variable:** `r paste0(dif.group.name, " (", paste(dif.group1, dif.group2, sep = ", "), ")")`
 
 **Items with no variance:** `r nvi`
 
@@ -78,7 +82,7 @@ if(nvgi != "none"){
 
 if(is.null(tx.group)){
   
-  cat("## Robustness Checks for Treatment Effects")
+  cat("## Treatment Effects")
   cat("\n\n")
   
   if(n.biased == 0){
@@ -88,7 +92,7 @@ if(is.null(tx.group)){
   cat("\n\n")
 }
   
-  cat("Summary table for robustness of unconditional treatment effects 
+  cat("Summary table of unconditional treatment effects 
       (comparing ", uncond.effects$comparison, ")", sep  ="") 
   cat("\n\n")
   
@@ -98,7 +102,7 @@ if(is.null(tx.group)){
   
 } else {
 
-  cat("## Robustness Checks for Treatment Effects Conditional on Comparison Variable")
+  cat("## Treatment Effects Conditional on ", dif.group.name)
   cat("\n\n")
   
   if(n.biased == 0){
@@ -108,7 +112,7 @@ if(is.null(tx.group)){
   cat("\n\n")
 }
 
-  cat("Summary table for robustness of conditional treatment effects for ", dif.group1, 
+  cat("Summary table of conditional treatment effects for ", dif.group1, 
       " (comparing ", cond.effects1$comparison, ")", sep  = "") 
   cat("\n\n")
 
@@ -118,7 +122,7 @@ if(is.null(tx.group)){
 
   cat("&nbsp;  ")
   cat("\n\n")
-  cat("Summary table for robustness of conditional treatment effects for ", dif.group2, 
+  cat("Summary table of conditional treatment effects for ", dif.group2, 
       " (comparing ", cond.effects2$comparison, ")", sep  = "") 
   cat("\n\n")
   
@@ -140,6 +144,20 @@ cat("&nbsp;  ")
 cat("*Note:* Adj. Delta  = Scale Delta / sqrt(Reliability)")
   
 ```
+
+
+```{r test.plot, results='asis'}
+
+if(!is.null(test.plot)){
+  cat("## Measure Score Plots")
+  cat("\n\n")
+  cat("Expected Measure Score and Score Bias by IRT Score ($\theta$)")
+  cat("\n\n")
+  
+  print(gridExtra::grid.arrange(test.plot$Score, test.plot$Bias))
+}
+```
+
 
 
 # Bias Detection Methods

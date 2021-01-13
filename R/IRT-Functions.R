@@ -113,14 +113,20 @@ get_irt <- function(scale.data, dif.group){
         row.names(item.irt) <- NULL
         biased.items <- which(item.irt$refined.bias == TRUE | is.na(item.irt$refined.bias))
 
+        # returning the uniform or non-uniform dif mod for creating test score bias plots
+        if(global.irt$dif.type == "uniform"){
+          dif.mod <- global.irt$uniform.mod
+        } else if (global.irt$dif.type == "non-uniform"){
+          dif.mod <- global.irt$nonuniform.mod
+        }
+
         ## Merging initial and refined stage results
         irt <- list(global.level = global.irt$model.comparison,
                     item.level = item.irt,
                     biased.items = biased.items,
                     dif.type = global.irt$dif.type,
                     no.dif.mod = global.irt$no.dif.mod,
-                    uniform.mod = global.irt$uniform.mod) # used in dif_report
-        # to get direction of uniform dif, if necessary
+                    dif.mod = dif.mod)
 
       } else {
 

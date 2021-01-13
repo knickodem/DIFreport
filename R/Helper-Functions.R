@@ -86,3 +86,76 @@ format_flex <- function(df, bold.bias = "no", digits = 3){
 
   return(ftab)
 }
+
+bias_plot <- function(dif.analysis){
+
+  test.plot <- plot(dif.analysis$IRT$dif.mod, type = "score")
+  # se.plot <- plot(dif.analysis$IRT$dif.mod, type = "SE")
+  # Note: MI argument for bootstrap SEs only available for SingleGroupClass
+
+  # extract data from mirt plot objects
+  plot.data <- data.frame(group = score.plot$panel.args.common$groups,
+                          x = score.plot$panel.args[[1]]$x,
+                          y = score.plot$panel.args[[1]]$y)
+  # se = se.plot$panel.args[[1]]$y)
+
+  # calculate reformat data and calculate bias
+  bias.data <- merge(plot.data[plot.data$group == dif.group2,],
+                     plot.data[plot.data$group == dif.group1,],
+                     by = "x")
+  bias.data$bias <- bias.data$y.x - bias.data$y.y
+  # group2 - group1; consistent w/ calc_smd
+
+  # # group size
+  # ns <- table(inputs$dif.group)
+  #
+  # # calculate SE(bias); similar pooling to calc_smd but for SE
+  # sigmanum <- (ns[[1]] - 1) * (bias.data$se.y*ns[[1]]) +
+  #   (ns[[2]] - 1) * (bias.data$se.x*ns[[2]])
+  # sigmadenom <- (ns[[1]] + ns[[2]] - 2)
+  # bias.data$se <- sqrt(sigmanum / sigmadenom) * sqrt((1/ns[[1]]) + (1/ns[[2]]))
+
+  test.plot <- ggplot(data = plot.data, aes(x = x, y = y, group = group)) +
+    geom_line(aes(color = group), lwd = .8) +
+    # geom_ribbon(aes(ymin = y - 1.96 * se,
+    #                 ymax = y + 1.96 * se,
+    #                 fill = group), alpha = .4) +
+    scale_x_continuous(breaks = seq(-6, 6, 1)) +
+    labs(x = expression(theta),
+         y = "Expected Measure Score") +
+    theme(legend.position = "top")
+
+  bias.plot <- ggplot(data = bias.data, aes(x = x, y = bias)) +
+    geom_line() +
+    # geom_ribbon(aes(ymin = bias - 1.96 * se,
+    #                 ymax = bias + 1.96 * se),
+    #             alpha = .4) +
+    scale_x_continuous(breaks = seq(-6, 6, 1)) +
+    labs(x = expression(theta),
+         y = "Score Bias")
+
+  plots <- list(Score = test.plot,
+                Bias = bias.plot)
+  return(plots)
+}
+
+# # classify::wlord - calls a cpp file
+# wlord <- function(probs=NULL, cats=NULL){
+#
+#   #Wrapper for Wingersky Lord
+#   if(!is.numeric(cats)){
+#     stop("Item categories need to be specified as a numeric vector.")
+#   }
+#   if(!is.matrix(probs)){
+#     stop("Item probabilities need to be specified as a matrix.")
+#   }
+#   if(nrow(probs)!=length(cats)){
+#     stop(paste("Categories Specified for:",length(cats), "items, but probabilities provided for" ,nrow(probs),"items."))
+#   }
+#   if(min(cats)<2){
+#     stop("Minimum number of item categories is 2.")
+#   }
+#
+#   ret <- .Call( "rcpp_w_lord_c", probs, cats,PACKAGE = "classify" )
+#   return(ret)
+# }
