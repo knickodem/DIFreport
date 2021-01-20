@@ -4,7 +4,7 @@
 #' logistic regression, and item response theory (IRT) approaches.
 #'
 #' @param measure.data data frame of item responses with subjects in rows
-#' and items in columns
+#' and items in columns. See Details for response formats.
 #' @param dif.group factor or character vector with 2 levels; indicates group membership
 #' for which DIF is evaluated. If a character vector, this will be transformed
 #' to a \code{\link[base]{factor}}.
@@ -19,14 +19,22 @@
 #' \code{\link[stats]{quantile}}.
 #'
 #' @details
-#' This function calls the specific DIF methods functions and compiles the results.
-#' Additionally, the function identifies and reports items with no variance or no
-#' variance within the levels of \code{dif.group} (e.g., all cases have same response)
-#' as response variance is a prerequisite for DIF. The "loess" method produces
+#' This function calls the specific DIF methods functions (loess, MH, logistic, IRT)
+#' and compiles the results.
+#'
+#' Dichotomous items are expected to be coded 0 = incorrect, 1 = correct.
+#' The Mantel-Haenszel and logistic methods can only accommodate dichotomous items.
+#' Polytomous item responses are expected to be sequential integers (e.g., 1, 2, 3) but
+#' the lowest code does not have to be 0. Polytomous items are unit scaled when
+#' calculating the total or rest score.
+#'
+#' Response variance is a prerequisite for DIF, so the function identifies and
+#' reports items with no variance or no variance within the levels of \code{dif.group}
+#' (e.g., all cases have same response). The "loess" method produces
 #' loess curves for every item in \code{measure.data}, but items with no variance
 #' are removed from \code{measure.data} for the "MH", "logistic", and "IRT" methods.
 #' Additionally, items with no variance within a \code{dif.group} level are removed from
-#' the "IRT" method because these lead to the models being under-identified.
+#' the "IRT" method because these lead to under-identified models.
 #'
 #'
 #' @return a list with DIF results from each selected method
@@ -95,7 +103,8 @@ dif_analysis <- function(measure.data,
   n.items <- ncol(measure.data)
 
   ## identify polytomous items
-  poly <- which(apply(measure.data, 2, max, na.rm = TRUE) > 1) # returns integer
+  poly <- which(apply(measure.data, 2, max, na.rm = TRUE) > 1)
+  # returns named integer vector
 
   ## creating match.scores object
   match.scores <- NULL
@@ -118,11 +127,10 @@ dif_analysis <- function(measure.data,
       }
 
 
-    loess <- get_loess(scale.data = md.orig,
+    loess <- dif_loess(scale.data = md.orig,
                        dif.group = dif.group,
                        score.type = score.type,
-                       match = match.scores,
-                       poly = poly)
+                       match = match.scores)
 
   } else{
 
@@ -133,6 +141,10 @@ dif_analysis <- function(measure.data,
   #### Mantel-Haenszel ####
   if("MH" %in% methods){
 
+    if(length(poly) > 0){
+      stop("Remove polytomous items from measure.data to use MH method.")
+    }
+
     # Need to recalculate match.scores if there were items with no variance
     if(is.null(match.scores) | length(nvi) > 0){
 
@@ -140,18 +152,18 @@ dif_analysis <- function(measure.data,
       if(score.type == "Rest"){ # Returns a list with n_items elements of length = nrow(measure.data)
 
         match.scores <- lapply(X = c(1:ncol(md.orig)), FUN = sum_score,
-                               scale.data = md.orig, poly = poly)
+                               scale.data = md.orig)
 
       } else if(score.type == "Total"){ # a single vector of length = nrow(measure.data)
 
-        match.scores <- sum_score(scale.data = md.orig, drops = NULL, poly = poly)
+        match.scores <- sum_score(scale.data = md.orig, drops = NULL)
 
       }  else {
         stop("score.type argument must be 'Rest' or 'Total'")
       }
     }
 
-    MH <- get_mh(scale.data = measure.data,
+    MH <- dif_mh(scale.data = measure.data,
                  dif.group = dif.group,
                  score.type = score.type,
                  match = match.scores,
@@ -165,6 +177,10 @@ dif_analysis <- function(measure.data,
 
   #### Logistic Regression ####
   if("logistic" %in% methods){
+
+    if(length(poly) > 0){
+      stop("Remove polytomous items from measure.data to use logistic method.")
+    }
 
     # if match.scores was previously calculated in loess & no items need to be dropped
     # OR match.scores was previously calculated in the MH method, use it.
@@ -191,7 +207,7 @@ dif_analysis <- function(measure.data,
     }
 
 
-    logistic <- get_logistic(scale.data = measure.data,
+    logistic <- dif_logistic(scale.data = measure.data,
                              dif.group = dif.group,
                              score.type = score.type,
                              match = match.scores)
@@ -212,7 +228,7 @@ dif_analysis <- function(measure.data,
       measure.data <- measure.data[-c(nvgi)]
     }
 
-    IRT <- get_irt(scale.data = measure.data,
+    IRT <- dif_irt(scale.data = measure.data,
                    dif.group = dif.group)
 
   } else{

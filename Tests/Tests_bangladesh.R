@@ -134,22 +134,54 @@ end.el.unc <- dif_analysis(measure.data = end.prep$Emergent_Literacy$measure.dat
 
 
 
+bi.list <- extract_bi(end.el.unc)
+bi.list <- bi.list[lengths(bi.list) != 0] # removes NULL elements
+# element values are NULL, "No DIF was detected", or vector of item locations
+# at least one element will be non-NULL
+# if NULL, no column; if "No DIF", blank column
+# Note: X = method determined item to be biased
 
-class(end.el.unc$IRT$dif.mod)
-bias.method <- "IRT"
+# obtaining item names and putting in a table for report
+# Note: returns NA if no biased items; blank if method not in dif.analysis
 
-get_plot <- function(dif.analysis, bias.method = "IRT"){
-  if(bias.method == "IRT"){
+bi.df <- lapply(bi.list[lengths(bi.list) != 0], function(x){
+  if(x == "No DIF was detected"){
+    data.frame()
+  }
+})
 
-    score.plot <- plot(dif.analysis$IRT$dif.mod, type = "score")
 
-  } else{
-    print("wut")
+bi.df <- data.frame(method = c("MH", "logistic", "IRT"),
+                    biased.items = stack(bi.df)[[1]])
+
+item.df <- data.frame(biased.items = names(end.el.unc$inputs$data))
+for(i in names(bi.list)){
+  if(is.character(bi.list[[i]])){
+    temp <- data.frame(biased.items = names(end.el.unc$inputs$data),
+               x = NA)
+    names(temp) <- c("biased.items", i)
+    item.df <- merge(item.df, temp, by = "biased.items", all.x = TRUE)
+  } else {
+    temp <- data.frame(biased.item = names(end.el.unc$inputs$data[bi.list[[i]]]),
+                       IRT = "X")
+    names(temp) <- c("biased.items", i)
+    item.df <- merge(item.df, temp, by = "biased.items", all.x = TRUE)
   }
 }
 
-test <- bias_plot(dif.analysis = end.el.unc) #
-test2 <- get_plot(dif.analysis = end.el.unc)
+bi.df <- item.df[rowSums(is.na(item.df)) != ncol(item.df) - 1,]
+
+data.frame(biased.item = names(end.el.unc$inputs$data[end.el.unc$IRT$biased.items]),
+           IRT = "X")
+
+
+ts <- sum_score(end.el.unc$inputs$data, poly = end.el.unc$inputs$poly.items)
+
+est_smd(ts, end.el.unc$inputs$dif.group, cluster.n = 50, icc = .3)
+
+mirt1 <- extract.group(end.el.unc$IRT$dif.mod, group = 1)
+test.plot <- plot(mirt1, type = "score", MI = 50) # why no work? Error: Must compute an information matrix
+
 
 
 

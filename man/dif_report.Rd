@@ -2,7 +2,7 @@
 % Please edit documentation in R/DIF-Report.R
 \name{dif_report}
 \alias{dif_report}
-\title{Generate report of DIF analysis}
+\title{Generate DIF analysis report}
 \usage{
 dif_report(
   dif.analysis,
@@ -57,6 +57,11 @@ treatment contrasts on \code{measure.name}.
 Produces a report summarizing an analysis of measurement bias for a given
 scale and grouping variable
 }
+\details{
+With \code{bias.method = "IRT"}, the direction of uniform DIF is determined using
+the b parameter for dichotomous items and the location of the first threshold for
+polytomous items.
+}
 \examples{
 wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
                          gender = rep(c("male", "female"), each = 10),
@@ -68,7 +73,7 @@ wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
 
 ## Unconditional Treatment Effects
 # DIF analysis by treatment condition
-dif.by.tx <- dif_analysis(measure.data = wb.measure`[`3:7`]`,
+dif.by.tx <- dif_analysis(measure.data = wb.measure[3:7],
                           dif.group = wb.measure$tx,
                           score.type = "Rest",
                           methods = c("loess", "logistic"))

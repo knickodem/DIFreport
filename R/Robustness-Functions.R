@@ -1,6 +1,6 @@
 #' Robustness of treatment effects
 #'
-#' Calculates treatment effect and robustness in the presence of DIF
+#' Calculates treatment effects and robustness in the presence of DIF
 #'
 #' @param scale.data data frame of dichotomous item responses with subjects in rows
 #' and items in columns
@@ -15,13 +15,7 @@
 #' @param irt.scoring factor score estimation method, which is passed to the
 #' \code{method} argument of \code{\link[mirt]{fscores}}
 #' @param tx.group factor vector for treatment indicator
-#' @param m1 mean for dif.group 1
-#' @param m2 mean for dif.group 2
-#' @param sd1 sd for dif.group 1
-#' @param sd2 sd for dif.group 2
-#' @param n1 sample size for dif.group 1
-#' @param n2 sample size for dif.group 2
-#' @param score vector of scale scores
+#' @param score vector of total scores
 #'
 #' @details
 #' Treatment effects are calculated as the standardized mean difference.
@@ -30,22 +24,18 @@
 #' The interaction is calculated as difference in within-dif.group treatment effects
 #' divided by the pooled SD of the dif.group1 and dif.group2 control groups.
 #'
-#' The reported raw scale reliability is \alpha calculated via
+#' The reported total score reliability is \alpha calculated via
 #' \code{\link[psy]{cronbach}}.
 #'
 #' @return
 #' \code{get_robustness} - a two-item list containing 1) data.frame of treatment effect
 #' estimates and 2) character string of the groups being compared \cr
-#' \code{calc_smd} - numeric value
 #' \cod{smd_wrapper} - numeric value
 #'
-#' @references
-#' Cohen, J. (1988). \emph{Statistical power analysis for the behavioral sciences}
-#' (2nd ed.). Hillsdale, NJ: Lawrence Erlbaum.
 #'
 #' @export
 
-get_robustness <- function(scale.data,
+effect_robustness <- function(scale.data,
                            dif.group,
                            biased.items = NULL,
                            no.var.items = integer(),
@@ -119,23 +109,58 @@ get_robustness <- function(scale.data,
   if(!is.null(biased.items)) {
 
   effects.table <- data.frame(Items = c("All Items", "Bias Omitted"),
-                              `IRT Delta` = c(delta.scalar, delta.bo),
-                              `Scale Delta` = c(delta.total, delta.star),
-                              `Adj. Delta` = c((delta.total / sqrt(r.total)),
-                                               (delta.star / sqrt(r.star))),
+                              `IRT Delta` = c(delta.scalar[[1]], delta.bo[[1]]),
+                              `Total Delta` = c(delta.total[[1]], delta.star[[1]]),
+                              `Adj. Delta` = c((delta.total[[1]] / sqrt(r.total)),
+                                               (delta.star[[1]] / sqrt(r.star))),
                               Reliability = c(r.total, r.star),
                               check.names = FALSE)
+
+  # what is the standard error of Adj. Delta? se(Delta)/ sqrt(reliability)?
+  effects.data <- rbind(delta.scalar,
+                        delta.bo,
+                        delta.total,
+                        delta.star)
+  effects.data$delta <- factor(c("IRT - All Items", "IRT - Bias Omitted",
+                                 "Total - All Items", "Total - Bias Omitted"),
+                               levels = c("IRT - All Items", "IRT - Bias Omitted",
+                                          "Total - All Items", "Total - Bias Omitted"))
+
+
   } else {
 
     effects.table <- data.frame(Items = c("All Items"),
-                                `IRT Delta` = c(delta.scalar),
-                                `Scale Delta` = c(delta.total),
-                                `Adj. Delta` = c((delta.total / sqrt(r.total))),
+                                `IRT Delta` = c(delta.scalar[[1]]),
+                                `Total Delta` = c(delta.total[[1]]),
+                                `Adj. Delta` = c((delta.total[[1]] / sqrt(r.total))),
                                 Reliability = c(r.total),
                                 check.names = FALSE)
+
+    # what is the standard error of Adj. Delta? se(Delta)/ sqrt(reliability)?
+    effects.data <- rbind(delta.scalar,
+                          delta.total)
+    effects.data$delta <- factor(c("IRT - All Items","Total - All Items"),
+                                 levels = c("IRT - All Items","Total - All Items"))
   }
 
+
+  effects.plot <- ggplot(data = effects.data, aes(x = smd, y = delta)) +
+    geom_vline(xintercept = 0, colour = "black" , size = 1 , linetype = 2) +
+    geom_pointrange(aes(xmin = smd - 1.96 * smd.se,
+                        xmax = smd + 1.96 * smd.se), size = 1) +
+    xlab("Treatment Effect [95% CI]") +
+    ylab("Scoring Method") +
+    theme(strip.placement = "outside",
+          strip.text.y = element_text(angle = 180,vjust=1, face = "bold"),
+          strip.background = element_blank(),
+          panel.spacing = unit(0,"cm"),
+          panel.background = element_blank(),
+          panel.border = element_blank(),
+          panel.grid.minor=element_blank(),
+          axis.line = element_line(colour = "black"))
+
   effects <- list(effects.table = effects.table,
+                  effects.plot = effects.plot,
                   comparison = paste(levels(dif.group)[[2]], "-", levels(dif.group)[[1]]))
 
 
@@ -143,45 +168,8 @@ get_robustness <- function(scale.data,
 
 }
 
-#' @rdname get_robustness
 
-#### Calculate standardized mean difference from two independent or paired groups ####
-## SD can be pooled by providing sd1 and sd2
-calc_smd <- function(m1, m2, sd1, sd2 = NULL, n1, n2, sample = "ind"){
-
-
-  # raw mean difference
-  md <- (m2 - m1)
-
-  # Use only SD from group 1 or an overall SD
-  if(is.null(sd2)){
-
-    sigma <- sd1
-
-  } else {
-
-    # sigma for independent groups
-    if(sample == "ind"){
-
-      sigmanum <- (n1 - 1) * (sd1^2) + (n2 - 1) * (sd2^2)
-      sigmadenom <- (n1 + n2 - 2)
-      sigma <- sqrt(sigmanum / sigmadenom)
-
-    } else{
-
-      # sigma for paired groups
-      sigma <- sqrt((sd1^2 + sd2^2) / 2)
-
-    }
-  }
-
-  # Calculating d
-  d <- md / sigma
-
-  return(d)
-}
-
-#' @rdname get_robustness
+#' @rdname effect_robustness
 
 smd_wrapper <- function(score, dif.group, tx.group = NULL){
 
@@ -189,11 +177,14 @@ smd_wrapper <- function(score, dif.group, tx.group = NULL){
 
   means <- tapply(score, dif.group, mean, na.rm = T)
   sds <- tapply(score, dif.group, sd, na.rm = T)
+  ns <- tapply(score, dif.group, length)
 
 
-  delta <- calc_smd(m1 = means[[1]],
+  delta <- est_smd(m1 = means[[1]],
                   m2 = means[[2]],
-                  sd1 = sds[[1]])
+                  sdp = sds[[1]],
+                  n1 = ns[[1]],
+                  n2 = ns[[2]])
   } else {
 
     ## creates 2x2 tables (assuming tx.group and dif.group each have 2 levels)
@@ -202,7 +193,7 @@ smd_wrapper <- function(score, dif.group, tx.group = NULL){
     ns <- tapply(score, list(tx.group, dif.group), length)
 
     # m = (M_{dif.groupTX} - M_{dif.groupControl}) * SD_{dif.groupControl}
-    delta <- calc_smd(m1 = (means[[2]] - means[[1]]),# * sds[[1]],
+    delta <- est_smd(m1 = (means[[2]] - means[[1]]),# * sds[[1]],
                      m2 = (means[[4]] - means[[3]]),# * sds[[3]],
                      sd1 = sds[[1]],
                      sd2 = sds[[3]],

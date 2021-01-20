@@ -6,8 +6,8 @@
 #' and items in columns
 #' @param dif.group factor vector of group membership for which DIF is evaluated.
 #' @param global.irt object returned from \code{run_global_irt}
-#' @param which.model the model in \code{global.irt} to use for testing DIF. The default
-#' is the scalar, i.e, no DIF model ("no.dif.mod").
+#' @param which.model the model in \code{global.irt} to use for testing DIF. Options
+#' are "no.dif.mod" (default), "uniform.mod" or "nonuniform.mod".
 #' @param items2test numeric; the item to test for DIF, which is passed to the
 #' items2test argument of \code{\link[mirt]{DIF}}.
 #'
@@ -18,18 +18,18 @@
 #' between the levels of \code{dif.group}. Model fit is compared with a
 #' likelihood ratio test. If DIF is detected through the model comparisons, the
 #' specific item(s) with DIF are identified via \code{run_item_irt} using
-#' \code{\link[mirt]{DIF}}. \code{get_irt} is a wrapper around the other functions that
+#' \code{\link[mirt]{DIF}}. \code{dif_irt} is a wrapper around the other functions that
 #' organizes the initial and refinement phases of the DIF analysis and compiles
 #' the results.
 #'
 #' @return a list containing 1) DIF model comparisons,
 #' 2) item-level DIF tests, 3) integer vector of the items showing DIF
 #' (i.e., biased items), 4) type of DIF, and
-#' 5) IRT models needed for robustness check
+#' 5) IRT models needed for treatment effect robustness check
 #'
 #' @export
 
-get_irt <- function(scale.data, dif.group){
+dif_irt <- function(scale.data, dif.group){
 
   #### Comparing no dif, uniform dif, and nonuniform dif models ####
   global.irt <- tryCatch(expr = {
@@ -157,7 +157,7 @@ get_irt <- function(scale.data, dif.group){
 
 }
 
-#' @rdname get_irt
+#' @rdname dif_irt
 #' @export
 
 run_global_irt <- function(scale.data, dif.group){
@@ -214,7 +214,7 @@ run_global_irt <- function(scale.data, dif.group){
 }
 
 
-#' @rdname get_irt
+#' @rdname dif_irt
 #' @export
 
 run_item_irt <- function(global.irt,

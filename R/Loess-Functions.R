@@ -9,20 +9,19 @@
 #' total summed score ("Total") or the summed score excluding the item under
 #' investigation ("Rest").
 #' @param match numeric vector used as the predictor in the LOESS regression.
-#' In \code{get_loess}, if \code{score.type} = "Rest", \code{match} will be
+#' In \code{dif_loess}, if \code{score.type} = "Rest", \code{match} will be
 #' a list of vectors - one for each item in \code{scale.data}.
-#' @param poly integer vector; location of polytomous items in \code{scale.data}
 #' @param item integer; item in \code{scale.data} under investigation for DIF
 #' @param pred.scores range of scores to use in \code{\link[stats]{predict}}
-#' for generating the LOESS curves. The values are defined in \code{get_loess} and
+#' for generating the LOESS curves. The values are defined in \code{dif_loess} and
 #' passed to \code{run_loess}.
-#' @param nitem number of items in the scale. Calculated in \code{get_loess}
+#' @param nitem number of items in the scale. Calculated in \code{dif_loess}
 #' and passed to \code{run_loess}.
 #'
 #' @details
 #' For a each item in \code{scale.data}, \code{run_loess} regresses the item responses
 #' on the scores supplied to \code{match}. A separate model is run for each
-#' \code{dif.group} level. \code{get_loess} is a wrapper around \code{run_loess}
+#' \code{dif.group} level. \code{dif_loess} is a wrapper around \code{run_loess}
 #' that both initiates the call to \code{run_loess} for each item and uses the
 #' results to plot the LOESS curves.
 #'
@@ -32,7 +31,7 @@
 #'
 #' @export
 
-get_loess <- function(scale.data, dif.group, score.type, match, poly = integer()){
+dif_loess <- function(scale.data, dif.group, score.type, match){
 
   ## Number of items in the measure
   nitems <- ncol(scale.data) # this could be different than n.items in dif_analysis
@@ -79,7 +78,7 @@ get_loess <- function(scale.data, dif.group, score.type, match, poly = integer()
   loess.df$item <- factor(loess.df$item, levels = names(scale.data))
 
   ## Plotting the results
-
+  poly <- which(apply(scale.data, 2, max, na.rm = TRUE) > 1)
   if(length(poly) > 0){
 
     scales <- "free_y"
@@ -111,7 +110,7 @@ get_loess <- function(scale.data, dif.group, score.type, match, poly = integer()
 
 
 
-#' @rdname get_loess
+#' @rdname dif_loess
 #' @export
 
 run_loess <- function(scale.data, dif.group,

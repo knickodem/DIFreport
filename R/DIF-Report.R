@@ -1,4 +1,4 @@
-#' Generate report of DIF analysis
+#' Generate DIF analysis report
 #'
 #' Produces a report summarizing an analysis of measurement bias for a given
 #' scale and grouping variable
@@ -25,6 +25,11 @@
 #' variable in \code{dif_analysis}, the factor vector for treatment indicator needs to be
 #' supplied here. Robustness of the conditional treatment effects is then assessed.
 #'
+#' @details
+#' With \code{bias.method = "IRT"}, the direction of uniform DIF is determined using
+#' the b parameter for dichotomous items and the location of the first threshold for
+#' polytomous items.
+#'
 #' @return Uses the template "Bias_Correction_Report.Rmd" to produce a
 #' report summarizing whether any items on \code{measure.name} are biased with
 #' respect to \code{dif.group.name}, and, if so, to what extent this affects
@@ -41,7 +46,7 @@
 #'
 #' ## Unconditional Treatment Effects
 #' # DIF analysis by treatment condition
-#' dif.by.tx <- dif_analysis(measure.data = wb.measure`[`3:7`]`,
+#' dif.by.tx <- dif_analysis(measure.data = wb.measure[3:7],
 #'                           dif.group = wb.measure$tx,
 #'                           score.type = "Rest",
 #'                           methods = c("loess", "logistic"))
@@ -94,16 +99,35 @@ dif_report <- function(dif.analysis,
   ## Gathering biased item information for summary report
   # extracting biased items from each method
   bi.list <- extract_bi(dif.analysis)
+  bi.list <- bi.list[lengths(bi.list) != 0] # removes NULL elements
 
   # obtaining item names and putting in a table for report
-  # Note: returns NA if no biased items; blank if method not in dif.analysis
-  bi.df <- lapply(bi.list,
-                  function(x){paste(names(inputs$data)[x], collapse = ", ")})
-  bi.df <- data.frame(method = c("MH", "logistic", "IRT"),
-                      biased.items = stack(bi.df)[[1]])
+  # Note: returns NA if no biased items
+  # bi.df <- lapply(bi.list,
+  #                 function(x){paste(names(inputs$data)[x], collapse = ", ")})
+  # bi.df <- data.frame(method = c("MH", "logistic", "IRT"),
+  #                     biased.items = stack(bi.df)[[1]])
+
+  # creating table of biased items by method table for report
+  item.df <- data.frame(biased.items = names(inputs$data))
+  for(i in names(bi.list)){
+    if(is.character(bi.list[[i]])){
+      temp <- data.frame(biased.items = names(inputs$data),
+                         x = NA)
+      names(temp) <- c("biased.items", i)
+      item.df <- merge(item.df, temp, by = "biased.items", all.x = TRUE)
+    } else {
+      temp <- data.frame(biased.item = names(inputs$data[bi.list[[i]]]),
+                         IRT = "X")
+      names(temp) <- c("biased.items", i)
+      item.df <- merge(item.df, temp, by = "biased.items", all.x = TRUE)
+    }
+  }
+  # remove unbiased items
+  bi.df <- item.df[rowSums(is.na(item.df)) != ncol(item.df) - 1,]
 
   # If no biased items
-  if(bi.list[[bias.method]][1] == "No DIF was detected") {
+  if(is.character(bi.list[[bias.method]])) { # bi.list[[bias.method]][1] == "No DIF was detected"
 
     biased.items <- NULL   # need to define biased.items for robustness check
     n.biased <- 0
@@ -153,7 +177,6 @@ dif_report <- function(dif.analysis,
     } else if(bias.method == "IRT"){
 
       ## extract biased item parameter estimates for each dif.group
-      ## from global.irt uniform.mod
       g1 <- mirt::coef(dif.analysis$IRT$dif.mod, IRTpars = TRUE)[[1]][c(biased.items)]
       g1 <- lapply(g1, function(x) x[, 2]) # extracts b parameter (or first threshold)
       g1.df <- as.data.frame(Reduce(rbind, g1)) # single column
@@ -177,7 +200,7 @@ dif_report <- function(dif.analysis,
   # For the unconditional effects
   if(is.null(tx.group)){ # tx indicator is pulled from dif.analysis rather than provided
 
-    uncond.effects <- get_robustness(scale.data = inputs$data,
+    uncond.effects <- effect_robustness(scale.data = inputs$data,
                                      dif.group = inputs$dif.group,
                                      biased.items = biased.items,
                                      no.var.items = inputs$no.var.items,
@@ -204,7 +227,7 @@ dif_report <- function(dif.analysis,
 
 
     ## Treatment effect subset by dif.group1
-    cond.effects1 <- get_robustness(scale.data = inputs$data[inputs$dif.group == dif.group1, ],
+    cond.effects1 <- effect_robustness(scale.data = inputs$data[inputs$dif.group == dif.group1, ],
                                     dif.group = tx.group[inputs$dif.group == dif.group1],
                                     biased.items = biased.items,
                                     no.var.items = inputs$no.var.items,
@@ -214,7 +237,7 @@ dif_report <- function(dif.analysis,
                                     irt.scoring = irt.scoring)
 
     ## Treatment effect subset by dif.group2
-    cond.effects2 <- get_robustness(scale.data = inputs$data[inputs$dif.group == dif.group2, ],
+    cond.effects2 <- effect_robustness(scale.data = inputs$data[inputs$dif.group == dif.group2, ],
                                     dif.group = tx.group[inputs$dif.group == dif.group2],
                                     biased.items = biased.items,
                                     no.var.items = inputs$no.var.items,
@@ -224,7 +247,7 @@ dif_report <- function(dif.analysis,
                                     irt.scoring = irt.scoring)
 
     ## Interaction effects
-    interaction.effects <- get_robustness(scale.data = inputs$data,
+    interaction.effects <- effect_robustness(scale.data = inputs$data,
                                           dif.group = inputs$dif.group,
                                           biased.items = biased.items,
                                           no.var.items = inputs$no.var.items,
@@ -239,11 +262,11 @@ dif_report <- function(dif.analysis,
   ## Creating test score plots
   # should test.plot be created when no biased items are present?
   if(bias.method == "IRT"& !is.null(biased.items)){
-    test.plot <- bias_plot(dif.analysis = dif.analysis)
+    score.plot <- bias_plot(dif.analysis = dif.analysis)
   } else {
-    test.plot <- NULL
+    score.plot <- NULL
   }
-# test.plot <- NULL
+# score.plot <- NULL
 
   ## Naming report and output file
   if(is.null(report.title)){
@@ -252,7 +275,7 @@ dif_report <- function(dif.analysis,
                            dif.group.name)
 
   }
-  template <- system.file("rmd", "Bias-Correction-Report.Rmd", package = "WB")
+  template <- system.file("rmd", "Bias-Correction-Report.Rmd", package = "WBdif")
   dir <- getwd()
 
   if(!grepl("\\.html", file.name)){

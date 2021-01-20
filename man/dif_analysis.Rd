@@ -14,7 +14,7 @@ dif_analysis(
 }
 \arguments{
 \item{measure.data}{data frame of item responses with subjects in rows
-and items in columns}
+and items in columns. See Details for response formats.}
 
 \item{dif.group}{factor or character vector with 2 levels; indicates group membership
 for which DIF is evaluated. If a character vector, this will be transformed
@@ -40,14 +40,22 @@ Evaluates differential item functioning (DIF) using loess, Mantel-Haenszel (MH),
 logistic regression, and item response theory (IRT) approaches.
 }
 \details{
-This function calls the specific DIF methods functions and compiles the results.
-Additionally, the function identifies and reports items with no variance or no
-variance within the levels of \code{dif.group} (e.g., all cases have same response)
-as response variance is a prerequisite for DIF. The "loess" method produces
+This function calls the specific DIF methods functions (loess, MH, logistic, IRT)
+and compiles the results.
+
+Dichotomous items are expected to be coded 0 = incorrect, 1 = correct.
+The Mantel-Haenszel and logistic methods can only accommodate dichotomous items.
+Polytomous item responses are expected to be sequential integers (e.g., 1, 2, 3) but
+the lowest code does not have to be 0. Polytomous items are unit scaled when
+calculating the total or rest score.
+
+Response variance is a prerequisite for DIF, so the function identifies and
+reports items with no variance or no variance within the levels of \code{dif.group}
+(e.g., all cases have same response). The "loess" method produces
 loess curves for every item in \code{measure.data}, but items with no variance
 are removed from \code{measure.data} for the "MH", "logistic", and "IRT" methods.
 Additionally, items with no variance within a \code{dif.group} level are removed from
-the "IRT" method because these lead to the models being under-identified.
+the "IRT" method because these lead to under-identified models.
 }
 \examples{
 wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
