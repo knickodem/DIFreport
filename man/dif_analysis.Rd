@@ -56,6 +56,9 @@ loess curves for every item in \code{measure.data}, but items with no variance
 are removed from \code{measure.data} for the "MH", "logistic", and "IRT" methods.
 Additionally, items with no variance within a \code{dif.group} level are removed from
 the "IRT" method because these lead to under-identified models.
+
+See \code{link[WBdif]{dif_mh}}, \code{link[WBdif]{dif_logistic}}, and
+\code{link[WBdif]{dif_irt}} for details about the specific DIF methods.
 }
 \examples{
 wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),

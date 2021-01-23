@@ -8,6 +8,7 @@ Description: This package contains functions to detect DIF and check for robustn
 Depends: flextable,
          ggplot2,
 		 knitr,
+		 lme4,
          mirt,
 		 rmarkdown
 License: GNU GENERAL PUBLIC LICENSE

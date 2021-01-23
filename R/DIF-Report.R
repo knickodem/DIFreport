@@ -1,7 +1,7 @@
 #' Generate DIF analysis report
 #'
 #' Produces a report summarizing an analysis of measurement bias for a given
-#' scale and grouping variable
+#' measure and grouping variable
 #'
 #' @param dif.analysis an object returned from \code{dif_analysis}
 #' @param file.name file name to create on disk.
@@ -83,7 +83,8 @@ dif_report <- function(dif.analysis,
                        report.title = NULL,
                        bias.method = "IRT",
                        irt.scoring = "WLE",
-                       tx.group = NULL){
+                       tx.group = NULL,
+                       clusters = NULL){
 
   ## Determining whether the bias.method is was used for the DIF analysis
   if(is.null(dif.analysis[[bias.method]])){
@@ -207,7 +208,8 @@ dif_report <- function(dif.analysis,
                                      no.var.by.group.items = inputs$no.var.by.group.items,
                                      poly = inputs$poly.items,
                                      no.dif.mod = dif.analysis$IRT$no.dif.mod,
-                                     irt.scoring = irt.scoring)
+                                     irt.scoring = irt.scoring,
+                                     clusters = clusters)
 
   } else { # For conditional effects
 
@@ -234,7 +236,8 @@ dif_report <- function(dif.analysis,
                                     no.var.by.group.items = inputs$no.var.by.group.items,
                                     poly = inputs$poly.items,
                                     no.dif.mod = NULL,
-                                    irt.scoring = irt.scoring)
+                                    irt.scoring = irt.scoring,
+                                    clusters = clusters[inputs$dif.group == dif.group1])
 
     ## Treatment effect subset by dif.group2
     cond.effects2 <- effect_robustness(scale.data = inputs$data[inputs$dif.group == dif.group2, ],
@@ -244,7 +247,8 @@ dif_report <- function(dif.analysis,
                                     no.var.by.group.items = inputs$no.var.by.group.items,
                                     poly = inputs$poly.items,
                                     no.dif.mod = NULL,
-                                    irt.scoring = irt.scoring)
+                                    irt.scoring = irt.scoring,
+                                    clusters = clusters[inputs$dif.group == dif.group2])
 
     ## Interaction effects
     interaction.effects <- effect_robustness(scale.data = inputs$data,
@@ -255,7 +259,8 @@ dif_report <- function(dif.analysis,
                                           poly = inputs$poly.items,
                                           no.dif.mod = dif.analysis$IRT$no.dif.mod,
                                           irt.scoring = irt.scoring,
-                                          tx.group = tx.group)
+                                          tx.group = tx.group,
+                                          clusters = clusters)
 
   }
 

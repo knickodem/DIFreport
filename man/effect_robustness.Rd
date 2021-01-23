@@ -14,10 +14,11 @@ effect_robustness(
   poly = integer(),
   no.dif.mod = NULL,
   irt.scoring = "WLE",
-  tx.group = NULL
+  tx.group = NULL,
+  clusters = NULL
 )
 
-smd_wrapper(score, dif.group, tx.group = NULL)
+smd_wrapper(score, dif.group, tx.group = NULL, clusters = NULL)
 }
 \arguments{
 \item{scale.data}{data frame of dichotomous item responses with subjects in rows
@@ -42,23 +43,25 @@ constrained to be equal between levels of \code{dif.group}}
 
 \item{tx.group}{factor vector for treatment indicator}
 
+\item{clusters}{vector indicating cluster membership}
+
 \item{score}{vector of total scores}
 }
 \value{
-\code{get_robustness} - a two-item list containing 1) data.frame of treatment effect
+\code{effect_robustness} - a two-item list containing 1) data.frame of treatment effect
 estimates and 2) character string of the groups being compared \cr
-\cod{smd_wrapper} - numeric value
+\code{smd_wrapper} - numeric value
 }
 \description{
-Calculates treatment effects and robustness in the presence of DIF
+Estimates treatment effects and robustness in the presence of DIF
 }
 \details{
-Treatment effects are calculated as the standardized mean difference.
-If \code{tx.group} is specified, the treatment effect is calculated for each group in
+Treatment effects are estimated as the standardized mean difference.
+If \code{tx.group} is specified, the treatment effect is estimated for each group in
 \code{dif.group} as well as the \code{tx.group} by \code{dif.group} interaction.
-The interaction is calculated as difference in within-dif.group treatment effects
+The interaction is estimated as difference in within-dif.group treatment effects
 divided by the pooled SD of the dif.group1 and dif.group2 control groups.
 
-The reported total score reliability is \alpha calculated via
+The reported total score reliability is \alpha estimated via
 \code{\link[psy]{cronbach}}.
 }

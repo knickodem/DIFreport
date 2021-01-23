@@ -36,6 +36,9 @@
 #' Additionally, items with no variance within a \code{dif.group} level are removed from
 #' the "IRT" method because these lead to under-identified models.
 #'
+#' See \code{link[WBdif]{dif_mh}}, \code{link[WBdif]{dif_logistic}}, and
+#' \code{link[WBdif]{dif_irt}} for details about the specific DIF methods.
+#'
 #'
 #' @return a list with DIF results from each selected method
 #'

@@ -118,10 +118,11 @@ end.prep <- lapply(domain.items,
                    function(x) {dif_prep(measure.data = endline[, x],
                                          dif.group = endline$gender,
                                          tx.group = endline$tx,
+                                         # clusters = endline$age, #using only for testing code
                                          na0 = FALSE)})
 names(end.prep) <- names(domain.items)
 
-lapply(end.prep, function(x) nrow(x$measure.data))
+# lapply(end.prep, function(x) nrow(x$measure.data))
 
 
 #### Emergent Literacy ####
@@ -174,16 +175,15 @@ bi.df <- item.df[rowSums(is.na(item.df)) != ncol(item.df) - 1,]
 data.frame(biased.item = names(end.el.unc$inputs$data[end.el.unc$IRT$biased.items]),
            IRT = "X")
 
-
+### cluster-adjustments
 ts <- sum_score(end.el.unc$inputs$data, poly = end.el.unc$inputs$poly.items)
+est_smd(ts, end.el.unc$inputs$dif.group, clusters = end.prep$Emergent_Literacy$clusters)
 
-est_smd(ts, end.el.unc$inputs$dif.group, cluster.n = 50, icc = .3)
 
+
+### test score standard errors?
 mirt1 <- extract.group(end.el.unc$IRT$dif.mod, group = 1)
 test.plot <- plot(mirt1, type = "score", MI = 50) # why no work? Error: Must compute an information matrix
-
-
-
 
 dif_report(dif.analysis = end.el.unc,
            file.name = "Bangladesh-Literacy by Treatment.html",

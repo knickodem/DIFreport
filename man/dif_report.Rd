@@ -13,7 +13,8 @@ dif_report(
   report.title = NULL,
   bias.method = "IRT",
   irt.scoring = "WLE",
-  tx.group = NULL
+  tx.group = NULL,
+  clusters = NULL
 )
 }
 \arguments{
@@ -55,7 +56,7 @@ treatment contrasts on \code{measure.name}.
 }
 \description{
 Produces a report summarizing an analysis of measurement bias for a given
-scale and grouping variable
+measure and grouping variable
 }
 \details{
 With \code{bias.method = "IRT"}, the direction of uniform DIF is determined using

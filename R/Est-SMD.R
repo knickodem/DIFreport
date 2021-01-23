@@ -13,25 +13,28 @@
 #' @param n1 sample size for group 1
 #' @param n2 sample size for group 2
 #' @param hedges.g unbiased estimation of standardized mean difference?
-#' @param cluster.n average cluster size
+#' @param clusters vector indicating cluster membership
+#' @param cluster.n average cluster size (assumed to be equal for both \code{groups})
 #' @param icc intraclass correlation - proportion of total variance that is between
 #' cluster variance
 #'
 #' @details
-#' The standardized mean difference can be calculated from the raw data
-#' (\code{outcome} and \code{groups}) or from the sample statistics.
+#' The standardized mean difference can be estimated from the raw data
+#' (\code{outcome}, \code{groups}, \code{clusters}) or from the sample statistics.
 #' If raw data is supplied the pooled standard deviation is used as the divisor
 #' unless \code{sdp} is specified.
 #'
-#' Both \code{cluster.n} and \code{icc} must be supplied to adjust for clustering.
-#' Otherwise, the unadjusted estimate and standard error are returned without a warning.
-#' The cluster-adjustment assumes the average cluster size is equal in group 1
-#' and group 2.
+#' When \code{clusters} is supplied, the average cluster size for each group is
+#' calculated via Equation 19 in Hedges (2007). \code{cluster.n} is then defined as
+#' the mean of the average cluster size for the two groups. \code{icc} is estimated
+#' from an unconditional random effects model via \code{\link[lme4]{lmer}}.
+#' The smd and standard error estimates are cluster-adjusted using
+#' Equations 15 and 16 in Hedges (2007).
 #'
 #' @return
-#' If both \code{n1} and \code{n2} are supplied the standardized mean difference
-#' and its variance are returned in a data.frame. Otherwise only the estimated
-#' standardized mean difference is returned as a numeric value.
+#' If sample sizes are supplied (raw data or both \code{n1} and \code{n2}),
+#' the standardized mean difference and its standard error are returned in a data.frame.
+#' Otherwise only the estimated standardized mean difference is returned as a numeric value.
 #'
 #' @references
 #' Cohen, J. (1988). \emph{Statistical power analysis for the behavioral sciences}
@@ -45,11 +48,12 @@
 
 est_smd <- function(outcome = NULL, groups = NULL, m1 = NULL, m2 = NULL,
                     sdp = NULL, sd1 = NULL, sd2 = NULL, n1 = NULL, n2 = NULL,
-                   hedges.g = FALSE, cluster.n = NULL, icc = NULL){
+                   hedges.g = FALSE, clusters = NULL, cluster.n = NULL, icc = NULL){
 
+  # calculate sample statistics from raw data
   if(!is.null(outcome) & !is.null(groups)){
-
-    if(length(levels(factor(groups))) > 2){
+    groups <- factor(groups)
+    if(length(levels(groups)) > 2){
       stop("groups must have only 2 levels")
     }
 
@@ -63,6 +67,23 @@ est_smd <- function(outcome = NULL, groups = NULL, m1 = NULL, m2 = NULL,
     sd2 <- sds[[2]]
     n1 <- ns[[1]]
     n2 <- ns[[2]]
+
+    if(!is.null(clusters)){
+
+      ## cluster sizes
+      # ns = sum(cs)
+      cs1 <- table(clusters[groups == levels(groups)[[1]]])
+      nu1 <- (ns[[1]]^2 - sum(cs1^2)) / (ns[[1]] * (length(cs1) - 1))
+      cs2 <- table(clusters[groups == levels(groups)[[2]]])
+      nu2 <- (ns[[2]]^2 - sum(cs2^2)) / (ns[[2]] * (length(cs2) - 1))
+      cluster.n <- mean(c(nu1, nu2))
+
+      ## ICC
+      variances <- lme4::VarCorr(lme4::lmer(outcome ~ 1 + (1|clusters)))
+      variances <- c(as.numeric(variances), attr(variances, "sc")^2)
+      icc <- variances[[1]] / sum(variances)
+
+    }
   }
 
 
@@ -116,10 +137,10 @@ est_smd <- function(outcome = NULL, groups = NULL, m1 = NULL, m2 = NULL,
 
       wt <- (cluster.n - 1) * icc
 
-      # cluster-adjusted smd
+      # cluster-adjusted smd (Hedges, 2007 eq 15)
       smd <- smd * sqrt(1 - ((2 * wt) / (N - 2)))
 
-      # cluster-adjusted se
+      # cluster-adjusted se (Hedges, 2007, eq 16)
       left <- ntilde * (1 + wt)
       nom <- (N - 2) * (1 - icc)^2 + cluster.n * (N - 2 * cluster.n) * icc^2 +
         2 * (N - (2 * cluster.n)) * icc * (1 - icc)

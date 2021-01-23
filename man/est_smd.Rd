@@ -15,6 +15,7 @@ est_smd(
   n1 = NULL,
   n2 = NULL,
   hedges.g = FALSE,
+  clusters = NULL,
   cluster.n = NULL,
   icc = NULL
 )
@@ -41,29 +42,33 @@ est_smd(
 
 \item{hedges.g}{unbiased estimation of standardized mean difference?}
 
-\item{cluster.n}{average cluster size}
+\item{clusters}{vector indicating cluster membership}
+
+\item{cluster.n}{average cluster size (assumed to be equal for both \code{groups})}
 
 \item{icc}{intraclass correlation - proportion of total variance that is between
 cluster variance}
 }
 \value{
-If both \code{n1} and \code{n2} are supplied the standardized mean difference
-and its variance are returned in a data.frame. Otherwise only the estimated
-standardized mean difference is returned as a numeric value.
+If sample sizes are supplied (raw data or both \code{n1} and \code{n2}),
+the standardized mean difference and its standard error are returned in a data.frame.
+Otherwise only the estimated standardized mean difference is returned as a numeric value.
 }
 \description{
 Estimates the standardized mean difference with or without adjusting for clustering
 }
 \details{
-The standardized mean difference can be calculated from the raw data
-(\code{outcome} and \code{groups}) or from the sample statistics.
+The standardized mean difference can be estimated from the raw data
+(\code{outcome}, \code{groups}, \code{clusters}) or from the sample statistics.
 If raw data is supplied the pooled standard deviation is used as the divisor
 unless \code{sdp} is specified.
 
-Both \code{cluster.n} and \code{icc} must be supplied to adjust for clustering.
-Otherwise, the unadjusted estimate and standard error are returned without a warning.
-The cluster-adjustment assumes the average cluster size is equal in group 1
-and group 2.
+When \code{clusters} is supplied, the average cluster size for each group is
+calculated via Equation 19 in Hedges (2007). \code{cluster.n} is then defined as
+the mean of the average cluster size for the two groups. \code{icc} is estimated
+from an unconditional random effects model via \code{\link[lme4]{lmer}}.
+The smd and standard error estimates are cluster-adjusted using
+Equations 15 and 16 in Hedges (2007).
 }
 \references{
 Cohen, J. (1988). \emph{Statistical power analysis for the behavioral sciences}
