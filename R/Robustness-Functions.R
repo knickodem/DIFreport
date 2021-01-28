@@ -171,7 +171,6 @@ effect_robustness <- function(scale.data,
 
 
   return(effects)
-
 }
 
 # PH edits 01/28/2021
@@ -201,9 +200,6 @@ get_avg_cluster_n <- function(group, clusters) {
   return(cluster.n)
 }
 
-
-#' @rdname effect_robustness
-
 smd_wrapper <- function(score, dif.group, tx.group = NULL, clusters = NULL){
 
   if(is.null(tx.group)){
@@ -224,6 +220,10 @@ smd_wrapper <- function(score, dif.group, tx.group = NULL, clusters = NULL){
                      cluster.n = cluster.n,
                      icc = icc)
   } else {
+
+    # This isn't quite right...
+    icc <- get_icc(score, clusters)
+    cluster.n <- get_avg_cluster_n(dif.group, clusters)
 
     ## creates 2x2 tables (assuming tx.group and dif.group each have 2 levels)
     means <- tapply(score, list(tx.group, dif.group), mean, na.rm = T)
