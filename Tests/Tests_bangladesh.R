@@ -2,12 +2,9 @@
 
 load("C:/Users/kylenick/University of North Carolina at Chapel Hill/Halpin, Peter Francis - UNC_stat_projets/WB_project/Bangladesh/Data/Bangladesh_Recoded.RData")
 
-load("/Users/peterhalpin/OneDrive - University of North Carolina at Chapel Hill/UNC_stat_projects/WB_project/Bangladesh/Data/Bangladesh_Recoded.RData")
+load("/Users/halpin/OneDrive - University of North Carolina at Chapel Hill/UNC_stat_projects/WB_project/Bangladesh/Data/Bangladesh_Recoded.RData")
 
 
-# <<<<<<< Updated upstream
-# # load("~/OneDrive\ -\ University\ of\ North\ Carolina\ at\ Chapel\ Hill/UNC_stat_projects/WB_project/Bangladesh/Data/Bangladesh_Recoded.RData")
-# =======
 #######################
 ####    Baseline    ####
 
@@ -21,7 +18,7 @@ base.prep <- lapply(domain.items,
                                          tx.group = baseline$tx,
                                          na0 = FALSE)})
 names(base.prep) <- names(domain.items)
-
+i = 2
 tictoc::tic()
 for(i in names(domain.items)){
   # tictoc::tic(i)
@@ -56,24 +53,76 @@ for(i in names(domain.items)){
 }
 tictoc::toc()
 
-#############################
-# >>>>>>> Stashed changes
-
-
 #######################
 ####    Midline    ####
 
 midline <- bang.recode[bang.recode$line == "Mid",]
 
+# PH edits 01/26/2021: Summary, no DIF by windex; big DIF by Preshool but this is part of the Tx...
+
+# use pre-school type as moderator (at midline)
+
+# Data on type of pre-school attended (PreschoolType)
+# temp <- haven::read_spss("/Users/halpin/OneDrive - University of North Carolina at Chapel Hill/UNC_stat_projects/WB_project/Bangladesh/Data/Midline Data/Midline_IDELA.sav")
+#
+# temp <- merge(midline, temp, by.x = "sid", by.y = "SID", all.x = T)
+# midline$PreschoolType <- temp$PreschoolType
+# midline$preschool <- midline$PreschoolType
+# midline$preschool[midline$PreschoolType < 6] <- 1
+# midline$preschool[midline$PreschoolType == 6] <- 0
+# names(midline)
+# table(midline$tx, midline$PreschoolType)
+# table(midline$preschool, midline$PreschoolType)
+
+
+# windex variable
+# temp <- haven::read_spss("/Users/halpin/OneDrive - University of North Carolina at Chapel Hill/UNC_stat_projects/WB_project/Bangladesh/Data/Baseline Data/Household.sav")
+# head(temp)
+# windex_names <- c("P1_10", "P3_3", "P3_4", "P3_5", "P3_6", "P4_3")
+# windex_vars <- temp[windex_names]
+# names(windex_vars) <- c("maternal_ed", "electicity", "roof", "walls", "toilet", "food")
+#
+#
+# windex_vars$maternal_ed[windex_vars$maternal_ed == 99] <- NA
+# windex_vars$maternal_ed[windex_vars$maternal_ed < 2] <- 0
+# windex_vars$maternal_ed[windex_vars$maternal_ed >= 2] <- 1
+#
+# windex_vars$roof[windex_vars$roof == 6] <- NA
+# windex_vars$roof[windex_vars$roof < 4] <- 0
+# windex_vars$roof[windex_vars$roof >= 4] <- 1
+#
+# windex_vars$walls[windex_vars$walls == 6] <- NA
+# windex_vars$walls[windex_vars$walls < 4] <- 0
+# windex_vars$walls[windex_vars$walls >= 4] <- 1
+#
+# windex_vars$toilet[windex_vars$toilet == 6] <- NA
+# windex_vars$toilet[windex_vars$toilet > 1] <- 0
+#
+# windex_vars$food[windex_vars$food < 4] <- 0
+# windex_vars$food[windex_vars$food == 4] <- 1
+# windex_vars <- as.data.frame((windex_vars))
+#
+# windex_vars$windex <- apply(windex_vars, 1, mean, na.rm = T)
+# windex_vars$windex_cut <- (windex_vars$windex < .5)*1
+# table(windex_vars$windex_cut)
+#
+# windex_vars$sid <- temp$sid
+#
+# midline <- merge(midline, windex_vars, by.x = "sid", by.y = "sid", all.x = T)
+# head(midline)
+
+
 
 ## data prep
+
 mid.prep <- lapply(domain.items,
                    function(x) {dif_prep(measure.data = midline[, x],
                                          dif.group = midline$gender,
                                          tx.group = midline$tx,
                                          na0 = FALSE)})
-names(mid.prep) <- names(domain.items)
 
+names(mid.prep) <- names(domain.items)
+i = names(mid.prep)[3]
 for(i in names(domain.items)){
 
   ## Unconditional
@@ -83,6 +132,7 @@ for(i in names(domain.items)){
                           score.type = "Rest")
 
   dif_report(dif.analysis = mid.unc,
+             file.name = "Bangladesh_midline",
              dataset.name = "Bangladesh",
              measure.name = paste(gsub("_", " ", i), "Midline", sep = " at "),
              dif.group.name = "Treatment Condition",
@@ -96,9 +146,10 @@ for(i in names(domain.items)){
                           score.type = "Rest")
 
   dif_report(dif.analysis = mid.con,
+              file.name = "Bangladesh_midline_windex_literacy",
              dataset.name = "Bangladesh",
              measure.name = paste(gsub("_", " ", i), "Midline", sep = " at "),
-             dif.group.name = "Gender",
+             dif.group.name = "Preschool",
              bias.method = "IRT",
              irt.scoring = "WLE",
              tx.group = mid.prep[[i]]$tx.group)
