@@ -174,29 +174,37 @@ effect_robustness <- function(scale.data,
 
 }
 
+# PH edits 01/28/2021
+get_icc <- function(score, clusters) {
+  if(!is.null(clusters)){
+    variances <- lme4::VarCorr(lme4::lmer(score ~ 1 + (1|clusters)))
+    variances <- c(as.numeric(variances), attr(variances, "sc")^2)
+    icc <- variances[[1]] / sum(variances)
+  } else {
+    icc <- NULL
+  }
+ return(icc)
+}
+
+
+get_avg_cluster_n <- function(group, clusters) {
+  if(!is.null(clusters)){
+    ns  <- table(group)
+    cs1 <- table(clusters[group == levels(group)[[1]]])
+    nu1 <- (ns[[1]]^2 - sum(cs1^2)) / (ns[[1]] * (length(cs1) - 1))
+    cs2 <- table(clusters[group == levels(group)[[2]]])
+    nu2 <- (ns[[2]]^2 - sum(cs2^2)) / (ns[[2]] * (length(cs2) - 1))
+    cluster.n <- mean(c(nu1, nu2))
+   } else {
+    cluster.n <- NULL
+   }
+  return(cluster.n)
+}
+
 
 #' @rdname effect_robustness
 
 smd_wrapper <- function(score, dif.group, tx.group = NULL, clusters = NULL){
-
-  if(!is.null(clusters)){
-    ## code copied from est_smd(); only changed score and dif.group names
-    # cluster size
-    cs1 <- table(clusters[dif.group == levels(dif.group)[[1]]])
-    nu1 <- (ns[[1]]^2 - sum(cs1^2)) / (ns[[1]] * (length(cs1) - 1))
-    cs2 <- table(clusters[dif.group == levels(dif.group)[[2]]])
-    nu2 <- (ns[[2]]^2 - sum(cs2^2)) / (ns[[2]] * (length(cs2) - 1))
-    cluster.n <- mean(c(nu1, nu2))
-
-    # ICC
-    variances <- lme4::VarCorr(lme4::lmer(score ~ 1 + (1|clusters)))
-    variances <- c(as.numeric(variances), attr(variances, "sc")^2)
-    icc <- variances[[1]] / sum(variances)
-
-  } else{
-    cluster.n <- NULL
-    icc <- NULL
-  }
 
   if(is.null(tx.group)){
 
@@ -204,6 +212,8 @@ smd_wrapper <- function(score, dif.group, tx.group = NULL, clusters = NULL){
     sds <- tapply(score, dif.group, sd, na.rm = T)
     ns <- tapply(score, dif.group, length)
 
+    icc <- get_icc(score, clusters)
+    cluster.n <- get_avg_cluster_n(dif.group, clusters)
 
     delta <- est_smd(m1 = means[[1]],
                      m2 = means[[2]],
@@ -219,6 +229,7 @@ smd_wrapper <- function(score, dif.group, tx.group = NULL, clusters = NULL){
     means <- tapply(score, list(tx.group, dif.group), mean, na.rm = T)
     sds <- tapply(score, list(tx.group, dif.group), sd, na.rm = T)
     ns <- tapply(score, list(tx.group, dif.group), length)
+
 
     # m = (M_{dif.groupTX} - M_{dif.groupControl}) * SD_{dif.groupControl}
     delta <- est_smd(m1 = (means[[2]] - means[[1]]),# * sds[[1]],
