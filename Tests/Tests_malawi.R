@@ -53,11 +53,15 @@ wb_measures <- purrr::map(.x = MalawiMeasures,
                                     clusters = MalawiData$cbcc_id,
                                     na0 = TRUE))
 
+mdatlang <- MalawiData[c(1, 4, 9, 11, grep(MalawiMeasures$MDAT_language.Midline, names(MalawiData)))]
+names(mdatlang) <- sub("_2", "", names(mdatlang))
+names(mdatlang)[1:4] <- c("clusterid", "id", "treated", "gender")
+
 
 
 #### Run all unconditional Reports ####
 library(tictoc)
-
+i <- 1
 for(i in 1){  #:length(WB_Measures)
 
   tic(as.character(i))
@@ -137,7 +141,6 @@ for(i in 1){ #:length(wb_measures)
 
   toc(log = TRUE)
 }
-
 
 timing.log.con <- tic.log(format = TRUE)
 tic.clearlog()
