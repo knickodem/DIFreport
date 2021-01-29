@@ -97,11 +97,16 @@ wb_data_prep <- function(data, wb.items, tx.group.name, dif.group.name = tx.grou
 
 }
 
+## If using age as dif group:
+MalawiData <- MalawiData[MalawiData$ageyr_1 %in% c(3, 4), ]
+
+
 WB_Measures <- purrr::map(.x = MalawiMeasures,
                           ~wb_data_prep(data = MalawiData,
                                         wb.items = .x,
                                         tx.group.name = "treated",   # Treatment condition as grouping variable
-                                        dif.group.name = "cr_gender")) # Gender as conditioning variable
+                                        dif.group.name = "ageyr_1")) # Age as conditioning variable
+                                        #dif.group.name = "cr_gender")) # Gender as conditioning variable
 
 
 
@@ -140,17 +145,16 @@ for(i in 1:length(WB_Measures)){
 
   tic(as.character(i))
 
-  conditional <- dif_analysis(measure.data = WB_Measures[[i]]$measure.data,
-                               dif.group = WB_Measures[[i]]$dif.group,     # For unconditional, use vector for treatment condition
-                               score.type = "Rest",
+  conditional <- dif_analysis( WB_Measures[[i]]$measure.data,
+                               dif.group = WB_Measures[[i]]$dif.group,                                  score.type = "Rest",
                                methods = c("loess", "MH", "logistic", "IRT"),
                                match.bins = tenths)
 
   dif_report(dif.analysis = conditional,
              dataset.name = "Malawi",
              measure.name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
-             dif.group.name = "Gender",
-             bias.method = "IRT",
+             dif.group.name = "Age",
+             bias.method = "logistic",
              irt.scoring = "WLE",
              tx.group = WB_Measures[[i]]$tx.group)
 
