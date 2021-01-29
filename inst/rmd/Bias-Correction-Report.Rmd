@@ -1,5 +1,4 @@
 ---
-author: "PFH & KKN" 
 output:
    html_document:
       toc: TRUE
@@ -17,18 +16,23 @@ knitr::opts_chunk$set(options(knitr.kable.NA = ''))
 ```
 
 ---
-title: "`r paste0("Measurement Bias Analysis of ", measure.name, " by ", dif.group.name, " in ", dataset.name)`"
+title: "`r report.title`"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 ---
 
 # Summary
 
+```{r dataset, results='asis'}
+if(!is.null(dataset.name)){
+  cat("**Dataset:**", dataset.name)
+  cat("\n\n")
+}
+```
+  
 
-**Dataset:** `r dataset.name`
+**Measure:** `r paste0(measure.name,  " (", item.name.range, ")")`
 
-**Outcome:** `r paste0(measure.name,  " (", item.name.range, ")")`
-
-**Comparison variable:** `r paste0(dif.group.name, " (", dif.group.levs, ")")`
+**Comparison variable:** `r paste0(dif.group.name, " (", paste(dif.group1, dif.group2, sep = ", "), ")")`
 
 **Items with no variance:** `r nvi`
 
@@ -73,12 +77,23 @@ if(nvgi != "none"){
 ```
 
 
+```{r score.plot, results='asis', message=FALSE, fig.width = 5, fig.height = 6}
 
-```{r Summary Table, results='asis', ft.align="left"}
+if(!is.null(score.plot)){
+  cat("## Total Score Plots")
+  cat("\n\n")
+  
+  gridExtra::grid.arrange(score.plot$Score, score.plot$Bias)
+}
+```
+
+
+
+```{r Summary Table, results='asis', warning=FALSE, ft.align="left", fig.width = 5, fig.height = 4}
 
 if(is.null(tx.group)){
   
-  cat("## Robustness Checks for Treatment Effects")
+  cat("## Treatment Effects")
   cat("\n\n")
   
   if(n.biased == 0){
@@ -88,17 +103,23 @@ if(is.null(tx.group)){
   cat("\n\n")
 }
   
-  cat("Summary table for robustness of unconditional treatment effects 
+  cat("Summary table of unconditional treatment effects 
       (comparing ", uncond.effects$comparison, ")", sep  ="") 
   cat("\n\n")
   
   unctab <- format_flex(uncond.effects$effects.table)
   cat(knit_print(unctab))
   cat("\n\n")
+  cat("&nbsp;  ")
+  cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
+  cat("\n\n")
+  cat("&nbsp;  ")
   
+  print(uncond.effects$effects.plot)
+
 } else {
 
-  cat("## Robustness Checks for Treatment Effects Conditional on Comparison Variable")
+  cat("## Treatment Effects Conditional on ", dif.group.name)
   cat("\n\n")
   
   if(n.biased == 0){
@@ -108,23 +129,35 @@ if(is.null(tx.group)){
   cat("\n\n")
 }
 
-  cat("Summary table for robustness of conditional treatment effects for ", dif.group1, 
+  cat("Summary table of conditional treatment effects for ", dif.group1, 
       " (comparing ", cond.effects1$comparison, ")", sep  = "") 
   cat("\n\n")
 
   condeff1tab <- format_flex(cond.effects1$effects.table)
   cat(knit_print(condeff1tab))
   cat("\n\n")
+  cat("&nbsp;  ")
+  cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
+  cat("\n\n")
+  cat("&nbsp;  ")
+  
+  print(cond.effects1$effects.plot)
 
   cat("&nbsp;  ")
   cat("\n\n")
-  cat("Summary table for robustness of conditional treatment effects for ", dif.group2, 
+  cat("Summary table of conditional treatment effects for ", dif.group2, 
       " (comparing ", cond.effects2$comparison, ")", sep  = "") 
   cat("\n\n")
   
   condeff2tab <- format_flex(cond.effects2$effects.table)
   cat(knit_print(condeff2tab))
   cat("\n\n")
+  cat("&nbsp;  ")
+  cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
+  cat("\n\n")
+  cat("&nbsp;  ")
+  
+  print(cond.effects2$effects.plot)
   
   cat("&nbsp;  ")
   cat("\n\n")
@@ -134,27 +167,40 @@ if(is.null(tx.group)){
   inttab <- format_flex(interaction.effects$effects.table)
   cat(knit_print(inttab))
   cat("\n\n")
+  cat("&nbsp;  ")
+  cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
+  cat("\n\n")
+  cat("&nbsp;  ")
+  
+  print(interaction.effects$effects.plot)
 }
 
-cat("&nbsp;  ")
-cat("*Note:* Adj. Delta  = Scale Delta / sqrt(Reliability)")
-  
 ```
+
 
 
 # Bias Detection Methods
 
 ## Biased Item Summary
 
-```{r bi summary, ft.align="left"}
+```{r bi summary, results = 'asis', ft.align="left"}
 
-bi.flex <- format_flex(bi.df)
-knit_print(bi.flex)
+if(nrow(bi.df) != 0){
+    bi.flex <- format_flex(bi.df)
+    cat(knit_print(bi.flex))
+    cat("\n\n")
+    cat("&nbsp;  ")
+    cat("*Note:* X = method determined item to be biased")
+    cat("\n\n")
+} else {
+    cat("Item bias was not detected by any of the selected methods")
+    cat("\n\n")
+}
 
 ```
 
 
-```{r loess, results='asis', fig.width = 10, fig.height = ceiling(n.items / 6)*2 + 1}
+```{r loess, results='asis', warning=FALSE, fig.width = 10, fig.height = ceiling(n.items / 6)*2 + 1}
 
 if(!is.null(dif.analysis$loess)){
   cat("## Graphical Analysis via loess")

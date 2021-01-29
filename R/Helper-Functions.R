@@ -86,3 +86,4 @@ format_flex <- function(df, bold.bias = "no", digits = 3){
 
   return(ftab)
 }
+

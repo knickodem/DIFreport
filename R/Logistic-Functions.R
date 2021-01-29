@@ -10,7 +10,7 @@
 #' investigation ("Rest").
 #' @param match list of \code{ncol(scale.data)} elements. Each element is a numeric vector
 #' of match scores used as a predictor in the logistic regression.
-#' In \code{get_logistic}, if \code{score.type} = "Total", \code{match} will be
+#' In \code{dif_logistic}, if \code{score.type} = "Total", \code{match} will be
 #' a single numeric vector.
 #' @param item.data dataframe created in \code{run_global_logistic}
 #' @param dif.type character indicating "No DIF", "uniform" DIF or "non-uniform" DIF as
@@ -21,7 +21,7 @@
 #' regression models by regressing dichotomous item responses from \code{scale.data}
 #' on item, \code{match}, and \code{dif.group}, along with interactions. If DIF is
 #' detected through the model comparisons, the specific item(s) with DIF are
-#' identified via \code{run_item_logistic}. \code{get_logistic} is a wrapper
+#' identified via \code{run_item_logistic}. \code{dif_logistic} is a wrapper
 #' around the other functions that organizes the initial and refinement phases of
 #' the DIF analysis and compiles the results.
 #'
@@ -31,7 +31,7 @@
 #'
 #' @export
 
-get_logistic <- function(scale.data, dif.group, score.type, match){
+dif_logistic <- function(scale.data, dif.group, score.type, match){
 
   ## Number of items in the measure
   nitems <- ncol(scale.data)
@@ -152,7 +152,7 @@ get_logistic <- function(scale.data, dif.group, score.type, match){
 }
 
 
-#' @rdname get_logistic
+#' @rdname dif_logistic
 #' @export
 
 run_global_logistic <- function(scale.data, dif.group, match){
@@ -216,7 +216,7 @@ run_global_logistic <- function(scale.data, dif.group, match){
 
 }
 
-#' @rdname get_logistic
+#' @rdname dif_logistic
 #' @export
 
 run_item_logistic <- function(item.data, dif.type){

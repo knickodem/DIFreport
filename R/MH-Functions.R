@@ -9,7 +9,7 @@
 #' total summed score ("Total") or the summed score excluding the item under
 #' investigation ("Rest").
 #' @param match numeric vector used as the stratifying variable in the MH procedure.
-#' In \code{get_mh}, if \code{score.type} = "Rest", \code{match} will be a list of vectors -
+#' In \code{dif_mh}, if \code{score.type} = "Rest", \code{match} will be a list of vectors -
 #' one for each item in \code{scale.data}.
 #' @param match.bins optional vector of bin sizes for stratifying \code{match} in
 #' \code{run_mh}. This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.
@@ -19,7 +19,7 @@
 #' \code{run_mh} conducts a Mantel-Haenszel test via \code{\link[stats]{mantelhaen.test}} for each
 #' item in \code{scale.data} grouped by \code{dif.group} and stratified by the scores supplied
 #' to \code{match}, which, if specified, are binned by \code{match.bins}.
-#' \code{get_mh} is a wrapper around \code{run_mh} that organizes the initial and refinement
+#' \code{dif_mh} is a wrapper around \code{run_mh} that organizes the initial and refinement
 #' phases of the DIF analysis and compiles the results.
 #'
 #' @return A two-element list containing 1) a data frame with MH results for each item
@@ -27,7 +27,7 @@
 #'
 #' @export
 
-get_mh <- function(scale.data,
+dif_mh <- function(scale.data,
                    dif.group,
                    score.type,
                    match,
@@ -132,7 +132,7 @@ get_mh <- function(scale.data,
 }
 
 
-#' @rdname get_mh
+#' @rdname dif_mh
 #' @export
 
 run_mh <- function(scale.data,

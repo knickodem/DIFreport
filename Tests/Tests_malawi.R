@@ -1,10 +1,4 @@
 
-
-## Testing
-  # 1. Build package
-  # 2. load package
-  # 3. Run tests
-
 ## To get path to rmd files included with package, use:
   # system.file("rmd", "file.Rmd", package = "packagename")
   # ## [1] "c:/R/R-3.1.3/library/packagename/rmd/file.Rmd"
@@ -18,7 +12,8 @@
 #### Importing Input Information ####
 
 ## Data
-MalawiData <- read.csv("child.tests_items_wide.csv")
+MalawiData <- read.csv("C:/Users/kylenick/University of North Carolina at Chapel Hill/Halpin, Peter Francis - UNC_stat_projets/WB_project/child.tests_items_wide.csv")
+names(MalawiData)[[1]] <- "cbcc_id"
 
 ## Defining labels for possible grouping variables
 MalawiData$cr_gender <- factor(MalawiData$cr_gender, labels = c("Male", "Female"))
@@ -28,6 +23,7 @@ MalawiData$treated <- factor(MalawiData$treated, labels = c("Control", "Tx"))
 MalawiData$recog4_3 <- ifelse(MalawiData$recog4_3 == 3, NA, MalawiData$recog4_3)
 MalawiData$recog12_3 <- ifelse(MalawiData$recog12_3 == 2, NA, MalawiData$recog12_3)
 MalawiData$recog15_3 <- ifelse(MalawiData$recog15_3 == 9, NA, MalawiData$recog15_3)
+
 
 ## Items for each measure
 MalawiMeasures <- list(MDAT_language.Midline = "^l[0-9]+_2",
@@ -50,63 +46,12 @@ tenths <- seq(0, 1, by = .1)
 #### Running analysis and Generating Report ####
 
 
-#### Preparing Malawi Data ####
-wb_data_prep <- function(data, wb.items, tx.group.name, dif.group.name = tx.group.name){
-
-  ## Subsetting measure specific data and removing wave identifier from column names
-  measure.data <- data[grep(wb.items, names(data))]
-  names(measure.data) <- substr(names(measure.data), 1, nchar(names(measure.data)) - 2)
-
-  ## Identifying cases to drop based on missing data
-  # Note: FALSE elements in drop.cases are the cases removed from analysis
-  drop.cases <- apply(is.na(measure.data), 1, mean) != 1    # cases with NA for all items
-  drop.cases <- ifelse(is.na(data[[tx.group.name]]), FALSE, drop.cases)  # NA for tx.group
-
-  # If examining conditional effects
-  if(dif.group.name != tx.group.name){
-    drop.cases <- ifelse(is.na(data[[dif.group.name]]), FALSE, drop.cases)  # NA for dif.group
-  }
-
-
-  ## Dropping the identified missing data cases
-  measure.data <- measure.data[drop.cases, ]   # from the measure response dataframe
-  tx.group <- data[drop.cases, ][[tx.group.name]]    # from the grouping variable vector
-
-  ## Replacing remaining NAs with 0
-  measure.data[is.na(measure.data)] <- 0
-
-  ## If examining conditional effects
-  if(dif.group.name != tx.group.name){
-
-    # Dropping missing data cases from the conditional variable vector
-    dif.group <- data[drop.cases, ][[dif.group.name]]
-
-    # Output with tx indicator vector (tx.group) and dif variable vector (dif.group)
-    output <- list(measure.data = measure.data,
-                   tx.group = tx.group,
-                   dif.group = dif.group)
-
-  } else {
-
-    # Output tx indicator vector AS the dif variable vector (dif.group)
-    output <- list(measure.data = measure.data,
-                   dif.group = tx.group)
-  }
-
-  return(output)
-
-}
-
-## If using age as dif group:
-MalawiData <- MalawiData[MalawiData$ageyr_1 %in% c(3, 4), ]
-
-
-WB_Measures <- purrr::map(.x = MalawiMeasures,
-                          ~wb_data_prep(data = MalawiData,
-                                        wb.items = .x,
-                                        tx.group.name = "treated",   # Treatment condition as grouping variable
-                                        dif.group.name = "ageyr_1")) # Age as conditioning variable
-                                        #dif.group.name = "cr_gender")) # Gender as conditioning variable
+wb_measures <- purrr::map(.x = MalawiMeasures,
+                          ~dif_prep(measure.data = MalawiData[grep(.x, names(MalawiData))],
+                                    tx.group = MalawiData$treated,   # Treatment condition as grouping variable
+                                    dif.group = MalawiData$cr_gender, # Gender as conditioning variable
+                                    clusters = MalawiData$cbcc_id,
+                                    na0 = TRUE))
 
 
 
@@ -117,18 +62,22 @@ for(i in 1){  #:length(WB_Measures)
 
   tic(as.character(i))
 
-  unconditional <- dif_analysis(measure.data = WB_Measures[[i]]$measure.data,
-                                 dif.group = WB_Measures[[i]]$tx.group,     # For unconditional, use vector for treatment condition
+  unconditional <- dif_analysis(measure.data = wb_measures[[i]]$measure.data,
+                                 dif.group = wb_measures[[i]]$tx.group,     # For unconditional, use vector for treatment condition
                                  score.type = "Rest",
                                  methods = c("loess", "MH", "logistic", "IRT"),
                                  match.bins = tenths)
 
+  mn <- gsub("_", " ", gsub("\\.", " at ", names(wb_measures)[[i]]))
+
   dif_report(dif.analysis = unconditional,
-             dataset.name = "Malawi",
-             measure.name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
+             file.name = paste0("Malawi-", mn, " by Tx"),
+             measure.name = mn,
              dif.group.name = "Treatment Condition",
+             dataset.name = "Malawi",
              bias.method = "IRT",
-             irt.scoring = "WLE")
+             irt.scoring = "WLE",
+             clusters = wb_measures[[i]]$clusters)
 
 
   toc(log = TRUE)
@@ -137,27 +86,55 @@ for(i in 1){  #:length(WB_Measures)
 timing.log.unc <- tic.log(format = TRUE)
 tic.clearlog()
 
+ts <- sum_score(unconditional$inputs$data, poly = unconditional$inputs$poly.items)
+
+
+est_smd(outcome = ts, groups = unconditional$inputs$dif.group)
+
+ns <- tapply(ts, g, length)
+cs1 <- table(clus[g == levels(g)[[1]]])
+nu1 <- (ns[[1]]^2 - sum(cs1^2)) / (ns[[1]] * (length(cs1) - 1))
+cs2 <- table(clus[g == levels(unconditional$inputs$dif.group)[[2]]])
+nu2 <- (ns[[2]]^2 - sum(cs2^2)) / (ns[[2]] * (length(cs2) - 1))
+
+mean(c(nu1, nu2))
+
+
+cs <- tapply(ts, list(g, clus), length)
+nus <- (apply(cs, 1, sum, na.rm = TRUE)^2 - apply(cs^2, 1, sum, na.rm = TRUE)) /
+  (apply(cs, 1, sum) * (apply(cs, 1, length) - 1))
+cluster.n <- mean(nus)
+
+## ICC
+variances <- lme4::VarCorr(lme4::lmer(outcome ~ 1 + (1|clusters)))
+variances <- c(as.numeric(variances), attr(variances, "sc")^2)
+icc <- variances[[1]] / sum(variances)
 
 
 #### Run All Conditional Reports ####
 
-for(i in 1:length(WB_Measures)){
+for(i in 1){ #:length(wb_measures)
 
   tic(as.character(i))
 
-  conditional <- dif_analysis( WB_Measures[[i]]$measure.data,
-                               dif.group = WB_Measures[[i]]$dif.group,                                  score.type = "Rest",
+
+  conditional <- dif_analysis(measure.data = wb_measures[[i]]$measure.data,
+                               dif.group = wb_measures[[i]]$dif.group,
+                               score.type = "Rest",
                                methods = c("loess", "MH", "logistic", "IRT"),
                                match.bins = tenths)
 
-  dif_report(dif.analysis = conditional,
-             dataset.name = "Malawi",
-             measure.name = gsub("_", " ", gsub("\\.", " at ", names(WB_Measures)[i])),
-             dif.group.name = "Age",
-             bias.method = "logistic",
-             irt.scoring = "WLE",
-             tx.group = WB_Measures[[i]]$tx.group)
+  mn <- gsub("_", " ", gsub("\\.", " at ", names(wb_measures)[[i]]))
 
+  dif_report(dif.analysis = conditional,
+             file.name = paste0("Malawi-", mn, " by Gender"),
+             measure.name = mn,
+             dif.group.name = "Gender",
+             dataset.name = "Malawi",
+             bias.method = "IRT",
+             irt.scoring = "WLE",
+             tx.group = wb_measures[[i]]$tx.group,
+             clusters = wb_measures[[i]]$clusters)
 
   toc(log = TRUE)
 }

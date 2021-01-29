@@ -2,20 +2,23 @@
 #'
 #' Handle missing data to run a DIF analysis and report
 #'
-#' @param measure.data \code{data.frame} containing item responses and group indicators.
+#' @param measure.data data frame of item responses with subjects in rows
+#' and items in columns.
 #' @param dif.group vector of group membership by which DIF is evaluated.
 #' @param tx.group vector indicating treatment condition unless treatment indicator was
-#' already supplied to \code{dif.group].
+#' already supplied to \code{dif.group}.
+#' @param clusters vector of cluster membership.
 #' @param na0 after removing empty rows, should remaining NAs be converted to 0?
 #' Default is FALSE.
 #'
 #' @details
 #' Identifies empty rows in measure.data (i.e., rows with all NAs) and rows with NA for
-#' the \code{dif.group} and, if supplied, \code{tx.group}. These rows are removed.
-#' Remaining NAs in \code{measure.data} can either stay NA or be converted to 0.
+#' the \code{dif.group} and, if supplied, \code{tx.group} and \code{clusters}.
+#' These rows are removed. Thus, \code{tx.group} and \code{clusters} should only be
+#' supplied when intending to use them in \code{effect_robustness} or \code{dif_report}.
 #'
-#' @return list containing \code{measure.data} and \code{dif.group} (and \code{tx.group},
-#' if supplied) after consistent handling of missing data.
+#' @return list containing \code{measure.data} and \code{dif.group} (if supplied, also
+#' \code{tx.group} and \code{clusters}) after consistent handling of missing data.
 #'
 #' @examples
 #' measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
@@ -26,17 +29,18 @@
 #'                       item4 = sample(c(0,1), 20, replace = TRUE),
 #'                       item5 = sample(c(0,1), 20, replace = TRUE))
 #' ## add missing data
-#' measure <- measure'['c(1, 4), ] <- NA
-#' measure <- measure'['c(2, 5), 1] <- NA
+#' measure <- measure`[`c(1, 4), `]` <- NA
+#' measure <- measure`[`c(2, 5), 1`]` <- NA
 #'
-#' dif_prep(measure'[', -c(1, 2)],
+#' dif_prep(measure`[`, -c(1, 2)`]`,
 #'          dif.group = measure$gender,
 #'          tx.group = measure$tx,
 #'          na0 = TRUE)
 #'
 #' @export
 
-dif_prep <- function(measure.data, dif.group, tx.group = dif.group, na0 = FALSE){
+dif_prep <- function(measure.data, dif.group, tx.group = dif.group,
+                     clusters = NULL, na0 = FALSE){
 
   # Only examining unconditional effects (i.e., DIF by treatment condition)?
   unconditional <- identical(dif.group, tx.group)
@@ -49,6 +53,12 @@ dif_prep <- function(measure.data, dif.group, tx.group = dif.group, na0 = FALSE)
   # If examining conditional effects
   if(unconditional == FALSE){
     drop.cases <- ifelse(is.na(tx.group), FALSE, drop.cases)  # NA for dif.group
+  }
+
+  # If adjusting effects by cluster membership
+  if(!is.null(clusters)){
+    drop.cases <- ifelse(is.na(clusters), FALSE, drop.cases)  # NA for clusters
+    clusters <- clusters[drop.cases] # dropping missing data cases from cluster vector
   }
 
   ## Dropping the identified missing data cases
@@ -69,13 +79,15 @@ dif_prep <- function(measure.data, dif.group, tx.group = dif.group, na0 = FALSE)
     # Output dif variable vector (dif.group) and tx indicator vector (tx.group)
     output <- list(measure.data = measure.data,
                    dif.group = dif.group,
-                   tx.group = tx.group)
+                   tx.group = tx.group,
+                   clusters = clusters)
 
   } else {
 
     # Output dif variable vector (dif.group) which is the tx indicator
     output <- list(measure.data = measure.data,
-                   dif.group = dif.group)
+                   dif.group = dif.group,
+                   clusters = clusters)
   }
 
   return(output)

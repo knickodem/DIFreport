@@ -14,7 +14,7 @@ dif_analysis(
 }
 \arguments{
 \item{measure.data}{data frame of item responses with subjects in rows
-and items in columns}
+and items in columns. See Details for response formats.}
 
 \item{dif.group}{factor or character vector with 2 levels; indicates group membership
 for which DIF is evaluated. If a character vector, this will be transformed
@@ -40,14 +40,25 @@ Evaluates differential item functioning (DIF) using loess, Mantel-Haenszel (MH),
 logistic regression, and item response theory (IRT) approaches.
 }
 \details{
-This function primarily serves as a wrapper around the method specific functions, but
-also identifies and reports items with no variance (e.g., all 0 responses) or no
-variance within the levels of \code{dif.group}. The "loess" method produces loess curves
-for every item in \code{measure.data}. Items with no variance are removed from
-\code{measure.data} for the "MH", "logistic", and "IRT" methods because response
-variance is a prerequisite for DIF. Additionally, items with no variance within
-a \code{dif.group} level are removed from the "IRT" method because these lead to
-the models being under-identified.
+This function calls the specific DIF methods functions (loess, MH, logistic, IRT)
+and compiles the results.
+
+Dichotomous items are expected to be coded 0 = incorrect, 1 = correct.
+The Mantel-Haenszel and logistic methods can only accommodate dichotomous items.
+Polytomous item responses are expected to be sequential integers (e.g., 1, 2, 3) but
+the lowest code does not have to be 0. Polytomous items are unit scaled when
+calculating the total or rest score.
+
+Response variance is a prerequisite for DIF, so the function identifies and
+reports items with no variance or no variance within the levels of \code{dif.group}
+(e.g., all cases have same response). The "loess" method produces
+loess curves for every item in \code{measure.data}, but items with no variance
+are removed from \code{measure.data} for the "MH", "logistic", and "IRT" methods.
+Additionally, items with no variance within a \code{dif.group} level are removed from
+the "IRT" method because these lead to under-identified models.
+
+See \code{link[WBdif]{dif_mh}}, \code{link[WBdif]{dif_logistic}}, and
+\code{link[WBdif]{dif_irt}} for details about the specific DIF methods.
 }
 \examples{
 wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
@@ -63,14 +74,14 @@ wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
 tenths <- seq(0, 1, by = .1)
 
 ## DIF analysis by treatment condition using rest scores and binning by deciles for MH
-dif.by.tx <- dif_analysis(measure.data = wb.measure'['3:7],
+dif.by.tx <- dif_analysis(measure.data = wb.measure`[`3:7`]`,
                           dif.group = wb.measure$tx,
                           score.type = "Rest",
                           methods = c("loess", "MH", "logistic", "IRT"),
                           match.bins = tenths)
 
 ## DIF analysis by gender using total scores without binning for MH
-dif.by.gender <- dif_analysis(measure.data = wb.measure'['3:7],
+dif.by.gender <- dif_analysis(measure.data = wb.measure`[`3:7`]`,
                               dif.group = wb.measure$gender,
                               score.type = "Total",
                               methods = c("loess", "MH", "logistic", "IRT"),

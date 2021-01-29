@@ -2,29 +2,37 @@
 % Please edit documentation in R/DIF-Report.R
 \name{dif_report}
 \alias{dif_report}
-\title{Generate report of DIF analysis}
+\title{Generate DIF analysis report}
 \usage{
 dif_report(
   dif.analysis,
-  dataset.name,
+  file.name,
   measure.name,
   dif.group.name,
+  dataset.name = NULL,
+  report.title = NULL,
   bias.method = "IRT",
   irt.scoring = "WLE",
-  tx.group = NULL
+  tx.group = NULL,
+  clusters = NULL
 )
 }
 \arguments{
 \item{dif.analysis}{an object returned from \code{dif_analysis}}
 
-\item{dataset.name}{character; name of the dataset where the measure and
-item responses came from. This is printed in the report title and summary.
+\item{file.name}{file name to create on disk.}
+
+\item{measure.name}{name of the measure being evaluated for DIF, which is
+used in the report.}
+
+\item{dif.group.name}{name of the group used in the DIF analysis, which is
+used in the report.}
+
+\item{dataset.name}{(optional) name of the dataset where the measure and
+item responses came from, which is printed in the report.
 For World Bank data, this will typically be a country.}
 
-\item{measure.name}{character; name of the measure being evaluated for DIF.
-This is printed in the report title and summary.}
-
-\item{dif.group.name}{character; name of the group used in the DIF analysis.}
+\item{report.title}{title of the report}
 
 \item{bias.method}{options are "MH", "logistic", or "IRT" (default).
 Which method in the \code{dif_analysis} object should the biased items, if detected, be
@@ -48,7 +56,12 @@ treatment contrasts on \code{measure.name}.
 }
 \description{
 Produces a report summarizing an analysis of measurement bias for a given
-scale and grouping variable
+measure and grouping variable
+}
+\details{
+With \code{bias.method = "IRT"}, the direction of uniform DIF is determined using
+the b parameter for dichotomous items and the location of the first threshold for
+polytomous items.
 }
 \examples{
 wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
@@ -61,13 +74,13 @@ wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
 
 ## Unconditional Treatment Effects
 # DIF analysis by treatment condition
-dif.by.tx <- dif_analysis(measure.data = wb.measure{'\['}3:7],
+dif.by.tx <- dif_analysis(measure.data = wb.measure[3:7],
                           dif.group = wb.measure$tx,
                           score.type = "Rest",
                           methods = c("loess", "logistic"))
 
 dif_report(dif.analysis = dif.by.tx,
-           dataset.name = "World Bank",
+           file.name = "WB-LR.html",
            measure.name = "Letter Recognition",
            dif.group.name = "Treatment Condition",
            bias.method = "logistic",
@@ -75,13 +88,13 @@ dif_report(dif.analysis = dif.by.tx,
 
 ## Conditional Treatment Effects
 # DIF analysis by gender
-dif.by.gender <- dif_analysis(measure.data = wb.measure{'\['}3:7],
+dif.by.gender <- dif_analysis(measure.data = wb.measure`[`3:7`]`,
                               dif.group = wb.measure$gender,
                               score.type = "Rest",
                               methods = c("loess", "logistic"))
 
 dif_report(dif.analysis = dif.by.gender,
-           dataset.name = "World Bank",
+           file.name = "WB-LR.html",
            measure.name = "Letter Recognition",
            dif.group.name = "Gender",
            bias.method = "logistic",
