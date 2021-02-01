@@ -25,8 +25,7 @@
 #' The interaction is estimated as difference in within-dif.group treatment effects
 #' divided by the pooled SD of the dif.group1 and dif.group2 control groups.
 #'
-#' The reported total score reliability is \alpha estimated via
-#' \code{\link[psy]{cronbach}}.
+#' The reported total score reliability is \eqn{\alpha}.
 #'
 #' @return
 #' \code{effect_robustness} - a two-item list containing 1) data.frame of treatment effect
@@ -59,7 +58,7 @@ effect_robustness <- function(scale.data,
                              dif.group = dif.group,
                              tx.group = tx.group,
                              clusters = clusters)
-  r.total <- psy::cronbach(scale.data)$alpha
+  r.total <- est_alpha(scale.data)
 
   if(!is.null(biased.items)) {
 
@@ -68,7 +67,7 @@ effect_robustness <- function(scale.data,
                               dif.group = dif.group,
                               tx.group = tx.group,
                               clusters = clusters)
-    r.star <- psy::cronbach(scale.data[,-c(biased.items)])$alpha
+    r.star <- est_alpha(scale.data[,-c(biased.items)])
   }
 
 

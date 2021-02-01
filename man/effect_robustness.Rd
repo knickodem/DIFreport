@@ -2,7 +2,6 @@
 % Please edit documentation in R/Robustness-Functions.R
 \name{effect_robustness}
 \alias{effect_robustness}
-\alias{smd_wrapper}
 \title{Robustness of treatment effects}
 \usage{
 effect_robustness(
@@ -17,8 +16,6 @@ effect_robustness(
   tx.group = NULL,
   clusters = NULL
 )
-
-smd_wrapper(score, dif.group, tx.group = NULL, clusters = NULL)
 }
 \arguments{
 \item{scale.data}{data frame of dichotomous item responses with subjects in rows
@@ -62,6 +59,5 @@ If \code{tx.group} is specified, the treatment effect is estimated for each grou
 The interaction is estimated as difference in within-dif.group treatment effects
 divided by the pooled SD of the dif.group1 and dif.group2 control groups.
 
-The reported total score reliability is \alpha estimated via
-\code{\link[psy]{cronbach}}.
+The reported total score reliability is \eqn{\alpha}.
 }

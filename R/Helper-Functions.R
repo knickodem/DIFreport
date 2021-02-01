@@ -87,3 +87,11 @@ format_flex <- function(df, bold.bias = "no", digits = 3){
   return(ftab)
 }
 
+est_alpha <- function(scale.data){
+  scale.data <- na.omit(scale.data)
+  nitems <- ncol(scale.data)
+  alpha <- (nitems/(nitems - 1)) * (1 - sum(apply(scale.data, 2, var)) /
+                                      var(apply(scale.data, 1, sum)))
+  return(alpha)
+}
+
