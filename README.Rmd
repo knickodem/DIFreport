@@ -1,0 +1,30 @@
+---
+output:
+  github_document:
+    toc: FALSE
+---
+
+# WBdif
+
+
+
+## Installation
+
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+install.packages("remotes")
+remotes::install_github("knickodem/WBdif")
+```
+
+
+## Features
+
+### Differential Item Functioning Analysis
+
+### Treatment Effect Robustness
+
+### Reporting
+
+## Support and Suggestions
+
+If you encounter any issues or have a suggestion for additional features, please file a [Github issue] (https://github.com/knickodem/WBdif/issues) or contact us via email.
