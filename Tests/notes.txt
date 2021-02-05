@@ -1,8 +1,9 @@
 Renaming suggestions
 
 dif_prep -> data_prep
-  dif.group -> dif.id
-  tx.group -> tx.id
+  measure.data -> item.data
+  dif.group -> dif.group.id
+  tx.group -> tx.group.id
   clusters -> cluster.id
   na0 -> na.to.0
 

@@ -1,0 +1,94 @@
+#' Preparing data for DIF analysis
+#'
+#' Handle missing data to run a DIF analysis and report
+#'
+#' @param item.data data frame of item responses with subjects in rows
+#' and items in columns.
+#' @param dif.group.id vector of group membership by which DIF is evaluated.
+#' @param tx.group.id vector indicating treatment condition unless treatment indicator was
+#' already supplied to \code{dif.group.id}.
+#' @param cluster.id vector of cluster membership.
+#' @param na.to.0 after removing empty rows, should remaining NAs be converted to 0?
+#' Default is FALSE.
+#'
+#' @details
+#' Identifies empty rows in item.data (i.e., rows with all NAs) and rows with NA for
+#' the \code{dif.group.id} and, if supplied, \code{tx.group.id} and \code{cluster.id}.
+#' These rows are removed. Thus, \code{tx.group.id} and \code{cluster.id} should only be
+#' supplied when intending to use them in \code{effect_robustness} or \code{dif_report}.
+#'
+#' @return list containing \code{item.data} and \code{dif.group.id} (if supplied, also
+#' \code{tx.group.id} and \code{cluster.id}) after consistent handling of missing data.
+#'
+#' @examples
+#' dat <- data.frame(tx = rep(c("tx", "control"), times = 10),
+#'                       gender = rep(c("male", "female"), each = 10),
+#'                       item1 = sample(c(0,1), 20, replace = TRUE),
+#'                       item2 = sample(c(0,1), 20, replace = TRUE),
+#'                       item3 = sample(c(0,1), 20, replace = TRUE),
+#'                       item4 = sample(c(0,1), 20, replace = TRUE),
+#'                       item5 = sample(c(0,1), 20, replace = TRUE))
+#' ## add missing data
+#' dat <- dat`[`c(1, 4), `]` <- NA
+#' dat <- dat`[`c(2, 5), 1`]` <- NA
+#'
+#' dif_prep(dat`[`, -c(1, 2)`]`,
+#'          dif.group.id = dat$gender,
+#'          tx.group.id = dat$tx,
+#'          na.to.0 = TRUE)
+#'
+#' @export
+
+dif_data_prep <- function(item.data, tx.group.id, dif.group.id = tx.group.id,
+                     cluster.id = NULL, na.to.0 = FALSE){
+
+  # Add checks for inputs
+
+  ## Identifying cases to drop based on missing data
+  # Note: FALSE elements in drop.cases are the cases removed from analysis
+
+  # Cases with NA for all items
+  drop.cases <- apply(is.na(item.data), 1, mean) != 1
+
+  # Cases missing on tx.group.id
+  drop.cases <- ifelse(is.na(tx.group.id), FALSE, drop.cases)
+
+  # Cases missing on dif.group.id
+  drop.cases <- ifelse(is.na(dif.group.id), FALSE, drop.cases)
+
+   # Cases missing on cluster.id + start drops
+  if (!is.null(cluster.id)) {
+    drop.cases <- ifelse(is.na(cluster.id), FALSE, drop.cases)
+    cluster.id <- cluster.id[drop.cases]
+  }
+
+  ## Dropping the missing cases
+  item.data <- item.data[drop.cases, ]
+  tx.group.id <- tx.group.id[drop.cases]
+  dif.group.id <- dif.group.id[drop.cases]
+
+  ## Replacing remaining NAs with 0
+  if (na.to.0 == TRUE) {
+    item.data[is.na(item.data)] <- 0
+  }
+
+  ## Items with no variance
+  var.check <- lapply(item.data, var, na.rm = TRUE)
+  no.var.items <- which(var.check == 0)
+
+  ## Items with any empty cells within dif.groups (need to be removed from IRT analysis)
+  var.check.group <- lapply(item.data,
+                            function(x) { sum(table(x, dif.group.id, useNA = "no") == 0) })
+  no.var.by.group.items <- which(var.check.group > 0)
+
+  ## Polytomous items; returns named integer vector
+  poly.items <- which(apply(item.data, 2, max, na.rm = TRUE) > 1)
+
+  return(list(item.data = item.data,
+              tx.group.id = tx.group.id,
+              dif.group.id = dif.group.id,
+              cluster.id = cluster.id,
+              no.var.items = no.var.items,
+              no.var.by.group.items = no.var.by.group.items,
+              poly.items = poly.items))
+}

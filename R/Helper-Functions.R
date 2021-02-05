@@ -38,12 +38,12 @@ sum_score <- function(scale.data, drops = NULL, poly = integer()){
   if(!is.null(drops)){
 
     # calculating rest score
-    score <- apply(scale.data[,-c(drops)], 1, sum)
+    score <- apply(scale.data[,-c(drops)], 1, sum, na.rm = T)
 
   } else {
 
     # calculating total score
-    score <- apply(scale.data, 1, sum)
+    score <- apply(scale.data, 1, sum, na.rm = T)
   }
 
   return(score)
