@@ -273,12 +273,12 @@ stop.message <- "biased.items must be one of c(\'IRT\', \'logistic\', \'MH\') or
     }
   }
 
-  if(biased.items != 0) { #This lets the analysis run even if there was no DIF
-    if (is.double(biased.items) | is.integer(biased.items)) {
-      if (mean(biased.items%in%1:ncol(dif.analysis$input$item.data)) == 1) {
-      } else {stop(stop.message)}
+
+  if (is.double(biased.items) | is.integer(biased.items)) {
+    if (mean(biased.items%in%1:ncol(dif.analysis$input$item.data)) == 1) {
     } else {stop(stop.message)}
-}
+  } else {stop(stop.message)}
+
 
   ### Run multigroup IRT models
   inputs <- dif.analysis$inputs
