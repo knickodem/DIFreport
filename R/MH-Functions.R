@@ -67,7 +67,7 @@ dif_mh <- function(scale.data,
   mh1 <- Reduce(rbind, stage1)
 
   # Benjamini–Hochberg procedure for false discovery rate < 5%
-  mh1$bias <- p.adjust(mh1$p, method = "BH") < .05
+  mh1$bias <- stats::p.adjust(mh1$p, method = "BH") < .05
 
   #### mh testing stage 2 - Refinement/purification of match_score criterion ####
   # The items to exclude based on initial mh DIF analysis
@@ -111,7 +111,7 @@ dif_mh <- function(scale.data,
     mh2 <- Reduce(rbind, stage2)
 
     # Benjamini–Hochberg procedure for false discovery rate = 5%
-    mh2$bias <- p.adjust(mh2$p, method = "BH") < .05
+    mh2$bias <- stats::p.adjust(mh2$p, method = "BH") < .05
 
     # Output dataframe combining stage 1 and stage 2
     names(mh1)[-1] <- paste0("initial.", names(mh1)[-1])
@@ -150,7 +150,7 @@ run_mh <- function(scale.data,
 
     ## Runs mh test and catches any errors
     mh <- tryCatch(expr = {
-      mantelhaen.test(x = scale.data[drop, item],
+      stats::mantelhaen.test(x = scale.data[drop, item],
                       y = dif.group[drop],
                       z = match[drop],
                       exact = T)
@@ -166,11 +166,11 @@ run_mh <- function(scale.data,
   } else{
 
     # categorizes match into strata based on match.bins
-    strata <- cut(match, unique(quantile(match, match.bins, type = 1)))
+    strata <- cut(match, unique(stats::quantile(match, match.bins, type = 1)))
 
     ## Runs mh test and catches any errors
     mh <- tryCatch(expr = {
-      mantelhaen.test(x = scale.data[, item],
+      stats::mantelhaen.test(x = scale.data[, item],
                       y = dif.group,
                       z = strata,
                       exact = T)

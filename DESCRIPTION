@@ -1,16 +1,24 @@
 Package: WBdif
 Type: Package
-Title: Investigating DIF in World Bank early childhood outcome measures
+Title: Investigating DIF in World Bank early childhood development measures
 Version: 0.1.0
 Author: Peter Halpin and Kyle Nickodem
 Maintainer: Kyle Nickodem <kyle.nickodem@gmail.com>
-Description: This package contains functions to detect DIF and check for robustness of treatment effects.
-Depends: flextable,
-         ggplot2,
-		 knitr,
-		 lme4,
-         mirt,
-		 rmarkdown
+Description:
+    This package contains functions to detect differential item functioning (DIF), 
+	check for robustness of treatment effects in the presence of DIF, and
+	produce reports summarizing the results.
+Depends:
+    R (>= 3.6.0)
+Imports:
+    flextable,
+    ggplot2,
+	gridExtra,
+	knitr,
+	lme4,
+    mirt,
+	rmarkdown
+	stats
 License: GNU GENERAL PUBLIC LICENSE
 Encoding: UTF-8
 LazyData: true

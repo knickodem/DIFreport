@@ -53,9 +53,12 @@ wb_measures <- purrr::map(.x = MalawiMeasures,
                                     clusters = MalawiData$cbcc_id,
                                     na0 = TRUE))
 
-mdatlang <- MalawiData[c(1, 4, 9, 11, grep(MalawiMeasures$MDAT_language.Midline, names(MalawiData)))]
-names(mdatlang) <- sub("_2", "", names(mdatlang))
-names(mdatlang)[1:4] <- c("clusterid", "id", "treated", "gender")
+# mdatlang <- MalawiData[c(1, 4, 9, 11, grep(MalawiMeasures$MDAT_language.Midline, names(MalawiData)))]
+# names(mdatlang) <- sub("_2", "", names(mdatlang))
+# names(mdatlang)[1:4] <- c("clusterid", "id", "treated", "gender")
+# mdatlang <- mdatlang[complete.cases(mdatlang),]
+#
+# save(mdatlang, file = "mdatlang.rda")
 
 
 
@@ -120,6 +123,7 @@ icc <- variances[[1]] / sum(variances)
 for(i in 1){ #:length(wb_measures)
 
   tic(as.character(i))
+
 
   conditional <- dif_analysis(measure.data = wb_measures[[i]]$measure.data,
                                dif.group = wb_measures[[i]]$dif.group,

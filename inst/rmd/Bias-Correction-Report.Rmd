@@ -9,10 +9,6 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(options(knitr.kable.NA = ''))
 
-# library(knitr)
-# library(rmarkdown)
-# library(flextable)
-
 ```
 
 ---
@@ -108,7 +104,7 @@ if(is.null(tx.group)){
   cat("\n\n")
   
   unctab <- format_flex(uncond.effects$effects.table)
-  cat(knit_print(unctab))
+  cat(knitr::knit_print(unctab))
   cat("\n\n")
   cat("&nbsp;  ")
   cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
@@ -134,7 +130,7 @@ if(is.null(tx.group)){
   cat("\n\n")
 
   condeff1tab <- format_flex(cond.effects1$effects.table)
-  cat(knit_print(condeff1tab))
+  cat(knitr::knit_print(condeff1tab))
   cat("\n\n")
   cat("&nbsp;  ")
   cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
@@ -150,7 +146,7 @@ if(is.null(tx.group)){
   cat("\n\n")
   
   condeff2tab <- format_flex(cond.effects2$effects.table)
-  cat(knit_print(condeff2tab))
+  cat(knitr::knit_print(condeff2tab))
   cat("\n\n")
   cat("&nbsp;  ")
   cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
@@ -165,7 +161,7 @@ if(is.null(tx.group)){
       " (", interaction.effects$comparison, ")", sep = "")
   cat("\n\n")
   inttab <- format_flex(interaction.effects$effects.table)
-  cat(knit_print(inttab))
+  cat(knitr::knit_print(inttab))
   cat("\n\n")
   cat("&nbsp;  ")
   cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
@@ -187,7 +183,7 @@ if(is.null(tx.group)){
 
 if(nrow(bi.df) != 0){
     bi.flex <- format_flex(bi.df)
-    cat(knit_print(bi.flex))
+    cat(knitr::knit_print(bi.flex))
     cat("\n\n")
     cat("&nbsp;  ")
     cat("*Note:* X = method determined item to be biased")
@@ -229,7 +225,7 @@ if(!is.null(dif.analysis$MH)){
   } else {
     
     MHtab <- format_flex(dif.analysis$MH$item.level, bold.bias = "item")
-    cat(knit_print(MHtab))
+    cat(knitr::knit_print(MHtab))
     cat("\n\n")
   }
 }
@@ -248,7 +244,7 @@ if(!is.null(dif.analysis$logistic)){
   cat("\n\n")
 
   logglobtab <- format_flex(dif.analysis$logistic$global.level, bold.bias = "global")
-  cat(knit_print(logglobtab))
+  cat(knitr::knit_print(logglobtab))
   cat("\n\n")
   
   cat("&nbsp;  ")
@@ -264,7 +260,7 @@ if(!is.null(dif.analysis$logistic)){
   } else {
     
     logitemtab <- format_flex(dif.analysis$logistic$item.level, bold.bias = "item")
-    cat(knit_print(logitemtab))
+    cat(knitr::knit_print(logitemtab))
     cat("\n\n")
   }
 
@@ -283,7 +279,7 @@ if(!is.null(dif.analysis$IRT)){
   cat("\n\n")
   
   irtglobtab <- format_flex(dif.analysis$IRT$global.level, bold.bias = "global")
-  cat(knit_print(irtglobtab))
+  cat(knitr::knit_print(irtglobtab))
   cat("\n\n")
  
   cat("&nbsp;  ")
@@ -299,7 +295,7 @@ if(!is.null(dif.analysis$IRT)){
   } else {
     
     irtitemtab <- format_flex(dif.analysis$IRT$item.level, bold.bias = "item")
-    cat(knit_print(irtitemtab))
+    cat(knitr::knit_print(irtitemtab))
     cat("\n\n")
   }
 }

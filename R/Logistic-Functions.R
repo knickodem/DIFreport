@@ -71,7 +71,7 @@ dif_logistic <- function(scale.data, dif.group, score.type, match){
 
     # Benjamini–Hochberg procedure for false discovery rate < 5%
     names(stage1.df)[names(stage1.df == "pvalue")] <- "p"
-    stage1.df$bias <- p.adjust(stage1.df$p, method = "BH") < .05
+    stage1.df$bias <- stats::p.adjust(stage1.df$p, method = "BH") < .05
 
     #### Stage 2 - Refinement/purification of match_on criterion ####
     # The items to exclude based on initial Logistic DIF analysis
@@ -119,7 +119,7 @@ dif_logistic <- function(scale.data, dif.group, score.type, match){
 
       # Benjamini–Hochberg procedure for false discovery rate < 5%
       names(stage2.df)[names(stage2.df == "pvalue")] <- "p"
-      stage2.df$bias <- p.adjust(stage2.df$p, method = "BH") < .05
+      stage2.df$bias <- stats::p.adjust(stage2.df$p, method = "BH") < .05
 
 
       #### Output dataframe combining stage 1 and stage 2 ####
@@ -175,15 +175,15 @@ run_global_logistic <- function(scale.data, dif.group, match){
   long.data <- long.data[-1, ]  # removes first row which is all NA
 
   ## No DIF model, then adding grouping variable
-  mod0 <- glm(response ~ -1 + item + match:item,
+  mod0 <- stats::glm(response ~ -1 + item + match:item,
               data = long.data, family = binomial)    # No DIF
-  mod1 <- glm(response ~ -1 + item + match:item + dif.group:item,
+  mod1 <- stats::glm(response ~ -1 + item + match:item + dif.group:item,
               data = long.data, family = binomial)    # uniform DIF
-  mod2 <- glm(response ~ -1 + item + match:item + dif.group:item + dif.group:match:item,
+  mod2 <- stats::glm(response ~ -1 + item + match:item + dif.group:item + dif.group:match:item,
               data = long.data, family = binomial)    # nonuniform DIF
 
   ## Omnibus test for any DIF
-  model.comparison <- anova(mod0, mod1, mod2, test = "LRT")
+  model.comparison <- stats::anova(mod0, mod1, mod2, test = "LRT")
   model.comparison$model <- c("No DIF", "Uniform", "Non-uniform")
   names(model.comparison) <- c("resid.df", "resid.dev", "df", "chisq", "p", "model")
   model.comparison <- model.comparison[,c(6, 2:5)]
@@ -222,12 +222,12 @@ run_global_logistic <- function(scale.data, dif.group, match){
 run_item_logistic <- function(item.data, dif.type){
 
 
-  item.nodif <- glm(response ~ 1 + match,
+  item.nodif <- stats::glm(response ~ 1 + match,
                     data = item.data, family = binomial)
 
   if(dif.type == "uniform"){
 
-    item.dif <- glm(response ~ 1 + match + dif.group,
+    item.dif <- stats::glm(response ~ 1 + match + dif.group,
                     data = item.data, family = binomial)
 
     OR <- coef(item.dif)[grepl("dif.group", names(coef(item.dif)))]
@@ -236,11 +236,11 @@ run_item_logistic <- function(item.data, dif.type){
 
   if(dif.type == "non-uniform"){
 
-    item.dif <- glm(response ~ 1 + match + dif.group + dif.group:match,
+    item.dif <- stats::glm(response ~ 1 + match + dif.group + dif.group:match,
                     data = item.data, family = binomial)
   }
 
-  modcomp <- anova(item.nodif, item.dif, test = "LRT")
+  modcomp <- stats::anova(item.nodif, item.dif, test = "LRT")
 
   if(dif.type == "uniform"){
 
