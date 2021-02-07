@@ -61,7 +61,7 @@ dif_irt <- function(scale.data, dif.group){
       stage1.df <- Reduce(rbind, stage1)
 
       # Benjamini–Hochberg procedure for false discovery rate < 5%
-      stage1.df$bias <- p.adjust(stage1.df$p, method = "BH") < .05
+      stage1.df$bias <- stats::p.adjust(stage1.df$p, method = "BH") < .05
 
       # The items to free in stage 2
       irt.free <- which(stage1.df$bias == 1)
@@ -92,7 +92,7 @@ dif_irt <- function(scale.data, dif.group){
         stage2.df <- Reduce(rbind, stage2)
 
         # Benjamini–Hochberg procedure for false discovery rate < 5%
-        stage2.df$bias <- p.adjust(stage2.df$p, method = "BH") < .05
+        stage2.df$bias <- stats::p.adjust(stage2.df$p, method = "BH") < .05
 
         ## Extracting X2 test results from refined run for output
         refined.df <- cbind(rownames(stage2.df),
@@ -173,8 +173,8 @@ run_global_irt <- function(scale.data, dif.group){
                                                    'free_var','free_means'), SE = F)
 
   ## Model comparisons
-  uniform.tab <- anova(no.dif.mod, uniform.mod, verbose = FALSE)
-  nonunif.tab <- anova(uniform.mod, nonuniform.mod, verbose = FALSE)
+  uniform.tab <- stats::anova(no.dif.mod, uniform.mod, verbose = FALSE)
+  nonunif.tab <- stats::anova(uniform.mod, nonuniform.mod, verbose = FALSE)
 
   ## Extracting comparison results
   tab <- rbind(uniform.tab, nonunif.tab[2,])

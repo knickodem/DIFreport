@@ -68,21 +68,21 @@ format_flex <- function(df, bold.bias = "no", digits = 3){
 
   numericcols <- which(unlist(lapply(df, is.numeric)))
 
-  ftab <- flextable(df)
-  ftab <- colformat_num(ftab, j = numericcols, digits = digits)
+  ftab <- flextable::flextable(df)
+  ftab <- flextable::colformat_num(ftab, j = numericcols, digits = digits)
 
   if(bold.bias == "item"){
 
     lastcol <- names(df)[[ncol(df)]]
-    ftab <- bold(ftab, i = as.formula(paste("~", lastcol,"== TRUE")), part =  "body")
-    ftab <- bold(ftab, i = as.formula(paste("~ is.na(", lastcol,")")), part =  "body")
+    ftab <- flextable::bold(ftab, i = as.formula(paste("~", lastcol,"== TRUE")), part =  "body")
+    ftab <- flextable::bold(ftab, i = as.formula(paste("~ is.na(", lastcol,")")), part =  "body")
 
   } else if(bold.bias == "global"){
 
     ftab <- bold(ftab, i = ~ p < .05, part =  "body")
   }
 
-  ftab <- autofit(ftab)
+  ftab <- flextable::autofit(ftab)
 
   return(ftab)
 }

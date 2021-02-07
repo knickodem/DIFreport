@@ -4,7 +4,20 @@ output:
     toc: FALSE
 ---
 
+```{r, echo = FALSE}
+# options(knitr.kable.NA = '',
+#         digits = 1,
+#         width = 80)
+set.seed(496)
+library(WBdif)
+```
+
+
 # WBdif
+
+**WBdif** contains functions to detect differential item functioning (DIF), estimate treatment effects, evaluate the robustness of treatment effects in the presence of DIF, and	produce reports summarizing the results. Development of **WBdif** was motivated by questions regarding the psychometric properties of the early childhood development assessments used by World Bank to evaluate intervention impacts.
+
+The 3 main functions in **WBdif** are [`dif_analysis()`](#analysis), [`robustness()`](#robustness), and [`dif_report()`](#report).
 
 
 
@@ -19,12 +32,26 @@ remotes::install_github("knickodem/WBdif")
 
 ## Features
 
-### Differential Item Functioning Analysis
+Say you have an assessment with both dichotomous and polytomous items and you want to know:
 
-### Treatment Effect Robustness
+  1. Do any items show DIF by gender?
+  2. What method should I use to detect DIF?
+  3. What is the treatment effect of the intervention?
+  4. Does the treatment effect change when accounting for DIF-y items?
+  
+The `dif_analysis()` function conducts a DIF analysis wiht any or all of the methods: Visual inspection via LOESS curves, Mantel-Haenszel, logistic regression, and item response theory. `dif_report()` then displays the results allowing you to compare the findings from each method. 
 
-### Reporting
+### Preparing the Data
+
+Prior to using any of the 3 main functions, an optional first step is to use the `dif_prep()` function to prepare the data.  
+
+### Differential Item Functioning Analysis {#analysis}
+
+
+### Treatment Effect Robustness {#robustness}
+
+### Reporting {#report}
 
 ## Support and Suggestions
 
-If you encounter any issues or have a suggestion for additional features, please file a [Github issue] (https://github.com/knickodem/WBdif/issues) or contact us via email.
+If you encounter any issues or have a suggestion for additional features, please file a [Github issue](https://github.com/knickodem/WBdif/issues) or contact us via email.
