@@ -1,0 +1,34 @@
+Renaming suggestions
+
+dif_prep -> data_prep
+  measure.data -> item.data
+  dif.group -> dif.group.id
+  tx.group -> tx.group.id
+  clusters -> cluster.id
+  na0 -> na.to.0
+
+dif_analysis
+  dif.group -> dif.id
+  score.type -> match.var
+
+dif_report
+  dif.analysis
+  file.name
+  measure.name -> default = NULL -> get from dif.analysis
+  dif.group.name -> dif.id.name. default = NULL -> get from dif.analysis
+  dataset.name = NULL -> get from dif.analysis
+  report.title = NULL -> get from data.set, measure and dif.id
+
+  bias.method -> no longer needed, goes in robustness
+  irt.scoring -> no longer needed, goes in robustness
+  tx.group -> no longer needed, goes in robustness
+  clusters -> no longer needed, goes in robustness
+
+internal variable names that need to be more readable
+
+nvi
+nvgi
+bi.list
+
+inputs from dif_analysis should use the same names as the inputs
+e.g.., data -> measure.data
