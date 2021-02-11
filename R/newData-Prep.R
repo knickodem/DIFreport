@@ -6,7 +6,7 @@
 #' and items in columns. Data can be binary or ordered categorical.
 #' @param dif.group.id A \code{vector} of length \code{nrow(item.data)} indicating the DIF groups. Must have exactly two unique value. See details for discussion of default value.
 #' @param tx.group.id A \code{vector} of length \code{nrow(item.data)} indicating the treatment groups. Must have exactly two unique value.
-#' @param cluster.id An optional \code{vector} of length \code{nrow(item.data)} indicating the primary sampling unit in multi-stage / clustered sampling design -- used to adjust standard errors when computing standardized treatment effects.
+#' @param cluster.id An optional \code{vector} of length \code{nrow(item.data)} indicating the primary sampling unit in a multi-stage / clustered sampling design -- used to adjust effect sizes and their standard errors.
 #' @param na.to.0 After removing empty rows, should remaining NAs be converted to 0?
 #' Default is FALSE.
 #'
