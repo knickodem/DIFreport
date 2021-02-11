@@ -1,6 +1,6 @@
-#' Formats data for use by \code{WBdif} functions
+#' Data prep for \code{WBdif} functions.
 #'
-#' Handle missing data to run a DIF analysis and report
+#' Data pre-processing and formatting; needs to be called before using other \code{WBdif} functions.
 #'
 #' @param item.data A \code{data.frame} of item responses with subjects in rows
 #' and items in columns. Data can be binary or ordered categorical.

@@ -3,75 +3,48 @@
 #' Evaluates differential item functioning (DIF) using loess, Mantel-Haenszel (MH),
 #' logistic regression, and item response theory (IRT) approaches.
 #'
-#'@param dif.data the output of \code{data_prep}.
-#'
-#' @param item.data data frame of item responses with subjects in rows
-#' and items in columns. See Details for response formats (to deprecate)
-#' @param dif.group.id factor or character vector with 2 levels; indicates group membership
-#' for which DIF is evaluated. If a character vector, this will be transformed (to deprecate)
-#' to a \code{\link[base]{factor}}.
-#' @param methods character vector with one or more of the four available methods:
-#' "loess", "MH", "logistic", and "IRT".
-#' The default is all four methods.
-#' @param match.type character indicating whether the total summed score ("Total") or the
-#' summed score excluding the item under investigation ("Rest") should be used for the
-#' matching variable in the loess, MH, or logistic regression methods.
-#' @param match.bins optional vector of bin sizes for stratifying the matching variable in
-#' the MH method. This is passed to the \code{probs} argument of
-#' \code{\link[stats]{quantile}}.
+#' @param dif.data The output of \code{WBdif::data_prep}.
+#' @param methods A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.
+#' @param match.type Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.
+#' @param match.bins Optional vector of bin sizes for stratifying the matching variable in
+#' the MH method. This is passed to the \code{probs} argument of \code{stas::quantile}.
 #'
 #' @details
-#' This function calls the specific DIF methods functions (loess, MH, logistic, IRT)
-#' and compiles the results.
+#'  This is a wrapper for the functions \code{WBdif{ functions: \code{loess}, \code{MH}, \code{logistic}, and \code{IRT}. Runs the requested DIF analyses on \code{dif.data$item.data} using \code{dif.data$dif.group.id} as the conditioning variable.
+
 #'
-#' Dichotomous items are expected to be coded 0 = incorrect, 1 = correct.
-#' The Mantel-Haenszel and logistic methods can only accommodate dichotomous items.
-#' Polytomous item responses are expected to be sequential integers (e.g., 1, 2, 3) but
-#' the lowest code does not have to be 0. Polytomous items are unit scaled when
-#' calculating the total or rest score.
+#' Usage notes:
+#' \itemize{
+#' \item Dichotomous items must be coded 0 = incorrect, 1 = correct.
+#' \item The Mantel-Haenszel and logistic methods can only accommodate dichotomous items.
+#' \item Polytomous item responses are expected to be sequential integers (e.g., 1, 2, 3) but the lowest code does not have to be 0. Polytomous items are unit scaled when calculating the total or rest score.
+#' \item Items with no variance are removed from \code{dif.data$item.data} when running the "MH", "logistic", and "IRT" methods.
+#' \item Items with different number of response categories accross levels of \code{dif.data$dif.group.id} are removed from \code{dif.data$item.data} for the "IRT" method.
+#' }
 #'
-#' Response variance is a prerequisite for DIF, so the function identifies and
-#' reports items with no variance or no variance within the levels of \code{dif.group.id}
-#' (e.g., all cases have same response). The "loess" method produces
-#' loess curves for every item in \code{item.data}, but items with no variance
-#' are removed from \code{item.data} for the "MH", "logistic", and "IRT" methods.
-#' Additionally, items with no variance within a \code{dif.group.id} level are removed from
-#' the "IRT" method because these lead to under-identified models.
-#'
-#' See \code{link[WBdif]{dif_mh}}, \code{link[WBdif]{dif_logistic}}, and
-#' \code{link[WBdif]{dif_irt}} for details about the specific DIF methods.
-#'
-#'
-#' @return a list with DIF results from each selected method
+#' @return A \code{list} containing \code{dif.data} and the results from each selected method. The list is not formatted in a very readable way; it is intended to be passed to \code{WBdif::dif_models} for further processing or to \code{WBdif::dif_report} for user-friendly formatting.
 #'
 #' @examples
-#' wb.measure <- data.frame(tx = rep(c("tx", "control"), times = 10),
+#' dat <- data.frame(tx = rep(c("tx", "control"), times = 10),
 #'                          gender = rep(c("male", "female"), each = 10),
 #'                          item1 = sample(c(0,1), 20, replace = TRUE),
 #'                          item2 = sample(c(0,1), 20, replace = TRUE),
 #'                          item3 = sample(c(0,1), 20, replace = TRUE),
 #'                          item4 = sample(c(0,1), 20, replace = TRUE),
 #'                          item5 = sample(c(0,1), 20, replace = TRUE))
+#' ## Prep data
+#' dif.data <-  dif_data_prep(dat`[`, -c(1, 2)`]`,
+#'                            dif.group.id = dat$gender,
+#'                            tx.group.id = dat$tx)
 #'
-#' ## Using deciles of rest (or total) score for match.bins to
-#' ## avoid empty cells in the two-way MH tables
+#' ## Using deciles of rest (or total) score for match.bins to avoid empty cells
 #' tenths <- seq(0, 1, by = .1)
 #'
-#' ## DIF analysis by treatment condition using rest scores and binning by deciles for MH
-#' dif.by.tx <- dif_analysis(item.data = wb.measure`[`3:7`]`,
-#'                           dif.group.id = wb.measure$tx,
-#'                           match.type = "Rest",
-#'                           methods = c("loess", "MH", "logistic", "IRT"),
-#'                           match.bins = tenths)
-#'
-#' ## DIF analysis by gender using total scores without binning for MH
-#' dif.by.gender <- dif_analysis(item.data = wb.measure`[`3:7`]`,
-#'                               dif.group.id = wb.measure$gender,
-#'                               match.type = "Total",
-#'                               methods = c("loess", "MH", "logistic", "IRT"),
-#'                               match.bins = NULL)
-#'
-#'
+#' ## DIF analysis by dif.group.id using rest scores and binning by deciles for MH
+#' dif.by.tx <- dif_analysis(dif.data = dif.data,
+#'                            methods =  "MH",
+#'                            match.type = "Rest",
+#'                            match.bins = tenths)
 #' @export
 
 dif_analysis <- function(dif.data,
