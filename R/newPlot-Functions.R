@@ -1,8 +1,15 @@
-#' Plotting Treatment Effects
+#' Plots of test bias
 #'
-#' Functions to visualize treatment effect and bias magnitude
+#' Plots test characteristic curves from a two-group IRT model, and their difference.
 #'
-#' @param dif.analysis an object returned from \code{dif_analysis}
+#' @param dif.models Output from \code{WBdif::dif_models}.
+#
+#' @details
+#' This is \code{ggplot2} wrapper for plotting test characteristic curves (TCCs). It calls \code{mirt::expected.test} and plots the resulting TCCs for both levels of \code{dif.group.id}, as well as their difference.
+#'
+#' @return
+#' A \code{list} of two \code{ggplot} objects.
+#' @export
 
 bias_plots <- function(dif.models){
 
@@ -28,7 +35,7 @@ bias_plots <- function(dif.models){
     #pdf <- approxfun(density(f.scores), rule = 2)
 
     # Get test characteristic curve
-    tcc <- expected.test(dif.models$dif.mod, group = dif.group.order[i], Theta = Theta)
+    tcc <- mirt::expected.test(dif.models$dif.mod, group = dif.group.order[i], Theta = Theta)
 
     # Save
     data[[i]] <- data.frame(Group = dif.groups[i],
@@ -70,6 +77,19 @@ bias_plots <- function(dif.models){
   return(list(tcc.plot, bias.plot))
 }
 
+
+#' Forest plots of effect sizes
+#'
+#' Plots standardized treatment effects and their confidence intervals.
+#'
+#' @param effects Output from \code{WBdif::effect_robustness}.
+#
+#' @details
+#' This is \code{ggplot2} wrapper for producing forest plots of effect sizes.
+#'
+#' @return
+#' A \code{ggplot} object.
+#' @export
 
 effects_plot <- function(effects){
   effects$min <- effects$effect.size - 1.96 * effects$effect.size.se

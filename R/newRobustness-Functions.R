@@ -2,7 +2,7 @@
 #'
 #' Compares standardized treatment effects estimated with and without adjustments for DIF.
 #'
-#' @param dif.models Output from \code{dif_models}
+#' @param dif.models Output from \code{WBdif::dif_models}
 #' @param std.group A value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the effect size. If \code{NULL} (default), the pooled standard devaition is used. Note that \code{tx.group.id} is defined in the function \code{dif_data_prep} and passed to \code{effect_robustness} via \code{dif.models}.
 #' @param irt.scoring What type of IRT scoring procedure should be used? Is passed to the \code{method} argument of \code{mirt::fscores}. See \code{help(fscores, mirt)}.
 #'
