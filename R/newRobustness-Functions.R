@@ -1,38 +1,29 @@
 #' Robustness of treatment effects
 #'
-#' Estimates treatment effects and robustness in the presence of DIF
+#' Compares standardized treatment effects estimated with and without adjustments for DIF.
 #'
-#' @param scale.data data frame of dichotomous item responses with subjects in rows
-#' and items in columns
-#' @param dif.group factor vector of group membership for which DIF is evaluated
-#' @param biased.items integer vector; location of biased items in \code{scale.data}
-#' @param no.var.items integer vector; location of items in \code{scale.data} with 0 variance
-#' @param no.var.by.group.items integer vector; location of items in \code{scale.data}
-#' with 0 variance within a \code{dif.group}
-#' @param poly integer vector; location of polytomous items in \code{scale.data}
-#' @param no.dif.mod \code{MultipleGroupClass} object from \code{mirt} where parameters are
-#' constrained to be equal between levels of \code{dif.group}
-#' @param irt.scoring factor score estimation method, which is passed to the
-#' \code{method} argument of \code{\link[mirt]{fscores}}
-#' @param tx.group factor vector for treatment indicator
-#' @param clusters vector indicating cluster membership
-#' @param score vector of total scores
+#' @param dif.models Output from \code{dif_models}
+#' @param std.group A value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the effect size. If \code{NULL} (default), the pooled standard devaition is used. Note that \code{tx.group.id} is defined in the function \code{dif_data_prep} and passed to \code{effect_robustness} via \code{dif.models}.
+#' @param irt.scoring What type of IRT scoring procedure should be used? Is passed to the \code{method} argument of \code{mirt::fscores}. See \code{help(fscores, mirt)}.
 #'
 #' @details
-#' Treatment effects are estimated as the standardized mean difference.
-#' If \code{tx.group} is specified, the treatment effect is estimated for each group in
-#' \code{dif.group} as well as the \code{tx.group} by \code{dif.group} interaction.
-#' The interaction is estimated as difference in within-dif.group treatment effects
-#' divided by the pooled SD of the dif.group1 and dif.group2 control groups.
+#' Data and models are passed to \code{effect_robustness} via the \code{dif.models} argument. If \code{tx.group.id == dif.group.id}, then the unconditional standardized treatment effect is computed. If \code{tx.group.id != dif.group.id}, the standardized treatment effect is computed conditional on \code{dif.group.id} (e.g., conditional on gender), and the difference in treatment effects is also reported. The treatment effects and their standard errors are computed using the method described by Hedges (2007).
 #'
-#' The reported total score reliability is \eqn{\alpha}.
+#'   Treatment effects and their standard errors are reported for four different outcome variables.
+#'   \itemize{
+#'   \item The unit-weighted total score computed with all items.
+#'   \item The unit-weighted total score computed with DIFfy items omitted (i.e. the items identified in \code{dif.models$biased.items}).
+#'   \item  IRT scores computed using a model that constrains all items to have equal parameters over levels of \code{dif.group.id} (ie., \code{dif.models$no.dif.mod}) .
+#'   \item IRT scores computed using a model that  allows parameters of DIFfy items to vary over levels of \code{dif.group.id} (ie., \code{dif.models$dif.mod}).
+#' }
+#'  IRT scores are computed using the method given by \code{irt.scoring}.
+#'
 #'
 #' @return
-#' \code{effect_robustness} - a two-item list containing 1) data.frame of treatment effect
-#' estimates and 2) character string of the groups being compared \cr
-#' \code{smd_wrapper} - numeric value
+#' A \code{list} of data.frames, with each \code{data.frame} summarizing the standardized effect size and standard error for the four different outcomes. The length of the list depends on whether the conditional or unconditional effect sizes were requested.
 #'
-#'
+#' @references
+#' Hedges, L. V. (2007). Effect Sizes in Cluster-Randomized Designs. Journal of Educational and Behavioral Statistics, 32, 341–370. \url{https://doi.org/10.3102/1076998606298043}.
 #' @export
 
 
