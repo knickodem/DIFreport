@@ -1,14 +1,3 @@
-Summary of updates on “check” branch
-================
-PFH
-Feb 5, 2020
-
-  - [WBdif](#wbdif)
-      - [Installation](#installation)
-      - [Features](#features)
-          - [All-in-One](#all-in-one)
-          - [Step-by-Step](#step-by-step)
-      - [Support and Suggestions](#support-and-suggestions)
 
 # WBdif
 
