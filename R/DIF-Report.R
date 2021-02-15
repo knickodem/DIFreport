@@ -3,7 +3,9 @@
 #' Produces a report summarizing an analysis of measurement bias for a given
 #' measure and grouping variable
 #'
-#' @param dif.analysis An object returned from \code{dif_analysis}
+#' @param dif.analysis An object returned from \code{\link[WBdif]{dif_analysis}}
+#' @param dif.models An object returned from \code{\link[WBdif]{dif_models}}
+#' @param effect.robustness An object returned from \code{\link[WBdif]{effect_robustness}}
 #' @param report.type Produce report including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only")?
 #' @param report.title Title of the report
 #' @param measure.name Name of the measure being evaluated for DIF, which is used in the report.
@@ -11,18 +13,14 @@
 #' @param dataset.name (optional) name of the dataset where the measure and
 #' item responses came from, which is printed in the report. For World Bank data, this will typically be a country.
 #' @param bias.method From which method in \code{dif.analysis} should the biased items, if detected, be extracted? The options are "MH", "logistic", or "IRT" (default).
-#' @param irt.scoring Factor score estimation method, which is passed to
-#' \code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}} documentation for other options.
 #'
 #' @details
 #' With \code{bias.method = "IRT"}, the direction of uniform DIF is determined using
 #' the b parameter for dichotomous items and the location of the first threshold for
 #' polytomous items.
 #'
-#' @return Uses the template "Bias_Correction_Report.Rmd" to produce a
-#' report summarizing whether any items on \code{measure.name} are biased with
-#' respect to \code{dif.group.name}, and, if so, to what extent this affects
-#' treatment contrasts on \code{measure.name}.
+#' @return produces a report summarizing a) whether any items on \code{measure.name} are biased with
+#' respect to the groups defined in \code{dif.analysis}, and, if so, b) the extent to which the bias affects treatment contrasts.
 #'
 #' @examples
 #' data("mdatlang")

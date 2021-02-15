@@ -17,7 +17,11 @@ dif_report(
 )
 }
 \arguments{
-\item{dif.analysis}{An object returned from \code{dif_analysis}}
+\item{dif.analysis}{An object returned from \code{\link[WBdif]{dif_analysis}}}
+
+\item{dif.models}{An object returned from \code{\link[WBdif]{dif_models}}}
+
+\item{effect.robustness}{An object returned from \code{\link[WBdif]{effect_robustness}}}
 
 \item{report.type}{Produce report including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only")?}
 
@@ -31,15 +35,10 @@ dif_report(
 item responses came from, which is printed in the report. For World Bank data, this will typically be a country.}
 
 \item{bias.method}{From which method in \code{dif.analysis} should the biased items, if detected, be extracted? The options are "MH", "logistic", or "IRT" (default).}
-
-\item{irt.scoring}{Factor score estimation method, which is passed to
-\code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}} documentation for other options.}
 }
 \value{
-Uses the template "Bias_Correction_Report.Rmd" to produce a
-report summarizing whether any items on \code{measure.name} are biased with
-respect to \code{dif.group.name}, and, if so, to what extent this affects
-treatment contrasts on \code{measure.name}.
+produces a report summarizing a) whether any items on \code{measure.name} are biased with
+respect to the groups defined in \code{dif.analysis}, and, if so, b) the extent to which the bias affects treatment contrasts.
 }
 \description{
 Produces a report summarizing an analysis of measurement bias for a given

@@ -40,15 +40,16 @@ Say you have a measure with both dichotomous and polytomous items and you want t
 The first approach requires only two functions (`dif_data_prep()` and `dif_synopsis()`) and produces an HTML report summarizing the DIF analysis results from up to 4 methods along with tables and plots illustrating treatment effects with and without adjusting for item bias.
 
 `dif_data_prep()` is a pre-processing step that organizes input information for use in other **WBdif** functions and conducts some checks on the suitability of the data for a DIF analysis. When investigating treatment effect robustness, `dif_data_prep()` is also where you specify:
+
  - whether the treatment effects are unconditional (i.e., only comparing treatment group to control group) or conditional on another variable (e.g., gender, race, age)
- - which standard deviation to use in the denominator of the treatment effect size estimation (std.group)
+ - which standard deviation to use in the denominator of the treatment effect size estimation (`std.group`)
  - whether the data is clustered
  
 `dif_synopsis()` is then a wrapper around all of the other functions needed to run the analysis and produce the report (hence All-in-One). Nonetheless, the function offers a variety of options to customize the both the analysis and reporting. For more details on each option see the Step-by-Step section. Given the All-in-One nature of `dif_synopsis()`, the code may take a few minutes to run before producing the report.
 
-#### Conditional Treatment Effects
+**Conditional Treatment Effects**
 
-Below we specify both `tx.group.id` and `dif.group.id` indicating that we are interested in estimating the treatment effects conditional on gender. The code below generates [this report]().
+Below we specify both `tx.group.id` and `dif.group.id` indicating that we are interested in estimating the treatment effects conditional on gender. The code below generates [this report](https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Gender-MDAT-Language.html).
 
 ```{r, eval = FALSE}
 data("mdatlang")
@@ -72,9 +73,9 @@ dif_synopsis(dif.data = prepped,
              match.type  = "Total")
 ```
 
-#### Unconditional Treatment Effects
+**Unconditional Treatment Effects**
 
-When interested in unconditional effects, only one of `tx.group.id` or `dif.group.id` need to be supplied in `dif_data_prep()`.  `dif_synopsis()` recognizes how the data are prepared and estimates the appropriate treatment effect. Thus, the only arguments that might change are `report.title` and `file.name`, which generates [this report]().
+When interested in unconditional effects, only one of `tx.group.id` or `dif.group.id` need to be supplied in `dif_data_prep()`.  `dif_synopsis()` recognizes how the data are prepared and estimates the appropriate treatment effect. Thus, the only arguments that might change are `report.title` and `file.name`, which generates [this report](https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Tx-MDAT-Language.html).
 
 ```{r, eval = FALSE}
 data("mdatlang")
