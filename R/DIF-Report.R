@@ -35,9 +35,17 @@
 #' # DIF analysis by dif.group.id
 #' # using rest scores and binning match.scores by deciles to avoid empty cells in MH analysis
 #' dif.analysis <- dif_analysis(dif.data = dif.data,
-#'                            methods =  c("MH", "IRT")
+#'                            methods =  c("MH", "IRT"),
 #'                            match.type = "Rest",
 #'                            match.bins = seq(0, 1, by = .1))
+#'
+#' dif_report(dif.analysis = dif.analysis,
+#'            report.type = "dif.only",
+#'            report.title = "Gender DIF in MDAT Language",
+#'            measure.name = "MDAT Language",
+#'            file.name = "DIF-Only-Gender-MDAT-Language",
+#'            dataset.name = "Malawi",
+#'            bias.method = "IRT")
 #' @export
 
 dif_report <- function(dif.analysis = NULL, dif.models = NULL, effect.robustness = NULL,

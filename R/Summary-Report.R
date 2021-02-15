@@ -29,7 +29,7 @@
 #'                           cluster.id = mdatlang$clusterid,
 #'                           na.to.0 = TRUE)
 #'
-#' dif_synopsis(dif.data = dif.data, report.type = "dif.effects",
+#' summary_report(dif.data = dif.data, report.type = "dif.effects",
 #'               report.title = "Gender DIF on MDAT Language",
 #'               measure.name = "MDAT Language",
 #'               file.name = "DIF-Gender-MDAT-Language",
@@ -38,7 +38,7 @@
 #'               match.type  = "Total")
 #' @export
 
-dif_synopsis <- function(dif.data, report.type = "dif.effects",
+summary_report <- function(dif.data, report.type = "dif.effects",
                           report.title = NULL, measure.name = NULL,
                           file.name = measure.name, dataset.name = NULL,
                           methods = c("loess", "MH", "logistic", "IRT"), bias.method = "IRT",

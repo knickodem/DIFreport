@@ -53,7 +53,7 @@ dif.data <- dif_data_prep(item.data = mdatlang`[`5:ncol(mdatlang)],
 # DIF analysis by dif.group.id
 # using rest scores and binning match.scores by deciles to avoid empty cells in MH analysis
 dif.analysis <- dif_analysis(dif.data = dif.data,
-                           methods =  c("MH", "IRT")
+                           methods =  c("MH", "IRT"),
                            match.type = "Rest",
                            match.bins = seq(0, 1, by = .1))
 }

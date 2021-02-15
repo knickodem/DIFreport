@@ -17,9 +17,8 @@
 #' @details
 #' \code{run_mh} conducts a Mantel-Haenszel test via \code{\link[stats]{mantelhaen.test}} for each
 #' item in \code{item.data} grouped by \code{dif.group.id} and stratified by the scores supplied
-#' to \code{match.scores}, which, if specified, are binned by \code{match.bins}.
-#' \code{dif_mh} is a wrapper around \code{run_mh} that organizes the initial and refinement
-#' phases of the DIF analysis and compiles the results.
+#' to \code{match.scores}, which, if specified, are binned by \code{match.bins}. Biased items
+#' are identified through a two-step process of initial and refinement phases.
 #'
 #' @return A list containing
 #' \itemize{
