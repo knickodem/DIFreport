@@ -3,7 +3,7 @@
 #' Conduct a DIF analysis and produce report summarizing results
 #'
 #' @param dif.data The output of \code{\link[WBdif]{dif_data_prep}}.
-#' @param report.type Produce report including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustnes checks ("effects.only")?
+#' @param report.type Produce report including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only")?
 #' @param report.title Title of report
 #' @param measure.name Name of the measure being evaluated for DIF, which is used in the report.
 #' @param file.name File name to create on disk. Defaults to \code{measure.name}. The file path can also be specified here. The file is saved to the working directory by default.
@@ -29,12 +29,16 @@
 #'                           cluster.id = mdatlang$clusterid,
 #'                           na.to.0 = TRUE)
 #'
-#' summarize_dif(dif.data = dif.data, report.type = "dif.effects",
+#' dif_synopsis(dif.data = dif.data, report.type = "dif.effects",
 #'               report.title = "Gender DIF on MDAT Language",
-#'               measure.name = "MDAT Language", file.name = "DIF-Gender-MDAT-Language")
+#'               measure.name = "MDAT Language",
+#'               file.name = "DIF-Gender-MDAT-Language",
+#'               methods = c("loess", "MH", "logistic", "IRT"),
+#'               bias.method = "IRT",
+#'               match.type  = "Total")
 #' @export
 
-summarize_dif <- function(dif.data, report.type = "dif.effects",
+dif_synopsis <- function(dif.data, report.type = "dif.effects",
                           report.title = NULL, measure.name = NULL,
                           file.name = measure.name, dataset.name = NULL,
                           methods = c("loess", "MH", "logistic", "IRT"), bias.method = "IRT",

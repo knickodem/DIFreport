@@ -19,6 +19,8 @@ dif_report(
 \arguments{
 \item{dif.analysis}{An object returned from \code{dif_analysis}}
 
+\item{report.type}{Produce report including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only")?}
+
 \item{report.title}{Title of the report}
 
 \item{measure.name}{Name of the measure being evaluated for DIF, which is used in the report.}
@@ -28,9 +30,7 @@ dif_report(
 \item{dataset.name}{(optional) name of the dataset where the measure and
 item responses came from, which is printed in the report. For World Bank data, this will typically be a country.}
 
-\item{bias.method}{From which method in \code{methods} should the biased items, if detected, be extracted? The options are "MH", "logistic", or "IRT" (default).}
-
-\item{methods}{A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.}
+\item{bias.method}{From which method in \code{dif.analysis} should the biased items, if detected, be extracted? The options are "MH", "logistic", or "IRT" (default).}
 
 \item{irt.scoring}{Factor score estimation method, which is passed to
 \code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}} documentation for other options.}

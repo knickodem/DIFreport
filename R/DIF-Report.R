@@ -4,13 +4,13 @@
 #' measure and grouping variable
 #'
 #' @param dif.analysis An object returned from \code{dif_analysis}
+#' @param report.type Produce report including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only")?
 #' @param report.title Title of the report
 #' @param measure.name Name of the measure being evaluated for DIF, which is used in the report.
 #' @param file.name File name to create on disk. Defaults to \code{measure.name}. The file path can also be specified here. The file is saved to the working directory by default.
 #' @param dataset.name (optional) name of the dataset where the measure and
 #' item responses came from, which is printed in the report. For World Bank data, this will typically be a country.
-#' @param methods A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.
-#' @param bias.method From which method in \code{methods} should the biased items, if detected, be extracted? The options are "MH", "logistic", or "IRT" (default).
+#' @param bias.method From which method in \code{dif.analysis} should the biased items, if detected, be extracted? The options are "MH", "logistic", or "IRT" (default).
 #' @param irt.scoring Factor score estimation method, which is passed to
 #' \code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}} documentation for other options.
 #'
@@ -133,10 +133,11 @@ dif_report <- function(dif.analysis = NULL, dif.models = NULL, effect.robustness
 
     ## Effects Info
     alphas.list <- coeff_alpha(dif.models, std.group = inputs$std.group)
-    effects.tables <- mapply(effects_table, effect.robustness, alphas.list)
+    effects.tables <- mapply(effects_table, effect.robustness, alphas.list, SIMPLIFY = FALSE)
     effects.plots <- lapply(effect.robustness, effects_plot)
     bias.plots <- bias_plots(dif.models)
     biased.items <- names(inputs$item.data)[dif.models$biased.items]
+
   }
 
 

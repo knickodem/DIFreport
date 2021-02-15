@@ -9,34 +9,72 @@
 
 data("mdatlang")
 
-mdatprepped <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
+mdatprepped.tx <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
                              tx.group.id = mdatlang$treated,
-                             dif.group.id = mdatlang$gender,
+                             dif.group.id = NULL,
                              cluster.id = mdatlang$clusterid,
                              std.group = "Control",
                              na.to.0 = TRUE)
 
-unc <- dif_analysis(mdatprepped)
+unc <- dif_analysis(mdatprepped.tx)
 uncmod <- dif_models(unc)
-er <- effect_robustness(uncmod, std.group = NULL)
+er <- effect_robustness(uncmod, std.group = mdatprepped.tx$std.group)
+alph <- coeff_alpha(uncmod, std.group = mdatprepped.tx$std.group)
+mapply(effects_table, er, alph)
+
+
 dif_report(dif.analysis = unc, dif.models = uncmod, effect.robustness = er,
            report.type = "dif.effects", report.title = "Gender DIF Effects in MDAT Language",
            measure.name = "MDAT Language", file.name = "Gender-DIF-Effects-MDAT-Language")
 
 
-summarize_dif(mdatprepped, report.type = "dif.effects",
+dif_synopsis(mdatprepped, report.type = "dif.effects",
               report.title = "Gender DIF Effects in MDAT Language",
               measure.name = "MDAT Language", file.name = "MDAT-Language-Rest-Test",
               methods = c("loess", "MH", "logistic", "IRT"), bias.method = "IRT",
               match.type  = "Rest", match.bins = seq(0, 1, by = .1),
               irt.scoring = "WLE")
 
-summarize_dif(mdatprepped, report.type = "dif.only",
+dif_synopsis(mdatprepped, report.type = "dif.only",
               report.title = "Gender DIF in MDAT Language",
               measure.name = "MDAT Language", file.name = "Gender-DIF-MDAT-Language",
               methods = c("loess", "MH", "logistic", "IRT"), bias.method = "IRT",
               match.type  = "Total", match.bins = seq(0, 1, by = .1),
               irt.scoring = "WLE")
+
+prepped <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
+                         tx.group.id = mdatlang$treated,
+                         dif.group.id = mdatlang$gender,
+                         cluster.id = mdatlang$clusterid,
+                         std.group = NULL, # When NULL, a pooled sd is used
+                         na.to.0 = TRUE)
+
+dif_synopsis(dif.data = prepped,
+             report.type = "dif.effects",
+             report.title = "Gender DIF Effects on MDAT Language",
+             measure.name = "MDAT Language",
+             file.name = "DIF-Effects-Gender-MDAT-Language",
+             dataset.name = "Malawi",
+             methods = c("loess", "MH", "logistic", "IRT"),
+             bias.method = "IRT",
+             match.type  = "Total")
+
+prepped <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
+                         tx.group.id = mdatlang$treated,
+                         dif.group.id = NULL,
+                         cluster.id = mdatlang$clusterid,
+                         std.group = "Control", # "Control" is a value in mdatlang$treated
+                         na.to.0 = TRUE)
+
+dif_synopsis(dif.data = prepped,
+             report.type = "dif.effects",
+             report.title = "Tx DIF Effects on MDAT Language",
+             measure.name = "MDAT Language",
+             file.name = "DIF-Effects-Tx-MDAT-Language",
+             dataset.name = "Malawi",
+             methods = c("loess", "MH", "logistic", "IRT"),
+             bias.method = "IRT",
+             match.type  = "Total")
 
 
 
@@ -53,17 +91,17 @@ bang.tx.data <- dif_data_prep(item.data = midline[domain.items[[i]]],
                           std.group = NULL,
                           na.to.0 = F)
 
-summarize_dif(bang.data, report.type = "dif.effects",
-              report.title = "Gender DIF at Midline",
+dif_synopsis(bang.tx.data, report.type = "dif.effects",
+              report.title = "Tx DIF at Midline",
               measure.name = "English Literacy",
               dataset.name = "Bangladesh",
-              file.name = "Gender-DIF-EngLit-Mid",
+              file.name = "Tx-DIF-EngLit-Mid",
               methods = c("loess", "IRT"), bias.method = "IRT",
               irt.scoring = "WLE")
 
-dif.analysis <- dif_analysis(dif.data = dif.data,
+dif.analysis <- dif_analysis(dif.data = bang.tx.data,
                              methods = c("loess", "IRT"))
-dif.models <- dif_models(dif.analysis, biased.items = c(1,2,3))
+dif.models <- dif_models(dif.analysis, biased.items = "IRT")
 effects.list <- effect_robustness(dif.models)
 
 alphas.list <- coeff_alpha(dif.models)
