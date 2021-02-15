@@ -2,12 +2,12 @@
 #'
 #' Collection of convenience functions to improve automaticity and code readability
 #'
-#' @param data frame of item responses with subjects in rows
+#' @param item.data frame of item responses with subjects in rows
 #' and items in columns.
 #' @param drops integer vector; item locations in \code{item.data} to exclude from
 #' score calculation
 #' @param poly.items integer vector; location of polytomous items in \code{item.data}
-#' @param dif.analysis an object returned from \code{dif_analysis}
+#' @param dif.analysis an object returned from \code{\link[WBdif]{dif_analysis}}
 #' @param df a data frame
 #' @param bold.bias character indicating whether results tables should bold instances
 #' of DIF or not ("no", the default). If so, must specify whether the table
@@ -102,5 +102,30 @@ est_alpha <- function(item.data){
   alpha <- (nitems/(nitems - 1)) * (1 - sum(apply(item.data, 2, var)) /
                                       var(apply(item.data, 1, sum)))
   return(alpha)
+}
+
+#' Tries to guess the control group and checks for input errors
+#'
+#' Helper function for \code{hedges2007}.
+#'
+#' @param tx.group.id A \code{vector} indicating the treatment groups.
+#' @param std.group An optional value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the treatment effect.
+#' @return A vector containing the two unique values of \code{tx.group.id}, with the name of the control group in the first position, and the name of the treatment group in the second position.
+
+get_tx.groups <- function(tx.group.id, std.group){
+
+  tx.group.id <- factor(tx.group.id)
+  tx.groups <- levels(tx.group.id)
+  if (length(tx.groups) != 2) {
+    stop("tx.group.id must have exactly 2 unique values")
+  }
+
+  if (!is.null(std.group)) {
+    if(!std.group %in% tx.groups) {
+      stop("std.group is not in tx.group.id")
+      tx.groups <- c(tx.groups[std.group == tx.groups], tx.groups[std.group != tx.groups])
+    }
+  }
+  tx.groups
 }
 

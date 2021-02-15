@@ -26,9 +26,9 @@ dif_report(dif.analysis = unc, dif.models = uncmod, effect.robustness = er,
 
 summarize_dif(mdatprepped, report.type = "dif.effects",
               report.title = "Gender DIF Effects in MDAT Language",
-              measure.name = "MDAT Language", file.name = "Gender-DIF-Effects-MDAT-Language",
+              measure.name = "MDAT Language", file.name = "MDAT-Language-Rest-Test",
               methods = c("loess", "MH", "logistic", "IRT"), bias.method = "IRT",
-              match.type  = "Total", match.bins = seq(0, 1, by = .1),
+              match.type  = "Rest", match.bins = seq(0, 1, by = .1),
               irt.scoring = "WLE")
 
 summarize_dif(mdatprepped, report.type = "dif.only",
@@ -46,11 +46,20 @@ midline <- bang.recode[bang.recode$line == "Mid",]
 i <- 1
 
 # data prep is now via dif_data_prep
-dif.data <- dif_data_prep(item.data = midline[domain.items[[i]]],
+bang.tx.data <- dif_data_prep(item.data = midline[domain.items[[i]]],
                           tx.group.id = midline$tx,
-                          dif.group.id = midline$gender,
+                          dif.group.id = NULL,
                           cluster.id = NULL,
+                          std.group = NULL,
                           na.to.0 = F)
+
+summarize_dif(bang.data, report.type = "dif.effects",
+              report.title = "Gender DIF at Midline",
+              measure.name = "English Literacy",
+              dataset.name = "Bangladesh",
+              file.name = "Gender-DIF-EngLit-Mid",
+              methods = c("loess", "IRT"), bias.method = "IRT",
+              irt.scoring = "WLE")
 
 dif.analysis <- dif_analysis(dif.data = dif.data,
                              methods = c("loess", "IRT"))

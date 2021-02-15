@@ -3,8 +3,8 @@
 #' Compares standardized treatment effects estimated with and without adjustments for DIF.
 #'
 #' @param dif.models Output from \code{\link[WBdif]{dif_models}}
-#' @param std.group A value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the effect size. If \code{NULL} (default), the pooled standard devaition is used. Note that \code{tx.group.id} is defined in the function \code{dif_data_prep} and passed to \code{effect_robustness} via \code{dif.models}.
-#' @param irt.scoring What type of IRT scoring procedure should be used? Is passed to the \code{method} argument of \code{\link[mirt]{fscores}}. See \code{help(fscores, mirt)}.
+#' @param std.group A value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the effect size. If \code{NULL} (default), the pooled standard deviation is used. Note that \code{tx.group.id} is defined in the function \code{\link[WBdif]{dif_data_prep}} and passed to \code{\link[WBdif]{effect_robustness}} via \code{dif.models}.
+#' @param irt.scoring What type of IRT scoring procedure should be used? Passed to the \code{method} argument of \code{\link[mirt]{fscores}}. See \code{help(fscores, mirt)}.
 #'
 #' @details
 #' Data and models are passed to \code{effect_robustness} via the \code{dif.models} argument. If \code{tx.group.id == dif.group.id}, then the unconditional standardized treatment effect is computed. If \code{tx.group.id != dif.group.id}, the standardized treatment effect is computed conditional on \code{dif.group.id} (e.g., conditional on gender), and the difference in treatment effects is also reported. The treatment effects and their standard errors are computed using the method described by Hedges (2007).
@@ -24,10 +24,8 @@
 #'
 #' @references
 #' Hedges, L. V. (2007). Effect Sizes in Cluster-Randomized Designs. Journal of Educational and Behavioral Statistics, 32, 341–370. \url{https://doi.org/10.3102/1076998606298043}.
-#' @export
 #'
-
-
+#' @export
 
 effect_robustness <- function(dif.models, std.group = NULL, irt.scoring = "WLE") {
 

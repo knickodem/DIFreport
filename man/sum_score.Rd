@@ -16,12 +16,15 @@ format_flex(df, bold.bias = "no", digits = 3)
 est_alpha(item.data)
 }
 \arguments{
+\item{item.data}{frame of item responses with subjects in rows
+and items in columns.}
+
 \item{drops}{integer vector; item locations in \code{item.data} to exclude from
 score calculation}
 
 \item{poly.items}{integer vector; location of polytomous items in \code{item.data}}
 
-\item{dif.analysis}{an object returned from \code{dif_analysis}}
+\item{dif.analysis}{an object returned from \code{\link[WBdif]{dif_analysis}}}
 
 \item{df}{a data frame}
 
@@ -30,9 +33,6 @@ of DIF or not ("no", the default). If so, must specify whether the table
 displays model comparisons ("model") or item-level tests ("item").}
 
 \item{digits}{integer; number decimal places to print in report tables}
-
-\item{data}{frame of item responses with subjects in rows
-and items in columns.}
 }
 \value{
 \code{sum_score} returns a numeric vector of summed scores \cr

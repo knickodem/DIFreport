@@ -44,7 +44,6 @@
 #' Hedges, L. V. (2007). Effect sizes in cluster-randomized designs.
 #' \emph{Journal of Educational and Behavioral Statistics, 32}(4), 341-370.
 #'
-#' @export
 
 est_smd <- function(outcome = NULL, groups = NULL, m1 = NULL, m2 = NULL,
                     sdp = NULL, sd1 = NULL, sd2 = NULL, n1 = NULL, n2 = NULL,

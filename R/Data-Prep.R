@@ -43,6 +43,9 @@ dif_data_prep <- function(item.data, tx.group.id = NULL, dif.group.id = tx.group
   if(is.null(tx.group.id) & !is.null(dif.group.id)){
     tx.group.id <- dif.group.id
   }
+  if(!is.null(tx.group.id) & is.null(dif.group.id)){ # in case user sets dif.group.id = NULL
+    dif.group.id <- tx.group.id
+  }
 
   # Need tx.group.id to be a 2-level factor
   if(!is.null(tx.group.id) & !is.factor(tx.group.id)){
