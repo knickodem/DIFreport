@@ -4,21 +4,22 @@
 \alias{sum_score}
 \alias{extract_bi}
 \alias{format_flex}
+\alias{est_alpha}
 \title{Internal convenience functions}
 \usage{
-sum_score(scale.data, drops = NULL, poly = integer())
+sum_score(item.data, drops = NULL, poly.items = integer())
 
 extract_bi(dif.analysis)
 
 format_flex(df, bold.bias = "no", digits = 3)
+
+est_alpha(item.data)
 }
 \arguments{
-\item{scale.data}{data frame of dichotomous item responses used to calculate the score}
-
-\item{drops}{integer vector; item locations in \code{scale.data} to exclude from
+\item{drops}{integer vector; item locations in \code{item.data} to exclude from
 score calculation}
 
-\item{poly}{integer vector; location of polytomous items in \code{scale.data}}
+\item{poly.items}{integer vector; location of polytomous items in \code{item.data}}
 
 \item{dif.analysis}{an object returned from \code{dif_analysis}}
 
@@ -29,17 +30,22 @@ of DIF or not ("no", the default). If so, must specify whether the table
 displays model comparisons ("model") or item-level tests ("item").}
 
 \item{digits}{integer; number decimal places to print in report tables}
+
+\item{data}{frame of item responses with subjects in rows
+and items in columns.}
 }
 \value{
 \code{sum_score} returns a numeric vector of summed scores \cr
 \code{extract_bi} returns list of biased items from each \code{dif.analysis} method \cr
 \code{format_flex} returns a \code{\link[flextable]{flextable}} object \cr
+\code{est_alpha} returns a numeric value
 }
 \description{
 Collection of convenience functions to improve automaticity and code readability
 }
 \details{
-\code{sum_score} sums dichotomous item responses into a scale score \cr
+\code{sum_score} sums item responses into a scale score. Polytomous items are
+unit scaled so each item has a maximum value of 1. \cr
 \code{extract_bi} extracts the biased items identified from each \code{dif.analysis}
 method. If no biased items were detected, a character string indicated so is extracted. \cr
 \code{format_flex} converts the DIF results from a data frame to a

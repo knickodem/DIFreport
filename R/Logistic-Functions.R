@@ -2,54 +2,53 @@
 #'
 #' Conducts DIF analysis with logistic regression
 #'
-#' @param scale.data data frame of dichotomous item responses with subjects in rows
-#' and items in columns
-#' @param dif.group factor vector of group membership for which DIF is evaluated.
-#' @param score.type character indicating whether \code{match} is a
+#' @param item.data A \code{data.frame} of item responses with subjects in rows
+#' and items in columns.
+#' @param dif.group.id A factor vector of group membership for which DIF is evaluated.
+#' @param match.type A character indicating whether \code{match.scores} is a
 #' total summed score ("Total") or the summed score excluding the item under
 #' investigation ("Rest").
-#' @param match list of \code{ncol(scale.data)} elements. Each element is a numeric vector
+#' @param match.scores A numeric vector (if \code{match.type = "Total"}) or
+#' \code{list} of \code{ncol(item.data)} numeric vectors (if \code{match.type = "Rest"})
 #' of match scores used as a predictor in the logistic regression.
-#' In \code{dif_logistic}, if \code{score.type} = "Total", \code{match} will be
-#' a single numeric vector.
-#' @param item.data dataframe created in \code{run_global_logistic}
-#' @param dif.type character indicating "No DIF", "uniform" DIF or "non-uniform" DIF as
-#' determined in \code{run_global_logistic}.
 #'
 #' @details
-#' \code{run_global_logistic} compares no DIF, uniform DIF, and non-uniform DIF logistic
-#' regression models by regressing dichotomous item responses from \code{scale.data}
-#' on item, \code{match}, and \code{dif.group}, along with interactions. If DIF is
+#' First conducts an omnibus test of DIF by comparing fit of no DIF, uniform DIF, and non-uniform DIF logistic
+#' regression models. The no DIF model regresses the dichotomous item responses from \code{item.data}
+#' on item, \code{match.scores}, and the two-way interaction. The uniform DIF model adds \code{dif.group.id}
+#' and the interaction with item while the non-uniform model adds the three-way interaction. If DIF is
 #' detected through the model comparisons, the specific item(s) with DIF are
-#' identified via \code{run_item_logistic}. \code{dif_logistic} is a wrapper
-#' around the other functions that organizes the initial and refinement phases of
-#' the DIF analysis and compiles the results.
+#' identified in a two-stage process - initial detection stage and refinement stage.
 #'
-#' @return a four-element list containing 1) DIF model comparisons,
-#' 2) item-level DIF tests, 3) integer vector of the items showing DIF
-#' (i.e., biased items), and 4) type of DIF
+#' @return list containing
+#' \itemize{
+#'   \item DIF model comparisons
+#'   \item item-level DIF tests
+#'   \item integer vector of the items showing DIF (i.e., biased items)
+#'   \item type of DIF
+#'   }
 #'
 #' @export
 
-dif_logistic <- function(scale.data, dif.group, score.type, match){
+dif_logistic <- function(item.data, dif.group.id, match.type, match.scores){
 
   ## Number of items in the measure
-  nitems <- ncol(scale.data)
+  nitems <- ncol(item.data)
 
   ## match scores need to be a list for use in run_global_logistic
-  if(score.type == "Rest"){
+  if(match.type == "Rest"){
 
-    match <- match
+    match.scores <- match.scores
 
-  } else if(score.type == "Total"){
+  } else if(match.type == "Total"){
 
-    match <- rep(list(match), nitems)
+    match.scores <- rep(list(match.scores), nitems)
   }
 
   #### Testing for uniform and non-uniform DIF across all items ####
-  global.log <- run_global_logistic(scale.data = scale.data,
-                                    dif.group = dif.group,
-                                    match = match)
+  global.log <- run_global_logistic(item.data = item.data,
+                                    dif.group.id = dif.group.id,
+                                    match.scores = match.scores)
 
 
   if(global.log$dif.type %in% c("uniform", "non-uniform")){
@@ -58,7 +57,7 @@ dif_logistic <- function(scale.data, dif.group, score.type, match){
 
     ## Stage 1 - Initial DIF
     stage1 <- list()
-    for(i in names(scale.data)){
+    for(i in names(item.data)){
 
       stage1[[i]] <- run_item_logistic(
         item.data = global.log$long.data[global.log$long.data$item == i, ],
@@ -73,7 +72,7 @@ dif_logistic <- function(scale.data, dif.group, score.type, match){
     names(stage1.df)[names(stage1.df == "pvalue")] <- "p"
     stage1.df$bias <- stats::p.adjust(stage1.df$p, method = "BH") < .05
 
-    #### Stage 2 - Refinement/purification of match_on criterion ####
+    #### Stage 2 - Refinement/purification of match.scores criterion ####
     # The items to exclude based on initial Logistic DIF analysis
     log.drops <- which(stage1.df$bias == 1)
 
@@ -82,32 +81,32 @@ dif_logistic <- function(scale.data, dif.group, score.type, match){
       # Storage
       stage2 <- list()
 
-      if(score.type == "Rest"){
+      if(match.type == "Rest"){
 
         for(i in 1:nitems){
 
           # Recalculate rest score while also removing biased items identified in stage 1
-          match2 <- sum_score(scale.data = scale.data, drops = c(i, log.drops))
+          match.scores2 <- sum_score(item.data = item.data, drops = c(i, log.drops))
 
           # filtering based on the item and adding re-calculated match score
-          temp.df <- global.log$long.data[global.log$long.data$item == names(scale.data)[[i]], ]
-          temp.df$match <- match2
+          temp.df <- global.log$long.data[global.log$long.data$item == names(item.data)[[i]], ]
+          temp.df$match.scores <- match.scores2
 
           stage2[[i]] <- run_item_logistic(item.data = temp.df,
                                            dif.type = global.log$dif.type)
 
         }
 
-      } else if(score.type == "Total"){
+      } else if(match.type == "Total"){
 
         # Recalculate total score while removing biased items identified in stage 1
-        match2 <- sum_score(scale.data = scale.data, drops = c(log.drops))
+        match.scores2 <- sum_score(item.data = item.data, drops = c(log.drops))
 
         for(i in 1:nitems){
 
           # filtering based on the item and adding re-calculated total score
-          temp.df <- global.log$long.data[global.log$long.data$item == names(scale.data)[[i]], ]
-          temp.df$match <- match2
+          temp.df <- global.log$long.data[global.log$long.data$item == names(item.data)[[i]], ]
+          temp.df$match.scores <- match.scores2
 
           stage2[[i]] <- run_item_logistic(item.data = temp.df,
                                            dif.type = global.log$dif.type)
@@ -151,22 +150,31 @@ dif_logistic <- function(scale.data, dif.group, score.type, match){
 
 }
 
+#' Logistic Model Comparisons for DIF
+#'
+#' Conduct an omnibus test for DIF by comparing no DIF, uniform DIF, and non-uniform DIF logistic regression models
+#'
+#' @param item.data A \code{data.frame} of item responses with subjects in rows
+#' and items in columns.
+#' @param dif.group.id A factor vector of group membership for which DIF is evaluated.
+#' @param match.type A character indicating whether \code{match.scores} is a
+#' total summed score ("Total") or the summed score excluding the item under
+#' investigation ("Rest").
+#' @param match.scores A \code{list} of \code{ncol(item.data)} numeric vectors of match scores used as a predictor in the logistic regression.
+#' @return A list containing model comparison results table, the type of DIF, the model objects, and \code{data.frame} of item response and match.score information
 
-#' @rdname dif_logistic
-#' @export
-
-run_global_logistic <- function(scale.data, dif.group, match){
+run_global_logistic <- function(item.data, dif.group.id, match.scores){
 
   #### Omnibus test for DIF  ####
-  long.data <- data.frame(response = NA, match = NA, item = NA, dif.group = NA)
+  long.data <- data.frame(response = NA, match.scores = NA, item = NA, dif.group.id = NA)
 
   ## Gather item information into a long format dataframe
-  for (i in 1:ncol(scale.data)) {
+  for (i in 1:ncol(item.data)) {
 
-    long.temp <- data.frame(response = scale.data[,i],
-                            match = match[[i]],
-                            item = rep(names(scale.data)[i], nrow(scale.data)),
-                            dif.group = as.numeric(dif.group)-1)
+    long.temp <- data.frame(response = item.data[,i],
+                            match.scores = match.scores[[i]],
+                            item = rep(names(item.data)[i], nrow(item.data)),
+                            dif.group.id = as.numeric(dif.group.id)-1)
 
     long.data <- rbind(long.data, long.temp)
   }
@@ -175,11 +183,11 @@ run_global_logistic <- function(scale.data, dif.group, match){
   long.data <- long.data[-1, ]  # removes first row which is all NA
 
   ## No DIF model, then adding grouping variable
-  mod0 <- stats::glm(response ~ -1 + item + match:item,
+  mod0 <- stats::glm(response ~ -1 + item + match.scores:item,
               data = long.data, family = binomial)    # No DIF
-  mod1 <- stats::glm(response ~ -1 + item + match:item + dif.group:item,
+  mod1 <- stats::glm(response ~ -1 + item + match.scores:item + dif.group.id:item,
               data = long.data, family = binomial)    # uniform DIF
-  mod2 <- stats::glm(response ~ -1 + item + match:item + dif.group:item + dif.group:match:item,
+  mod2 <- stats::glm(response ~ -1 + item + match.scores:item + dif.group.id:item + dif.group.id:match.scores:item,
               data = long.data, family = binomial)    # nonuniform DIF
 
   ## Omnibus test for any DIF
@@ -216,27 +224,32 @@ run_global_logistic <- function(scale.data, dif.group, match){
 
 }
 
-#' @rdname dif_logistic
-#' @export
+#' Single Item Logistic Models for DIF
+#'
+#' Internal function for dif_logistic
+#'
+#' @param item.data subset of long format data returned from \code{\link[WBdif]{run_global_logistic}} for a single item
+#' @param dif.type extracted from object returned from \code{\link[WBdif]{run_global_logistic}}
+#' @return a \code{data.frame} containing results of a likelihood ratio test
 
 run_item_logistic <- function(item.data, dif.type){
 
 
-  item.nodif <- stats::glm(response ~ 1 + match,
+  item.nodif <- stats::glm(response ~ 1 + match.scores,
                     data = item.data, family = binomial)
 
   if(dif.type == "uniform"){
 
-    item.dif <- stats::glm(response ~ 1 + match + dif.group,
+    item.dif <- stats::glm(response ~ 1 + match.scores + dif.group.id,
                     data = item.data, family = binomial)
 
-    OR <- coef(item.dif)[grepl("dif.group", names(coef(item.dif)))]
+    OR <- coef(item.dif)[grepl("dif.group.id", names(coef(item.dif)))]
     OR <- exp(OR) # indicates direction of uniform bias
   }
 
   if(dif.type == "non-uniform"){
 
-    item.dif <- stats::glm(response ~ 1 + match + dif.group + dif.group:match,
+    item.dif <- stats::glm(response ~ 1 + match.scores + dif.group.id + dif.group.id:match.scores,
                     data = item.data, family = binomial)
   }
 

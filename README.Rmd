@@ -93,21 +93,6 @@ I spend a lot of time arriving back at the same plots we had in the first place.
 bias.plots <- bias_plots(dif.models)
 gridExtra::grid.arrange(bias.plots[[1]], bias.plots[[2]])
 ```
-=======
-```{r, echo = FALSE}
-# options(knitr.kable.NA = '',
-#         digits = 1,
-#         width = 80)
-set.seed(496)
-library(WBdif)
-```
-
-
-# WBdif
-
-**WBdif** contains functions to detect differential item functioning (DIF), estimate treatment effects, evaluate the robustness of treatment effects in the presence of DIF, and	produce reports summarizing the results. Development of **WBdif** was motivated by questions regarding the psychometric properties of the early childhood development assessments used by World Bank to evaluate intervention impacts.
-
-The 3 main functions in **WBdif** are [`dif_analysis()`](#analysis), [`robustness()`](#robustness), and [`dif_report()`](#report).
 
 The funciton `effect_robustness` is now just a wrapper for `hedges2007`, which replaces `est_smd` and `smd_wrapper`. The output is a `list` whose components are each like the `effects.data` object that was internal to `effects_robustness`. Functions for computing effect plots, tables, and coeff alpha are now external to `effect_robustness`. But, it still takes a while to run due to calling `mirt::fscores` ... 
 
@@ -137,8 +122,34 @@ alphas.list <- coeff_alpha(dif.models)
 lapply(alphas.list, knitr::kable)
 ```
 
-The function `effects_table` has an optional argument to include the alphas. 
+The function `effects_table` has an optional argument to include the alphas.
+
+
+```{r}
+effects.tables.with.alpha <- mapply(effects_table, effects.list, alphas.list)
+lapply(effects.tables.with.alpha, knitr::kable)
+```
+
+
+As I mentioned above, I didnt try to sort out how to put this into the report. I am hoping the individual pieces shown above will be easy to work with but let me know if not. I will work on updating documentation over the next few days. 
+
+
 =======
+```{r, echo = FALSE}
+# options(knitr.kable.NA = '',
+#         digits = 1,
+#         width = 80)
+set.seed(496)
+library(WBdif)
+```
+
+
+# WBdif
+
+**WBdif** contains functions to detect differential item functioning (DIF), estimate treatment effects, evaluate the robustness of treatment effects in the presence of DIF, and	produce reports summarizing the results. Development of **WBdif** was motivated by questions regarding the psychometric properties of the early childhood development assessments used by World Bank to evaluate intervention impacts.
+
+The 3 main functions in **WBdif** are [`dif_analysis()`](#analysis), [`robustness()`](#robustness), and [`dif_report()`](#report).
+
 Say you have an assessment with both dichotomous and polytomous items and you want to know:
 
   1. Do any items show DIF by gender?
@@ -146,7 +157,7 @@ Say you have an assessment with both dichotomous and polytomous items and you wa
   3. What is the treatment effect of the intervention?
   4. Does the treatment effect change when accounting for DIF-y items?
   
-The `dif_analysis()` function conducts a DIF analysis wiht any or all of the methods: Visual inspection via LOESS curves, Mantel-Haenszel, logistic regression, and item response theory. `dif_report()` then displays the results allowing you to compare the findings from each method. 
+The `dif_analysis()` function conducts a DIF analysis with any or all of the methods: Visual inspection via LOESS curves, Mantel-Haenszel, logistic regression, and item response theory. `dif_report()` then displays the results allowing you to compare the findings from each method. 
 
 ### Preparing the Data
 
@@ -159,14 +170,6 @@ Prior to using any of the 3 main functions, an optional first step is to use the
 
 ### Reporting {#report}
 
-
-```{r}
-effects.tables.with.alpha <- mapply(effects_table, effects.list, alphas.list)
-lapply(effects.tables.with.alpha, knitr::kable)
-```
-
-
-As I mentioned above, I didnt try to sort out how to put this into the report. I am hoping the individual pieces shown above will be easy to work with but let me know if not. I will work on updating documentation over the next few days.  
-=======
+ 
 If you encounter any issues or have a suggestion for additional features, please file a [Github issue](https://github.com/knickodem/WBdif/issues) or contact us via email.
 

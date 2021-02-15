@@ -2,47 +2,34 @@
 % Please edit documentation in R/IRT-Functions.R
 \name{dif_irt}
 \alias{dif_irt}
-\alias{run_global_irt}
-\alias{run_item_irt}
 \title{Item response theory DIF method}
 \usage{
-dif_irt(scale.data, dif.group)
-
-run_global_irt(scale.data, dif.group)
-
-run_item_irt(global.irt, which.model = "no.dif.mod", items2test)
+dif_irt(item.data, dif.group.id)
 }
 \arguments{
-\item{scale.data}{data frame of item responses with subjects in rows
+\item{item.data}{data frame of item responses with subjects in rows
 and items in columns}
 
-\item{dif.group}{factor vector of group membership for which DIF is evaluated.}
-
-\item{global.irt}{object returned from \code{run_global_irt}}
-
-\item{which.model}{the model in \code{global.irt} to use for testing DIF. Options
-are "no.dif.mod" (default), "uniform.mod" or "nonuniform.mod".}
-
-\item{items2test}{numeric; the item to test for DIF, which is passed to the
-items2test argument of \code{\link[mirt]{DIF}}.}
+\item{dif.group.id}{factor vector of group membership for which DIF is evaluated.}
 }
 \value{
-a list containing 1) DIF model comparisons,
-2) item-level DIF tests, 3) integer vector of the items showing DIF
-(i.e., biased items), 4) type of DIF, and
-5) IRT models needed for treatment effect robustness check
+A list containing
+\itemize{
+\item DIF model comparisons
+\item item-level DIF tests
+\item integer vector of the items showing DIF (i.e., biased items)
+\item type of DIF
+\item IRT models needed for treatment effect robustness check
+}
 }
 \description{
-Conducts DIF analysis via the item response theory method
+Conducts DIF analysis using an item response theory approach
 }
 \details{
-\code{run_global_irt} compares no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
+First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
 The models are run \code{\link[mirt]{multipleGroup}} by constraining slopes
 and intercepts, slopes only, and nothing, respectively, to be equal
-between the levels of \code{dif.group}. Model fit is compared with a
+between the levels of \code{dif.group.id}. Model fit is compared with a
 likelihood ratio test. If DIF is detected through the model comparisons, the
-specific item(s) with DIF are identified via \code{run_item_irt} using
-\code{\link[mirt]{DIF}}. \code{dif_irt} is a wrapper around the other functions that
-organizes the initial and refinement phases of the DIF analysis and compiles
-the results.
+specific item(s) with DIF are identified in a two-stage process (initial and refinement) using \code{\link[mirt]{DIF}}.
 }

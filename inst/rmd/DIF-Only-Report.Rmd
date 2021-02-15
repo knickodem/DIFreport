@@ -44,9 +44,9 @@ if(!is.null(dataset.name)){
 if(dif.type == "uniform"){
   if(n.biased > 0){
   
-  cat("* Number of items uniformly biased toward ", dif.group1, ": ", toward1, sep = "")
+  cat("* Number of items uniformly biased toward ", dif.group1, ": ", toward[[1]], sep = "")
   cat("\n\n")
-  cat("* Number of items uniformly biased toward ", dif.group2, ": ", toward2, sep = "")
+  cat("* Number of items uniformly biased toward ", dif.group2, ": ", toward[[2]], sep = "")
   }
 }
 ```
@@ -71,108 +71,6 @@ if(no.var.by.group.items != "none"){
 }
 
 ```
-
-
-```{r bias.plots, results='asis', message=FALSE, fig.width = 5, fig.height = 6}
-
-if(!is.null(bias.plots)){
-  cat("## Test Score Plots")
-  cat("\n\n")
-  
-  gridExtra::grid.arrange(bias.plots[[1]], bias.plots[[2]])
-}
-```
-
-
-
-```{r Effects Tables, results='asis', warning=FALSE, ft.align="left", fig.width = 5, fig.height = 4}
-
-if(is.null(tx.group)){
-  
-  cat("## Treatment Effects")
-  cat("\n\n")
-  
-  if(n.biased == 0){
-  
-  cat("\n\n")
-  cat(nodifmessage)
-  cat("\n\n")
-}
-  
-  cat("Summary table of unconditional treatment effects 
-      (comparing ", uncond.effects$comparison, ")", sep  ="") 
-  cat("\n\n")
-  
-  unctab <- format_flex(uncond.effects$effects.table)
-  cat(knitr::knit_print(unctab))
-  cat("\n\n")
-  cat("&nbsp;  ")
-  cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
-  cat("\n\n")
-  cat("&nbsp;  ")
-  
-  print(uncond.effects$effects.plot)
-
-} else {
-
-  cat("## Treatment Effects Conditional on ", dif.group.name)
-  cat("\n\n")
-  
-  if(n.biased == 0){
-  
-  cat("\n\n")
-  cat(nodifmessage)
-  cat("\n\n")
-}
-
-  cat("Summary table of conditional treatment effects for ", dif.group1, 
-      " (comparing ", cond.effects1$comparison, ")", sep  = "") 
-  cat("\n\n")
-
-  condeff1tab <- format_flex(cond.effects1$effects.table)
-  cat(knitr::knit_print(condeff1tab))
-  cat("\n\n")
-  cat("&nbsp;  ")
-  cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
-  cat("\n\n")
-  cat("&nbsp;  ")
-  
-  print(cond.effects1$effects.plot)
-
-  cat("&nbsp;  ")
-  cat("\n\n")
-  cat("Summary table of conditional treatment effects for ", dif.group2, 
-      " (comparing ", cond.effects2$comparison, ")", sep  = "") 
-  cat("\n\n")
-  
-  condeff2tab <- format_flex(cond.effects2$effects.table)
-  cat(knitr::knit_print(condeff2tab))
-  cat("\n\n")
-  cat("&nbsp;  ")
-  cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
-  cat("\n\n")
-  cat("&nbsp;  ")
-  
-  print(cond.effects2$effects.plot)
-  
-  cat("&nbsp;  ")
-  cat("\n\n")
-  cat("Interaction of treatment effect by ", dif.group.name, 
-      " (", interaction.effects$comparison, ")", sep = "")
-  cat("\n\n")
-  inttab <- format_flex(interaction.effects$effects.table)
-  cat(knitr::knit_print(inttab))
-  cat("\n\n")
-  cat("&nbsp;  ")
-  cat("*Note:* Adj. Delta  = Total Delta / sqrt(Reliability)")
-  cat("\n\n")
-  cat("&nbsp;  ")
-  
-  print(interaction.effects$effects.plot)
-}
-
-```
-
 
 
 # DIF Detection Methods
@@ -206,8 +104,6 @@ if(!is.null(dif.analysis$loess)){
   
 }
 ```
-
-
 
 
 ```{r MH, results='asis', ft.align="left"}

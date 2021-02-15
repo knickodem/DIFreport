@@ -1,39 +1,35 @@
 #' Item response theory DIF method
 #'
-#' Conducts DIF analysis via the item response theory method
+#' Conducts DIF analysis using an item response theory approach
 #'
-#' @param scale.data data frame of item responses with subjects in rows
+#' @param item.data data frame of item responses with subjects in rows
 #' and items in columns
-#' @param dif.group factor vector of group membership for which DIF is evaluated.
-#' @param global.irt object returned from \code{run_global_irt}
-#' @param which.model the model in \code{global.irt} to use for testing DIF. Options
-#' are "no.dif.mod" (default), "uniform.mod" or "nonuniform.mod".
-#' @param items2test numeric; the item to test for DIF, which is passed to the
-#' items2test argument of \code{\link[mirt]{DIF}}.
+#' @param dif.group.id factor vector of group membership for which DIF is evaluated.
 #'
 #' @details
-#' \code{run_global_irt} compares no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
+#' First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
 #' The models are run \code{\link[mirt]{multipleGroup}} by constraining slopes
 #' and intercepts, slopes only, and nothing, respectively, to be equal
-#' between the levels of \code{dif.group}. Model fit is compared with a
+#' between the levels of \code{dif.group.id}. Model fit is compared with a
 #' likelihood ratio test. If DIF is detected through the model comparisons, the
-#' specific item(s) with DIF are identified via \code{run_item_irt} using
-#' \code{\link[mirt]{DIF}}. \code{dif_irt} is a wrapper around the other functions that
-#' organizes the initial and refinement phases of the DIF analysis and compiles
-#' the results.
+#' specific item(s) with DIF are identified in a two-stage process (initial and refinement) using \code{\link[mirt]{DIF}}.
 #'
-#' @return a list containing 1) DIF model comparisons,
-#' 2) item-level DIF tests, 3) integer vector of the items showing DIF
-#' (i.e., biased items), 4) type of DIF, and
-#' 5) IRT models needed for treatment effect robustness check
+#' @return A list containing
+#' \itemize{
+#' \item DIF model comparisons
+#' \item item-level DIF tests
+#' \item integer vector of the items showing DIF (i.e., biased items)
+#' \item type of DIF
+#' \item IRT models needed for treatment effect robustness check
+#' }
 #'
 #' @export
 
-dif_irt <- function(scale.data, dif.group){
+dif_irt <- function(item.data, dif.group.id){
 
   #### Comparing no dif, uniform dif, and nonuniform dif models ####
   global.irt <- tryCatch(expr = {
-    run_global_irt(scale.data = scale.data, dif.group = dif.group)
+    run_global_irt(item.data = item.data, dif.group.id = dif.group.id)
   },
   error = function(e){
     message("Did not run IRT method. Possible empty cell(s) in the item by group
@@ -48,7 +44,7 @@ dif_irt <- function(scale.data, dif.group){
 
   } else {
 
-    nitems <- 1:ncol(scale.data)
+    nitems <- 1:ncol(item.data)
 
     ## If DIF was detected in the global tests
     if(length(global.irt$dif.params) > 0){
@@ -77,10 +73,10 @@ dif_irt <- function(scale.data, dif.group){
 
         ## Stage 2 - Refine/Purify
         # Re-estimate no dif model while freeing IRT_free items
-        global.irt$no.dif.mod2 <- mirt::multipleGroup(scale.data, model = 1,
-                                                      group = dif.group,
+        global.irt$no.dif.mod2 <- mirt::multipleGroup(item.data, model = 1,
+                                                      group = dif.group.id,
                                                       invariance = c('free_var','free_means',
-                                                                     names(scale.data)[-irt.free]))
+                                                                     names(item.data)[-irt.free]))
 
 
         stage2 <- lapply(nitems[-irt.free], run_item_irt,
@@ -108,7 +104,7 @@ dif_irt <- function(scale.data, dif.group){
                           all.y = FALSE)
 
         ## Ordering items
-        item.irt$item <- factor(item.irt$item, levels = names(scale.data))
+        item.irt$item <- factor(item.irt$item, levels = names(item.data))
         item.irt <- item.irt[order(item.irt$item), ]
         row.names(item.irt) <- NULL
         biased.items <- which(item.irt$refined.bias == TRUE | is.na(item.irt$refined.bias))
@@ -130,7 +126,7 @@ dif_irt <- function(scale.data, dif.group){
 
       } else {
 
-        initial.df$item <- factor(initial.df$item, levels = names(scale.data))
+        initial.df$item <- factor(initial.df$item, levels = names(item.data))
         initial.df <- initial.df[order(initial.df$item), ]
         row.names(initial.df) <- NULL
 
@@ -157,24 +153,30 @@ dif_irt <- function(scale.data, dif.group){
 
 }
 
-#' @rdname dif_irt
-#' @export
+#' IRT Model Comparisons for DIF
+#'
+#' Conduct an omnibus test for DIF by comparing no DIF, uniform DIF, and non-uniform DIF IRT models
+#'
+#' @param item.data data frame of item responses with subjects in rows
+#' and items in columns
+#' @param dif.group.id factor vector of group membership for which DIF is evaluated.
+#' @return A list containing model comparison results table, the type of DIF, and the model objects
 
-run_global_irt <- function(scale.data, dif.group){
+run_global_irt <- function(item.data, dif.group.id){
 
   ## Fitting nested models - Fit 2PL models with varying constraints
-  nonuniform.mod <- mirt::multipleGroup(scale.data, model = 1, group = dif.group, SE = F)
+  nonuniform.mod <- mirt::multipleGroup(item.data, model = 1, group = dif.group.id, SE = F)
 
-  uniform.mod <- mirt::multipleGroup(scale.data, model = 1, group = dif.group,
+  uniform.mod <- mirt::multipleGroup(item.data, model = 1, group = dif.group.id,
                                      invariance = c('slopes', 'free_var'), SE = F)
 
-  no.dif.mod <- mirt::multipleGroup(scale.data, model = 1, group = dif.group,
+  no.dif.mod <- mirt::multipleGroup(item.data, model = 1, group = dif.group.id,
                                     invariance = c('slopes', 'intercepts',
                                                    'free_var','free_means'), SE = F)
 
   ## Model comparisons
-  uniform.tab <- stats::anova(no.dif.mod, uniform.mod, verbose = FALSE)
-  nonunif.tab <- stats::anova(uniform.mod, nonuniform.mod, verbose = FALSE)
+  uniform.tab <- mirt::anova(no.dif.mod, uniform.mod, verbose = FALSE)
+  nonunif.tab <- mirt::anova(uniform.mod, nonuniform.mod, verbose = FALSE)
 
   ## Extracting comparison results
   tab <- rbind(uniform.tab, nonunif.tab[2,])
@@ -214,8 +216,16 @@ run_global_irt <- function(scale.data, dif.group){
 }
 
 
-#' @rdname dif_irt
-#' @export
+#' IRT item tests for DIF
+#'
+#' Test each item for DIF using IRT models
+#'
+#' @param global.irt an object returned from \code{\link[WBdif]{run_global_irt}}
+#' @param which.model the model in \code{global.irt} to use for testing DIF. Options
+#' are "no.dif.mod" (default), "uniform.mod" or "nonuniform.mod".
+#' @param items2test numeric; the item to test for DIF, which is passed to the
+#' items2test argument of \code{\link[mirt]{DIF}}.
+#' @return an object returned from \code{\link[mirt]{DIF}}
 
 run_item_irt <- function(global.irt,
                          which.model = "no.dif.mod",

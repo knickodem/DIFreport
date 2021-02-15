@@ -2,43 +2,41 @@
 % Please edit documentation in R/MH-Functions.R
 \name{dif_mh}
 \alias{dif_mh}
-\alias{run_mh}
 \title{Mantel-Haenszel DIF method}
 \usage{
-dif_mh(scale.data, dif.group, score.type, match, match.bins = NULL)
-
-run_mh(scale.data, dif.group, item, match, match.bins = NULL)
+dif_mh(item.data, dif.group.id, match.type, match.scores, match.bins = NULL)
 }
 \arguments{
-\item{scale.data}{data frame of dichotomous item responses with subjects in rows
+\item{item.data}{data frame of dichotomous item responses with subjects in rows
 and items in columns}
 
-\item{dif.group}{factor vector of group membership for which DIF is evaluated.}
+\item{dif.group.id}{factor vector of group membership for which DIF is evaluated.}
 
-\item{score.type}{character indicating whether \code{match} is a
+\item{match.type}{A character indicating whether \code{match.scores} is a
 total summed score ("Total") or the summed score excluding the item under
 investigation ("Rest").}
 
-\item{match}{numeric vector used as the stratifying variable in the MH procedure.
-In \code{dif_mh}, if \code{score.type} = "Rest", \code{match} will be a list of vectors -
-one for each item in \code{scale.data}.}
+\item{match.scores}{A numeric vector (if \code{match.type = "Total"}) or
+\code{list} of \code{ncol(item.data)} numeric vectors (if \code{match.type = "Rest"})
+of match scores used as the stratifying variable in the MH procedure.}
 
-\item{match.bins}{optional vector of bin sizes for stratifying \code{match} in
-\code{run_mh}. This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.}
-
-\item{item}{integer; item in \code{scale.data} under investigation for DIF}
+\item{match.bins}{optional vector of bin sizes for stratifying \code{match.scores}.
+This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.}
 }
 \value{
-A two-element list containing 1) a data frame with MH results for each item
-in \code{scale.data} and 2) an integer vector of the items showing DIF (i.e., biased items).
+A list containing
+\itemize{
+\item a \code{data.frame} with MH results for each item in \code{item.data}
+\item an integer vector of the items showing DIF (i.e., biased items)
+}
 }
 \description{
 Conducts DIF analysis with Mantel-Haenszel method
 }
 \details{
 \code{run_mh} conducts a Mantel-Haenszel test via \code{\link[stats]{mantelhaen.test}} for each
-item in \code{scale.data} grouped by \code{dif.group} and stratified by the scores supplied
-to \code{match}, which, if specified, are binned by \code{match.bins}.
+item in \code{item.data} grouped by \code{dif.group.id} and stratified by the scores supplied
+to \code{match.scores}, which, if specified, are binned by \code{match.bins}.
 \code{dif_mh} is a wrapper around \code{run_mh} that organizes the initial and refinement
 phases of the DIF analysis and compiles the results.
 }

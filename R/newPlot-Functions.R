@@ -1,11 +1,11 @@
 #' Plots of test bias
 #'
-#' Plots test characteristic curves from a two-group IRT model, and their difference.
+#' Plots test characteristic curves from a two-group IRT model and their difference.
 #'
-#' @param dif.models Output from \code{WBdif::dif_models}.
+#' @param dif.models Output from \code{\link[WBdif]{dif_models}}.
 #
 #' @details
-#' This is \code{ggplot2} wrapper for plotting test characteristic curves (TCCs). It calls \code{mirt::expected.test} and plots the resulting TCCs for both levels of \code{dif.group.id}, as well as their difference.
+#' This is a \code{ggplot2} wrapper for plotting test characteristic curves (TCCs). It calls \code{\link[mirt]{expected.test}} and plots the resulting TCCs for both levels of \code{dif.group.id}, as well as their difference.
 #'
 #' @return
 #' A \code{list} of two \code{ggplot} objects.
@@ -15,14 +15,14 @@ bias_plots <- function(dif.models){
 
   # Levels of the dif.group variable
 
-  dif.groups <- unique(dif.models$inputs$dif.group.id)
+  dif.groups <- levels(dif.models$inputs$dif.group.id)
   dif.group.order <- order(dif.groups)
   n.dif.groups <- 2
 
   # Range for plots
   n.bins <- 200
   theta <- seq(-6, 6, length.out = n.bins)
-  Theta <- matrix(theta)
+  Theta <- matrix(theta) # required by mirt::expected.test
 
   # Storage
   data <- vector("list", n.dif.groups)
@@ -54,7 +54,7 @@ bias_plots <- function(dif.models){
                 scale_y_continuous(name = "Expected total score") +
                 theme(legend.position = "right",
                      panel.grid.minor = element_blank(),
-                     text = element_text(size=14))
+                     text = element_text(size = 14))
 
 
   ## Bias Plot
@@ -82,14 +82,14 @@ bias_plots <- function(dif.models){
 #'
 #' Plots standardized treatment effects and their confidence intervals.
 #'
-#' @param effects Output from \code{WBdif::effect_robustness}.
+#' @param effects Output from \code{\link[WBdif]{effect_robustness}}.
 #
 #' @details
-#' This is \code{ggplot2} wrapper for producing forest plots of effect sizes.
+#' This is a \code{ggplot2} wrapper for producing forest plots of effect sizes.
 #'
 #' @return
 #' A \code{ggplot} object.
-#' @export
+
 
 effects_plot <- function(effects){
   effects$min <- effects$effect.size - 1.96 * effects$effect.size.se
@@ -103,7 +103,7 @@ effects_plot <- function(effects){
     ylab("Scoring Method") +
     # ggtitle(main) +
     theme(strip.placement = "outside",
-          strip.text.y = element_text(angle = 180,vjust=1, face = "bold"),
+          strip.text.y = element_text(angle = 180,vjust = 1, face = "bold"),
           strip.background = element_blank(),
           panel.spacing = unit(0,"cm"),
           panel.background = element_blank(),

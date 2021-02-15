@@ -9,7 +9,7 @@ Description:
 	check for robustness of treatment effects in the presence of DIF, and
 	produce reports summarizing the results.
 Depends:
-    R (>= 3.6.0)
+    R (>= 3.6)
 Imports:
     flextable,
     ggplot2,
@@ -17,7 +17,7 @@ Imports:
 	knitr,
 	lme4,
     mirt,
-	rmarkdown
+	rmarkdown,
 	stats
 License: GNU GENERAL PUBLIC LICENSE
 Encoding: UTF-8

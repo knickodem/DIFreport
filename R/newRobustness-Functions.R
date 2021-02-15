@@ -2,9 +2,9 @@
 #'
 #' Compares standardized treatment effects estimated with and without adjustments for DIF.
 #'
-#' @param dif.models Output from \code{WBdif::dif_models}
+#' @param dif.models Output from \code{\link[WBdif]{dif_models}}
 #' @param std.group A value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the effect size. If \code{NULL} (default), the pooled standard devaition is used. Note that \code{tx.group.id} is defined in the function \code{dif_data_prep} and passed to \code{effect_robustness} via \code{dif.models}.
-#' @param irt.scoring What type of IRT scoring procedure should be used? Is passed to the \code{method} argument of \code{mirt::fscores}. See \code{help(fscores, mirt)}.
+#' @param irt.scoring What type of IRT scoring procedure should be used? Is passed to the \code{method} argument of \code{\link[mirt]{fscores}}. See \code{help(fscores, mirt)}.
 #'
 #' @details
 #' Data and models are passed to \code{effect_robustness} via the \code{dif.models} argument. If \code{tx.group.id == dif.group.id}, then the unconditional standardized treatment effect is computed. If \code{tx.group.id != dif.group.id}, the standardized treatment effect is computed conditional on \code{dif.group.id} (e.g., conditional on gender), and the difference in treatment effects is also reported. The treatment effects and their standard errors are computed using the method described by Hedges (2007).
@@ -25,6 +25,8 @@
 #' @references
 #' Hedges, L. V. (2007). Effect Sizes in Cluster-Randomized Designs. Journal of Educational and Behavioral Statistics, 32, 341–370. \url{https://doi.org/10.3102/1076998606298043}.
 #' @export
+#'
+
 
 
 effect_robustness <- function(dif.models, std.group = NULL, irt.scoring = "WLE") {
@@ -33,15 +35,15 @@ effect_robustness <- function(dif.models, std.group = NULL, irt.scoring = "WLE")
   inputs <- dif.models$inputs
   biased.items <- dif.models$biased.items
   dif.group.id <- inputs$dif.group.id
-  dif.groups <- unique(dif.group.id)
+  dif.groups <- levels(dif.group.id)
   tx.group.id <- inputs$tx.group.id
   tx.groups <- get_tx.groups(tx.group.id, std.group)
   cluster.id <- inputs$cluster.group.id
   poly.items <- inputs$poly.items
 
   # Get outcome variables
-  total.score <- sum_score(inputs$item.data, poly = inputs$poly.items)
-  adj.total.score <- sum_score(inputs$item.data, drops = biased.items, poly = poly.items)
+  total.score <- sum_score(inputs$item.data, poly.items = inputs$poly.items)
+  adj.total.score <- sum_score(inputs$item.data, drops = biased.items, poly.items = poly.items)
   irt.score <- mirt::fscores(dif.models$no.dif.mod, method = irt.scoring)
   adj.irt.score <- mirt::fscores(dif.models$dif.mod, method = irt.scoring)
   scores <- data.frame(irt.score, adj.irt.score, total.score, adj.total.score)
@@ -53,7 +55,7 @@ effect_robustness <- function(dif.models, std.group = NULL, irt.scoring = "WLE")
   }
 
   # Compute effect sizes and alphas: Unconditional
-  if(sum(tx.groups == dif.groups) == 1) {
+  if(identical(tx.groups, dif.groups)) { #sum(tx.groups == dif.groups) == 1
     effects <- data.frame(Reduce(rbind, lapply(scores, effect_sizes)), row.names = NULL)
     effects.list <- list(effects)
     names(effects.list) <- paste(tx.groups[2], "-", tx.groups[1])
@@ -97,11 +99,11 @@ coeff_alpha <-function(dif.models, std.group = NULL) {
   item.data <- inputs$item.data
   biased.items <- dif.models$biased.items
   dif.group.id <- inputs$dif.group.id
-  dif.groups <- unique(dif.group.id)
+  dif.groups <- levels(dif.group.id)
   tx.group.id <- inputs$tx.group.id
   tx.groups <- get_tx.groups(tx.group.id, std.group)
 
-  if(sum(tx.groups == dif.groups) == 1) {
+  if(identical(tx.groups, dif.groups)) { #sum(tx.groups == dif.groups) == 1
      alphas <- c(est_alpha(item.data), est_alpha(item.data[-c(biased.items)]))
      alphas.list <- list(alphas)
      names(alphas.list) <- paste(tx.groups[2], "-", tx.groups[1])

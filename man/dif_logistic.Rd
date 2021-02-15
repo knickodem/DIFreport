@@ -2,50 +2,41 @@
 % Please edit documentation in R/Logistic-Functions.R
 \name{dif_logistic}
 \alias{dif_logistic}
-\alias{run_global_logistic}
-\alias{run_item_logistic}
 \title{Logistic regression DIF method}
 \usage{
-dif_logistic(scale.data, dif.group, score.type, match)
-
-run_global_logistic(scale.data, dif.group, match)
-
-run_item_logistic(item.data, dif.type)
+dif_logistic(item.data, dif.group.id, match.type, match.scores)
 }
 \arguments{
-\item{scale.data}{data frame of dichotomous item responses with subjects in rows
-and items in columns}
+\item{item.data}{A \code{data.frame} of item responses with subjects in rows
+and items in columns.}
 
-\item{dif.group}{factor vector of group membership for which DIF is evaluated.}
+\item{dif.group.id}{A factor vector of group membership for which DIF is evaluated.}
 
-\item{score.type}{character indicating whether \code{match} is a
+\item{match.type}{A character indicating whether \code{match.scores} is a
 total summed score ("Total") or the summed score excluding the item under
 investigation ("Rest").}
 
-\item{match}{list of \code{ncol(scale.data)} elements. Each element is a numeric vector
-of match scores used as a predictor in the logistic regression.
-In \code{dif_logistic}, if \code{score.type} = "Total", \code{match} will be
-a single numeric vector.}
-
-\item{item.data}{dataframe created in \code{run_global_logistic}}
-
-\item{dif.type}{character indicating "No DIF", "uniform" DIF or "non-uniform" DIF as
-determined in \code{run_global_logistic}.}
+\item{match.scores}{A numeric vector (if \code{match.type = "Total"}) or
+\code{list} of \code{ncol(item.data)} numeric vectors (if \code{match.type = "Rest"})
+of match scores used as a predictor in the logistic regression.}
 }
 \value{
-a four-element list containing 1) DIF model comparisons,
-2) item-level DIF tests, 3) integer vector of the items showing DIF
-(i.e., biased items), and 4) type of DIF
+list containing
+\itemize{
+  \item DIF model comparisons
+  \item item-level DIF tests
+  \item integer vector of the items showing DIF (i.e., biased items)
+  \item type of DIF
+  }
 }
 \description{
 Conducts DIF analysis with logistic regression
 }
 \details{
-\code{run_global_logistic} compares no DIF, uniform DIF, and non-uniform DIF logistic
-regression models by regressing dichotomous item responses from \code{scale.data}
-on item, \code{match}, and \code{dif.group}, along with interactions. If DIF is
+First conducts an omnibus test of DIF by comparing fit of no DIF, uniform DIF, and non-uniform DIF logistic
+regression models. The no DIF model regresses the dichotomous item responses from \code{item.data}
+on item, \code{match.scores}, and the two-way interaction. The uniform DIF model adds \code{dif.group.id}
+and the interaction with item while the non-uniform model adds the three-way interaction. If DIF is
 detected through the model comparisons, the specific item(s) with DIF are
-identified via \code{run_item_logistic}. \code{dif_logistic} is a wrapper
-around the other functions that organizes the initial and refinement phases of
-the DIF analysis and compiles the results.
+identified in a two-stage process - initial detection stage and refinement stage.
 }

@@ -6,6 +6,64 @@
   # For more info: https://stackoverflow.com/questions/30377213/how-to-include-rmarkdown-file-in-r-package
 
 
+
+data("mdatlang")
+
+mdatprepped <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
+                             tx.group.id = mdatlang$treated,
+                             dif.group.id = mdatlang$gender,
+                             cluster.id = mdatlang$clusterid,
+                             std.group = "Control",
+                             na.to.0 = TRUE)
+
+unc <- dif_analysis(mdatprepped)
+uncmod <- dif_models(unc)
+er <- effect_robustness(uncmod, std.group = NULL)
+dif_report(dif.analysis = unc, dif.models = uncmod, effect.robustness = er,
+           report.type = "dif.effects", report.title = "Gender DIF Effects in MDAT Language",
+           measure.name = "MDAT Language", file.name = "Gender-DIF-Effects-MDAT-Language")
+
+
+summarize_dif(mdatprepped, report.type = "dif.effects",
+              report.title = "Gender DIF Effects in MDAT Language",
+              measure.name = "MDAT Language", file.name = "Gender-DIF-Effects-MDAT-Language",
+              methods = c("loess", "MH", "logistic", "IRT"), bias.method = "IRT",
+              match.type  = "Total", match.bins = seq(0, 1, by = .1),
+              irt.scoring = "WLE")
+
+summarize_dif(mdatprepped, report.type = "dif.only",
+              report.title = "Gender DIF in MDAT Language",
+              measure.name = "MDAT Language", file.name = "Gender-DIF-MDAT-Language",
+              methods = c("loess", "MH", "logistic", "IRT"), bias.method = "IRT",
+              match.type  = "Total", match.bins = seq(0, 1, by = .1),
+              irt.scoring = "WLE")
+
+
+
+load("Bangladesh_Recoded.RData")
+midline <- bang.recode[bang.recode$line == "Mid",]
+
+i <- 1
+
+# data prep is now via dif_data_prep
+dif.data <- dif_data_prep(item.data = midline[domain.items[[i]]],
+                          tx.group.id = midline$tx,
+                          dif.group.id = midline$gender,
+                          cluster.id = NULL,
+                          na.to.0 = F)
+
+dif.analysis <- dif_analysis(dif.data = dif.data,
+                             methods = c("loess", "IRT"))
+dif.models <- dif_models(dif.analysis, biased.items = c(1,2,3))
+effects.list <- effect_robustness(dif.models)
+
+alphas.list <- coeff_alpha(dif.models)
+effects.tables <- mapply(effects_table, effects.list, alphas.list)
+effects.plots <- lapply(effects.list, effects_plot)
+bias.plots <- bias_plots(dif.models)
+
+
+
 # ----- Malawi -------------------------------------
 
 #####################################
