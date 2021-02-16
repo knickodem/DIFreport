@@ -17,8 +17,7 @@ Imports:
   knitr,
   lme4,
   mirt,
-  rmarkdown,
-  stats
+  rmarkdown
 License: GNU GENERAL PUBLIC LICENSE
 Encoding: UTF-8
 LazyData: true
