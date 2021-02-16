@@ -32,7 +32,7 @@ In the "advanced" workflow, all the steps automated by `summary_report` can be i
 ```{r, eval = FALSE}
 install.packages("remotes")
 remotes::install_github("knickodem/WBdif")
-library(WBdif)
+library(WBdif)dev
 ```
 
 
