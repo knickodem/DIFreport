@@ -5,6 +5,7 @@
 \alias{extract_bi}
 \alias{format_flex}
 \alias{est_alpha}
+\alias{coeff_alpha}
 \title{Internal convenience functions}
 \usage{
 sum_score(item.data, drops = NULL, poly.items = integer())
@@ -14,6 +15,8 @@ extract_bi(dif.analysis)
 format_flex(df, bold.bias = "no", digits = 3)
 
 est_alpha(item.data)
+
+coeff_alpha(dif.models, std.group = NULL)
 }
 \arguments{
 \item{item.data}{frame of item responses with subjects in rows

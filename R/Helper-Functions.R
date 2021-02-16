@@ -104,6 +104,35 @@ est_alpha <- function(item.data){
   return(alpha)
 }
 
+#' @rdname sum_score
+
+coeff_alpha <-function(dif.models, std.group = NULL) {
+  inputs <- dif.models$inputs
+  item.data <- inputs$item.data
+  biased.items <- dif.models$biased.items
+  dif.group.id <- inputs$dif.group.id
+  dif.groups <- levels(dif.group.id)
+  tx.group.id <- inputs$tx.group.id
+  tx.groups <- get_tx.groups(tx.group.id, std.group)
+
+  if(identical(tx.groups, dif.groups)) { #sum(tx.groups == dif.groups) == 1
+    alphas <- c(est_alpha(item.data), est_alpha(item.data[-c(biased.items)]))
+    alphas.list <- list(alphas)
+    names(alphas.list) <- paste(tx.groups[2], "-", tx.groups[1])
+  } else {
+    group1 <-  dif.group.id == dif.groups[1]
+    alphas1 <- c(est_alpha(item.data[group1, ]), est_alpha(item.data[group1, -c(biased.items)]))
+
+    group2 <- dif.group.id == dif.groups[2]
+    alphas2 <- c(est_alpha(item.data[group2, ]), est_alpha(item.data[group2, -c(biased.items)]))
+
+    alphas.list <- list(alphas1, alphas2, NULL)
+    names(alphas.list) <- c(paste0(tx.groups[2], " - ", tx.groups[1],": ",
+                                   c(dif.groups)), "interaction")
+  }
+  return(alphas.list)
+}
+
 #' Tries to guess the control group and checks for input errors
 #'
 #' Helper function for \code{hedges2007}.

@@ -1,6 +1,6 @@
-#' Summarize DIF Analysis Results
+#' Summarize DIF Analysis and Treatment Effect Estimation
 #'
-#' Conduct a DIF analysis and produce report summarizing results
+#' Conduct a DIF analysis, estimate treatment effect robustness, and produce report summarizing results
 #'
 #' @param dif.data The output of \code{\link[WBdif]{dif_data_prep}}.
 #' @param report.type Produce report including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only")?
@@ -12,7 +12,7 @@
 #' @param bias.method From which method in \code{methods} should the biased items, if detected, be extracted? The options are "MH", "logistic", or "IRT" (default).
 #' @param match.type Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.
 #' @param match.bins (optional) vector of bin sizes for stratifying the matching variable in
-#' the MH method. This is passed to the \code{probs} argument of \code{stas::quantile}.
+#' the MH method. This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.
 #' @param irt.scoring Factor score estimation method, which is passed to
 #' \code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}} documentation for other options.
 #'

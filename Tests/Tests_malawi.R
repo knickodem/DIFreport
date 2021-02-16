@@ -5,8 +5,83 @@
 
   # For more info: https://stackoverflow.com/questions/30377213/how-to-include-rmarkdown-file-in-r-package
 
+#### README Examples ####
+data("mdatlang")
+
+## Conditional - All-in-One
+conditional <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
+                             tx.group.id = mdatlang$treated,
+                             dif.group.id = mdatlang$gender,
+                             cluster.id = mdatlang$clusterid,
+                             std.group = NULL, # When NULL, the pooled standard deviation is used
+                             na.to.0 = TRUE)
+
+summary_report(dif.data = conditional,
+               report.type = "dif.effects",
+               report.title = "Gender DIF Effects on MDAT Language",
+               measure.name = "MDAT Language",
+               file.name = "DIF-Effects-Gender-MDAT-Language",
+               dataset.name = "Malawi",
+               methods = c("loess", "MH", "logistic", "IRT"),
+               bias.method = "IRT",
+               match.type  = "Total")
+
+## Unconditional - All-in-One
+unconditional <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
+                               tx.group.id = mdatlang$treated,
+                               dif.group.id = NULL,
+                               cluster.id = mdatlang$clusterid,
+                               std.group = "Control", # "Control" is a value in mdatlang$treated
+                               na.to.0 = TRUE)
+
+summary_report(dif.data = unconditional,
+               report.type = "dif.effects",
+               report.title = "Tx DIF Effects on MDAT Language",
+               measure.name = "MDAT Language",
+               file.name = "DIF-Effects-Tx-MDAT-Language",
+               dataset.name = "Malawi",
+               methods = c("loess", "MH", "logistic", "IRT"),
+               bias.method = "IRT",
+               match.type  = "Total")
 
 
+## Step-by-Step
+prepped <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
+                         tx.group.id = mdatlang$treated,
+                         dif.group.id = mdatlang$gender,
+                         cluster.id = mdatlang$clusterid,
+                         std.group = NULL, # When NULL, the pooled standard deviation is used
+                         na.to.0 = TRUE)
+
+dif.analysis <- dif_analysis(dif.data = prepped,
+                             methods =  c("loess", "MH", "logistic", "IRT"),
+                             match.type = "Rest",
+                             match.bins = seq(0, 1, by = .1))
+
+dif_report(dif.analysis = dif.analysis,
+           report.type = "dif.only",
+           report.title = "Gender DIF in MDAT Language",
+           measure.name = "MDAT Language",
+           file.name = "DIF-Only-Gender-MDAT-Language",
+           dataset.name = "Malawi",
+           bias.method = "IRT")
+
+dif.models <- dif_models(dif.analysis = dif.analysis, biased.items = "logistic")
+effect.robustness <- effect_robustness(dif.models = dif.models, std.group = prepped$std.group, irt.scoring = "WLE")
+
+dif_report(dif.analysis = dif.analysis,
+           dif.models = dif.models,
+           effect.robustness = effect.robustness,
+           report.type = "dif.effects",
+           report.title = "Gender DIF in MDAT Language",
+           measure.name = "MDAT Language",
+           file.name = "Logistic-Gender-MDAT-Language",
+           dataset.name = "Malawi",
+           bias.method = "logistic")
+
+
+
+#### Testing #####
 data("mdatlang")
 
 mdatprepped.tx <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],

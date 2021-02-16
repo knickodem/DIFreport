@@ -4,7 +4,7 @@
 \alias{dif_models}
 \title{IRT models with biased items}
 \usage{
-dif_models(dif.analysis, dif.data = NULL, biased.items = "IRT")
+dif_models(dif.analysis = NULL, dif.data = NULL, biased.items = "IRT")
 }
 \arguments{
 \item{dif.analysis}{Output from \code{\link[WBdif]{dif_analysis}}}
@@ -18,5 +18,10 @@ If \code{dif.data} is specified, the \code{vector} of column indices indicating 
 A named \code{list} containing the data and IRT models to estimate treatment effects.
 }
 \description{
-An interim function between dif_analysis and effect_robustness
+Primarily an interim function between dif_analysis and effect_robustness
+}
+\details{
+Estimates a 2PL IRT model with the parameters on biased items feed over groups - the DIF model.
+The No DIF model, which constrains all item parameters to be equal across the groups, is either extracted from \code{dif.analysis} or estimated as well.
+The IRT models are estimated using \code{\link[mirt]{multipleGroup}}.
 }

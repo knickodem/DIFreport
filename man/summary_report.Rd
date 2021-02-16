@@ -2,7 +2,7 @@
 % Please edit documentation in R/Summary-Report.R
 \name{summary_report}
 \alias{summary_report}
-\title{Summarize DIF Analysis Results}
+\title{Summarize DIF Analysis and Treatment Effect Estimation}
 \usage{
 summary_report(
   dif.data,
@@ -37,13 +37,13 @@ item responses came from, which is printed in the report. For World Bank data, t
 \item{match.type}{Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.}
 
 \item{match.bins}{(optional) vector of bin sizes for stratifying the matching variable in
-the MH method. This is passed to the \code{probs} argument of \code{stas::quantile}.}
+the MH method. This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.}
 
 \item{irt.scoring}{Factor score estimation method, which is passed to
 \code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}} documentation for other options.}
 }
 \description{
-Conduct a DIF analysis and produce report summarizing results
+Conduct a DIF analysis, estimate treatment effect robustness, and produce report summarizing results
 }
 \details{
 This function is a wrapper around \code{\link[WBdif]{dif_analysis}}, \code{\link[WBdif]{dif_models}}, \code{\link[WBdif]{effect_robustness}}, and \code{\link[WBdif]{dif_report}} in order to simplify report production when desired.

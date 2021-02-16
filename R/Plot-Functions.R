@@ -9,6 +9,7 @@
 #'
 #' @return
 #' A \code{list} of two \code{ggplot} objects.
+#'
 #' @export
 
 bias_plots <- function(dif.models){
@@ -89,9 +90,12 @@ bias_plots <- function(dif.models){
 #'
 #' @return
 #' A \code{ggplot} object.
+#'
+#' @export
 
 
 effects_plot <- function(effects){
+
   effects$min <- effects$effect.size - 1.96 * effects$effect.size.se
   effects$max <- effects$effect.size + 1.96 * effects$effect.size.se
 

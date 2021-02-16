@@ -168,38 +168,6 @@ dif_report <- function(dif.analysis = NULL, dif.models = NULL, effect.robustness
 }
 
 
-
-
-bi_table <- function(dif.analysis){
-
-  item.data <- dif.analysis$inputs$item.data
-
-  # extracting biased items from each method
-  bi.list <- extract_bi(dif.analysis)
-  bi.list <- bi.list[lengths(bi.list) != 0] # removes NULL elements
-
-  # creating table of biased items by method table for report
-  item.df <- data.frame(biased.items = names(item.data))
-  for(i in names(bi.list)){
-    if(is.character(bi.list[[i]])){
-      temp <- data.frame(biased.items = names(item.data),
-                         x = NA)
-      names(temp) <- c("biased.items", i)
-      item.df <- merge(item.df, temp, by = "biased.items", all.x = TRUE)
-    } else {
-      temp <- data.frame(biased.item = names(item.data[bi.list[[i]]]),
-                         IRT = "X")
-      names(temp) <- c("biased.items", i)
-      item.df <- merge(item.df, temp, by = "biased.items", all.x = TRUE)
-    }
-  }
-  # remove unbiased items
-  bi.df <- item.df[rowSums(is.na(item.df)) != ncol(item.df) - 1,]
-
-  return(bi.df)
-
-}
-
 which_direction <- function(dif.analysis, dif.models = NULL, bias.method, biased.items){
   if(bias.method %in% c("MH", "logistic")){
 
@@ -239,8 +207,3 @@ which_direction <- function(dif.analysis, dif.models = NULL, bias.method, biased
   }
   return(c(toward1, toward2))
 }
-
-
-
-
-
