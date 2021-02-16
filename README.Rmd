@@ -9,8 +9,23 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # WBdif
+Development of **WBdif** was motivated by questions regarding the psychometric properties of  early childhood development assessments used as outcome measures in impact evaluations. This package provides methods for (a) evaluating differential item functioning (DIF),  (b) checking whether DIF leads to biased treatement effects on the unweighted total score or IRT-based scoring methods, and (c) providing DIF-corrected treatment effects by either removing biased items (for the unweighted total score) or using an IRT models that adjusts for the item bias (for IRT-based scoring). The methods are documented in the report: (forthcoming).  
 
-**WBdif** contains functions to detect differential item functioning (DIF), estimate unconditional and conditional treatment effects, evaluate the robustness of treatment effects in the presence of DIF, and	produce reports summarizing the results. Development of **WBdif** was motivated by questions regarding the psychometric properties of the early childhood development measures used by World Bank to evaluate intervention impacts.
+The methods for evaluating DIF include semi-parametric regression, the Mantel-Haenszel test, logistic regression, and multi-group item response theory (IRT).  
+
+DIF may be evaluated with respect to the treatment variable, or with respect to pre-treatment variables used to examine treatment hetergeneity (e.g., gender, age, and socio-economic status). The **WBdif** documentation refer to these as unconditional and conditional treatment effects,  respectively.
+
+If assessment items have DIF with respect to treatment, the unconditional treatment effect *may* be biased. The intuitive interpretation here is that the treatment effect varies over the assessment items, so reporting the treatment effect on an aggregate score (e.g., the unweighted total score) may not reflect "true" effect on the construct of interest. 
+
+If the assessment items have DIF with respect to a conditiong variable (e.g., gender), the corresponding conditional treatement effects (e.g., the effect just for males, just for females, or their difference) *may* be biased. In other words, randomization of treatement does not protect conditional treatment effects from DIF with respect to the conditionin variable. 
+
+**WBdif** provides two general workflows, both of which are illustrated below. In the "basic" workflow, the user preps the data and then calls an omnibus function (`summary_report`) that automates the DIF analysis and, if there is any DIF detected, the evaluation of treatment effects. The results are summarized in an .HTML formatted report. 
+
+In the "advanced" workflow, all the steps automated by `summary_report` can be implemented directly by the user, which gives more control over which DIF analyses are conducted and which items are identified as biased. The advanced workflow is currently under construction, as the output returned by most functions is not very user-friendly. In the future, these outputs may be converted to S3 or S4 objects with methods (e.g., print, summary) that make them more user-friendly. 
+
+
+**WBdif** is in the alpha stage of development. Please report any bugs by opening an issue at (https://github.com/knickodem/WBdif).
+
 
 ## Installation
 
