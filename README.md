@@ -62,7 +62,7 @@ issue](https://github.com/knickodem/WBdif/issues).
 ``` r
 install.packages("remotes")
 remotes::install_github("knickodem/WBdif")
-library(WBdif)dev
+library(WBdif)
 ```
 
 ## Basic workflow
