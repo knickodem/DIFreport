@@ -41,8 +41,10 @@
 #'                            match.bins = seq(0, 1, by = .1))
 #' @export
 
-dif_analysis <- function(dif.data, methods = c("loess", "MH", "logistic", "IRT"),
-                         match.type = "Total", match.bins = NULL){
+dif_analysis <- function(dif.data,
+                         methods = c("loess", "MH", "logistic", "IRT"),
+                         match.type = "Total",
+                         match.bins = NULL){
 
   # pulling constants from dif.data
   item.data <- dif.data$item.data

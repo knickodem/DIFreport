@@ -48,7 +48,7 @@
 #'            bias.method = "IRT")
 #' @export
 
-dif_report <- function(dif.analysis = NULL, dif.models = NULL, effect.robustness = NULL,
+  dif_report <- function(dif.analysis = NULL, dif.models = NULL, effect.robustness = NULL,
                        report.type = "dif.effects",
                        report.title = NULL, measure.name = NULL,
                        file.name = measure.name, dataset.name = NULL,

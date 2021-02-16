@@ -6,8 +6,8 @@
 \usage{
 dif_data_prep(
   item.data,
-  tx.group.id = NULL,
-  dif.group.id = tx.group.id,
+  dif.group.id,
+  tx.group.id = dif.group.id,
   cluster.id = NULL,
   std.group = NULL,
   na.to.0 = FALSE
@@ -17,9 +17,9 @@ dif_data_prep(
 \item{item.data}{A \code{data.frame} of item responses with subjects in rows
 and items in columns. Data can be binary or ordered categorical.}
 
-\item{tx.group.id}{A \code{vector} of length \code{nrow(item.data)} indicating the treatment groups. Must have exactly two unique value.}
+\item{dif.group.id}{A \code{vector} of length \code{nrow(item.data)} indicating the DIF groups. Must have exactly two unique values.}
 
-\item{dif.group.id}{A \code{vector} of length \code{nrow(item.data)} indicating the DIF groups. Must have exactly two unique value. See details for discussion of default value.}
+\item{tx.group.id}{A \code{vector} of length \code{nrow(item.data)} indicating the treatment groups. Must have exactly two unique values. See details for discussion of default value.}
 
 \item{cluster.id}{An optional \code{vector} of length \code{nrow(item.data)} indicating the primary sampling unit in a multi-stage / clustered sampling design -- used to adjust effect sizes and their standard errors.}
 
@@ -34,7 +34,7 @@ A named \code{list} containing the pre-processed inputs and item flags.
 Data pre-processing and formatting; needs to be called before using other \code{WBdif} functions.
 }
 \details{
-This function saves the input data in a format used by other \code{WBdif} functions. The relation between \code{tx.group.id} and \code{dif.group.id} is especially important. If only one is supplied (or these are equal), then \code{\link[WBdif]{effect_robustness}} evaluates the unconditional treatment effects; if both are specified and they are not equal, then \code{\link[WBdif]{effect_robustness}} evaluates treatment effects conditional on the DIF groups (e.g., conditional on gender).
+This function saves the input data in a format used by other \code{WBdif} functions. The relation between  \code{dif.group.id} and \code{tx.group.id} is especially important. If only one is supplied (or these are equal), then \code{\link[WBdif]{effect_robustness}} evaluates the unconditional treatment effects; if both are specified and they are not equal, then \code{\link[WBdif]{effect_robustness}} evaluates treatment effects conditional on the DIF groups (e.g., conditional on gender).
 
 This function also runs a number of pre-processing steps:
 \itemize{
@@ -48,8 +48,8 @@ This function also runs a number of pre-processing steps:
 data("mdatlang")
 
 dif.data <- dif_data_prep(item.data = mdatlang`[`5:ncol(mdatlang)`]`,
-                             tx.group.id = mdatlang$treated,
                              dif.group.id = mdatlang$gender,
+                             tx.group.id = mdatlang$treated,
                              cluster.id = mdatlang$clusterid,
                              na.to.0 = TRUE)
 

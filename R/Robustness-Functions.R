@@ -3,7 +3,6 @@
 #' Compares standardized treatment effects estimated with and without adjustments for DIF.
 #'
 #' @param dif.models Output from \code{\link[WBdif]{dif_models}}
-#' @param std.group A value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the effect size. If \code{NULL} (default), the pooled standard deviation is used. Note that \code{tx.group.id} is defined in the function \code{\link[WBdif]{dif_data_prep}} and passed to \code{\link[WBdif]{effect_robustness}} via \code{dif.models}.
 #' @param irt.scoring What type of IRT scoring procedure should be used? Passed to the \code{method} argument of \code{\link[mirt]{fscores}}. See \code{help(fscores, mirt)}.
 #'
 #' @details
@@ -27,7 +26,7 @@
 #'
 #' @export
 
-effect_robustness <- function(dif.models, std.group = NULL, irt.scoring = "WLE") {
+effect_robustness <- function(dif.models, irt.scoring = "WLE") {
 
   # Setup inputs
   inputs <- dif.models$inputs
@@ -35,6 +34,7 @@ effect_robustness <- function(dif.models, std.group = NULL, irt.scoring = "WLE")
   dif.group.id <- inputs$dif.group.id
   dif.groups <- levels(dif.group.id)
   tx.group.id <- inputs$tx.group.id
+  std.group <- inputs$std.group
   tx.groups <- get_tx.groups(tx.group.id, std.group)
   cluster.id <- inputs$cluster.group.id
   poly.items <- inputs$poly.items
@@ -71,7 +71,7 @@ effect_robustness <- function(dif.models, std.group = NULL, irt.scoring = "WLE")
 
     effects.list <- list(effects1, effects2, interactions)
     names(effects.list) <- c(paste0(tx.groups[2], " - ", tx.groups[1],": ",
-                                    c(dif.groups)), "interaction")
+                                    c(dif.groups)), "Interaction")
   }
   out <- lapply(effects.list, function(x) cbind(x, score.type))
   return(out)
