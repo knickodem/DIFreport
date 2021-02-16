@@ -11,14 +11,14 @@ Description:
 Depends:
     R (>= 3.6)
 Imports:
-  flextable,
+  flextable (>= 0.6.3),
   ggplot2,
-	gridExtra,
-	knitr,
-	lme4,
+  gridExtra,
+  knitr,
+  lme4,
   mirt,
-	rmarkdown,
-	stats
+  rmarkdown,
+  stats
 License: GNU GENERAL PUBLIC LICENSE
 Encoding: UTF-8
 LazyData: true

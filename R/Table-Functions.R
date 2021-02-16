@@ -11,28 +11,28 @@ biased_items_table <- function(dif.analysis){
   item.data <- dif.analysis$inputs$item.data
 
   # extracting biased items from each method
-  bi.list <- extract_biased_items(dif.analysis)
-  bi.list <- bi.list[lengths(bi.list) != 0] # removes NULL elements
+  biased.items.list <- extract_biased_items(dif.analysis)
+  biased.items.list <- biased.items.list[lengths(biased.items.list) != 0] # removes NULL elements
 
   # creating table of biased items by method table for report
   item.df <- data.frame(biased.items = names(item.data))
-  for(i in names(bi.list)){
-    if(is.character(bi.list[[i]])){
+  for(i in names(biased.items.list)){
+    if(is.character(biased.items.list[[i]])){
       temp <- data.frame(biased.items = names(item.data),
                          x = NA)
       names(temp) <- c("biased.items", i)
       item.df <- merge(item.df, temp, by = "biased.items", all.x = TRUE)
     } else {
-      temp <- data.frame(biased.item = names(item.data[bi.list[[i]]]),
+      temp <- data.frame(biased.item = names(item.data[biased.items.list[[i]]]),
                          IRT = "X")
       names(temp) <- c("biased.items", i)
       item.df <- merge(item.df, temp, by = "biased.items", all.x = TRUE)
     }
   }
   # remove unbiased items
-  bi.df <- item.df[rowSums(is.na(item.df)) != ncol(item.df) - 1,]
+  biased.items.df <- item.df[rowSums(is.na(item.df)) != ncol(item.df) - 1,]
 
-  return(bi.df)
+  return(biased.items.df)
 
 }
 
@@ -41,9 +41,9 @@ extract_biased_items <- function(dif.analysis){
   da <- dif.analysis[c("MH", "logistic", "IRT")]
   # da <- da[!sapply(da,is.null)]
 
-  all.bi <- lapply(da, "[[", "biased.items")
+  all.biased.items <- lapply(da, "[[", "biased.items")
 
-  return(all.bi)
+  return(all.biased.items)
 }
 
 #' Table of Treatment Effect Estimates
