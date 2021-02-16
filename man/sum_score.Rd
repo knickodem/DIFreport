@@ -2,15 +2,12 @@
 % Please edit documentation in R/Helper-Functions.R
 \name{sum_score}
 \alias{sum_score}
-\alias{extract_bi}
 \alias{format_flex}
 \alias{est_alpha}
 \alias{coeff_alpha}
 \title{Internal convenience functions}
 \usage{
 sum_score(item.data, drops = NULL, poly.items = integer())
-
-extract_bi(dif.analysis)
 
 format_flex(df, bold.bias = "no", digits = 3)
 
@@ -27,8 +24,6 @@ score calculation}
 
 \item{poly.items}{integer vector; location of polytomous items in \code{item.data}}
 
-\item{dif.analysis}{an object returned from \code{\link[WBdif]{dif_analysis}}}
-
 \item{df}{a data frame}
 
 \item{bold.bias}{character indicating whether results tables should bold instances
@@ -36,6 +31,8 @@ of DIF or not ("no", the default). If so, must specify whether the table
 displays model comparisons ("model") or item-level tests ("item").}
 
 \item{digits}{integer; number decimal places to print in report tables}
+
+\item{dif.analysis}{an object returned from \code{\link[WBdif]{dif_analysis}}}
 }
 \value{
 \code{sum_score} returns a numeric vector of summed scores \cr

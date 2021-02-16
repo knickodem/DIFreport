@@ -111,7 +111,7 @@ dif_report <- function(dif.analysis = NULL, dif.models = NULL, effect.robustness
     dif.type <- dif.analysis[[bias.method]]$dif.type
 
     # biased items by DIF method table
-    bi.table <- bi_table(dif.analysis)
+    biased.items.table <- biased_items_table(dif.analysis)
 
 
     # If no biased items by selected method

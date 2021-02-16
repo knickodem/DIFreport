@@ -55,18 +55,6 @@ sum_score <- function(item.data, drops = NULL, poly.items = integer()){
 
 #' @rdname sum_score
 
-extract_bi <- function(dif.analysis){
-
-  da <- dif.analysis[c("MH", "logistic", "IRT")]
-  # da <- da[!sapply(da,is.null)]
-
-  all.bi <- lapply(da, "[[", "biased.items")
-
-  return(all.bi)
-}
-
-#' @rdname sum_score
-
 format_flex <- function(df, bold.bias = "no", digits = 3){
 
 

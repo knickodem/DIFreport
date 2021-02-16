@@ -76,8 +76,8 @@ if(no.var.by.group.items != "none"){
 
 ```{r bi summary, results = 'asis', ft.align="left"}
 
-if(nrow(bi.table) != 0){
-    bi.flex <- format_flex(bi.table)
+if(nrow(biased.items.table) != 0){
+    bi.flex <- format_flex(biased.items.table)
     cat(knitr::knit_print(bi.flex))
     cat("\n\n")
     cat("&nbsp;  ")

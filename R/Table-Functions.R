@@ -6,12 +6,12 @@
 #'
 #' @return a \code{data.frame} with biased items in rows and DIF methods in columns
 
-bi_table <- function(dif.analysis){
+biased_items_table <- function(dif.analysis){
 
   item.data <- dif.analysis$inputs$item.data
 
   # extracting biased items from each method
-  bi.list <- extract_bi(dif.analysis)
+  bi.list <- extract_biased_items(dif.analysis)
   bi.list <- bi.list[lengths(bi.list) != 0] # removes NULL elements
 
   # creating table of biased items by method table for report
@@ -34,6 +34,16 @@ bi_table <- function(dif.analysis){
 
   return(bi.df)
 
+}
+
+extract_biased_items <- function(dif.analysis){
+
+  da <- dif.analysis[c("MH", "logistic", "IRT")]
+  # da <- da[!sapply(da,is.null)]
+
+  all.bi <- lapply(da, "[[", "biased.items")
+
+  return(all.bi)
 }
 
 #' Table of Treatment Effect Estimates
