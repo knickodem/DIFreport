@@ -1,6 +1,6 @@
 ## Example dataset
 
-Summary of renaming:
+# Summary of renaming:
 
   # dif_data_prep replaces dif_prep; uses new naming of inputs
   # dif_analysis stays mostly the same but renamed inputs and outputs based on data_prep

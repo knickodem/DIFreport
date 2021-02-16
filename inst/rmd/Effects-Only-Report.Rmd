@@ -1,0 +1,84 @@
+---
+output:
+   html_document:
+      toc: TRUE
+      always_allow_html: TRUE
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(options(knitr.kable.NA = ''))
+
+```
+
+---
+title: "`r report.title`"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+---
+
+# Summary
+
+```{r dataset, results='asis'}
+if(!is.null(dataset.name)){
+  cat("**Dataset:**", dataset.name)
+  cat("\n\n")
+}
+```
+  
+
+**Measure:** `r paste0(measure.name,  " (", item.name.range, ")")`
+
+**Comparison groups:** `r paste(dif.group1, dif.group2, sep = " and ")`
+
+**Items with no variance:** `r no.var.items`
+
+**Items with no variance within levels of comparison variable:** `r no.var.by.group.items`
+
+**Biased items:** `r paste(biased.items, collapse = ", ")`
+
+
+```{r No Var, results='asis'}
+if(no.var.items != "none"){
+  
+  cat("\n\n")
+  cat("^a^ Items were not included in any DIF analysis and were not used to compute 
+      treatment effects.")
+  cat("\n\n")
+}
+
+
+if(no.var.by.group.items != "none"){
+  
+  cat("\n\n")
+  cat("^b^ Items were not included in the IRT-based DIF analysis and were not used 
+      to compute IRT-based treatment effects.")
+  cat("\n\n")
+}
+
+```
+
+
+# Treatment Effect Robustness
+
+```{r bias.plots, results='asis', message=FALSE, fig.width = 5, fig.height = 6}
+
+gridExtra::grid.arrange(bias.plots[[1]], bias.plots[[2]])
+
+```
+
+```{r Treatment_Effects, results='asis', warning=FALSE, ft.align="left", fig.width = 5, fig.height = 4}
+
+for(i in 1:length(effects.tables)){
+  cat("\n\n")
+  cat("##", names(effects.tables)[[i]])
+  cat("\n\n")
+  et.flex <- format_flex(effects.tables[[i]])
+  cat(knitr::knit_print(et.flex))
+  cat("\n\n")
+  cat("&nbsp;  ")
+  
+  print(effects.plots[[i]])
+  
+}
+```
+

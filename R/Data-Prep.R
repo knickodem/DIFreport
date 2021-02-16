@@ -4,14 +4,14 @@
 #'
 #' @param item.data A \code{data.frame} of item responses with subjects in rows
 #' and items in columns. Data can be binary or ordered categorical.
-#' @param dif.group.id A \code{vector} of length \code{nrow(item.data)} indicating the DIF groups. Must have exactly two unique value. See details for discussion of default value.
 #' @param tx.group.id A \code{vector} of length \code{nrow(item.data)} indicating the treatment groups. Must have exactly two unique value.
+#' @param dif.group.id A \code{vector} of length \code{nrow(item.data)} indicating the DIF groups. Must have exactly two unique value. See details for discussion of default value.
 #' @param cluster.id An optional \code{vector} of length \code{nrow(item.data)} indicating the primary sampling unit in a multi-stage / clustered sampling design -- used to adjust effect sizes and their standard errors.
-#' @param na.to.0 After removing empty rows, should remaining NAs be converted to 0?
-#' Default is FALSE.
+#' @param std.group An optional value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the treatment effect.
+#' @param na.to.0 After removing empty rows, should remaining NAs in \code{item.data} be converted to 0? Default is FALSE.
 #'
 #' @details
-#' This function saves the input data in a format used by other \code{WBdif} functions. The relation between \code{tx.group.id} and \code{dif.group.id} is especially important. If these are equal, then \code{WBdif::effect_robustness} evalutes the unconditional treatment effects; if they are not equal, then \code{WBdif::effect_robustness} evaluates treatement effects conditional on the DIF groups (e.g., conditional on gender).
+#' This function saves the input data in a format used by other \code{WBdif} functions. The relation between \code{tx.group.id} and \code{dif.group.id} is especially important. If only one is supplied (or these are equal), then \code{\link[WBdif]{effect_robustness}} evaluates the unconditional treatment effects; if both are specified and they are not equal, then \code{\link[WBdif]{effect_robustness}} evaluates treatment effects conditional on the DIF groups (e.g., conditional on gender).
 #'
 #' This function also runs a number of pre-processing steps:
 #' \itemize{
@@ -23,28 +23,50 @@
 #' @return A named \code{list} containing the pre-processed inputs and item flags.
 #'
 #' @examples
-#' dat <- data.frame(tx = rep(c("tx", "control"), times = 10),
-#'                       gender = rep(c("male", "female"), each = 10),
-#'                       item1 = sample(c(0,1), 20, replace = TRUE),
-#'                       item2 = sample(c(0,1), 20, replace = TRUE),
-#'                       item3 = sample(c(0,1), 20, replace = TRUE),
-#'                       item4 = sample(c(0,1), 20, replace = TRUE),
-#'                       item5 = sample(c(0,1), 20, replace = TRUE))
-#' ## add missing data
-#' dat <- dat`[`c(1, 4), `]` <- NA
-#' dat <- dat`[`c(2, 5), 1`]` <- NA
+#' data("mdatlang")
 #'
-#' dif_data_prep(dat`[`, -c(1, 2)`]`,
-#'          dif.group.id = dat$gender,
-#'          tx.group.id = dat$tx,
-#'          na.to.0 = TRUE)
+#' dif.data <- dif_data_prep(item.data = mdatlang`[`5:ncol(mdatlang)`]`,
+#'                              tx.group.id = mdatlang$treated,
+#'                              dif.group.id = mdatlang$gender,
+#'                              cluster.id = mdatlang$clusterid,
+#'                              na.to.0 = TRUE)
 #'
 #' @export
 
-dif_data_prep <- function(item.data, tx.group.id, dif.group.id = tx.group.id,
-                     cluster.id = NULL, na.to.0 = FALSE){
+dif_data_prep <- function(item.data, tx.group.id = NULL, dif.group.id = tx.group.id,
+                     cluster.id = NULL, std.group = NULL, na.to.0 = FALSE){
 
-  # Add checks for inputs
+  ## Input checks
+  if(is.null(tx.group.id) & is.null(dif.group.id)){
+    stop("tx.group.id and dif.group.id cannot both be NULL.")
+  }
+  if(is.null(tx.group.id) & !is.null(dif.group.id)){
+    tx.group.id <- dif.group.id
+  }
+  if(!is.null(tx.group.id) & is.null(dif.group.id)){ # in case user sets dif.group.id = NULL
+    dif.group.id <- tx.group.id
+  }
+
+  # Need tx.group.id to be a 2-level factor
+  if(!is.null(tx.group.id) & !is.factor(tx.group.id)){
+    tx.group.id <- factor(tx.group.id)
+    if(length(levels(tx.group.id)) > 2){
+      stop("tx.group.id must have only 2 levels")
+    }
+  }
+
+  # Need dif.group.id to be a 2-level factor
+  if(!is.null(dif.group.id) & !is.factor(dif.group.id)){
+    dif.group.id <- factor(dif.group.id)
+    if(length(levels(dif.group.id)) > 2){
+      stop("dif.group.id must have only 2 levels")
+    }
+  }
+
+  if (!is.null(std.group)) {
+    if(!(std.group %in% levels(tx.group.id))) {
+      stop("std.group is not in tx.group.id")
+    }}
 
   ## Identifying cases to drop based on missing data
   # Note: FALSE elements in drop.cases are the cases removed from analysis
@@ -90,6 +112,7 @@ dif_data_prep <- function(item.data, tx.group.id, dif.group.id = tx.group.id,
               tx.group.id = tx.group.id,
               dif.group.id = dif.group.id,
               cluster.id = cluster.id,
+              std.group = std.group,
               no.var.items = no.var.items,
               no.var.by.group.items = no.var.by.group.items,
               poly.items = poly.items))

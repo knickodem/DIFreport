@@ -44,7 +44,6 @@
 #' Hedges, L. V. (2007). Effect sizes in cluster-randomized designs.
 #' \emph{Journal of Educational and Behavioral Statistics, 32}(4), 341-370.
 #'
-#' @export
 
 est_smd <- function(outcome = NULL, groups = NULL, m1 = NULL, m2 = NULL,
                     sdp = NULL, sd1 = NULL, sd2 = NULL, n1 = NULL, n2 = NULL,
@@ -85,121 +84,6 @@ est_smd <- function(outcome = NULL, groups = NULL, m1 = NULL, m2 = NULL,
 
     }
   }
-
-
-  # raw mean difference
-  rmd <- (m2 - m1)
-
-  # sigma
-  if(!is.null(sdp)){
-
-    sigma <- sdp
-
-  } else {
-
-    sigmanum <- (n1 - 1) * (sd1^2) + (n2 - 1) * (sd2^2)
-    sigmadenom <- (n1 + n2 - 2)
-    sigma <- sqrt(sigmanum / sigmadenom)
-
-  }
-
-  # d
-  smd <- rmd / sigma
-
-  # g
-  if(hedges.g == TRUE){
-
-    eta <- n1 + n2 - 2
-    j <- 1 - 3 / (4 * eta - 1)
-    smd <- j * smd
-
-  }
-
-  # standard error
-  if(is.null(n1) | is.null(n2)){
-    smd <- smd
-  } else if(!is.null(n1) & !is.null(n2)){
-    N <- n1 + n2
-    ntilde <- N / (n1 * n2)
-
-    if(is.null(cluster.n) & is.null(icc)){ # no clustering
-
-      # Hedges and Olkin approximation
-      right <- smd^2 / (2 * N)
-      smd.se <- sqrt(ntilde + right)
-
-      smd <- data.frame(smd = smd, smd.se = smd.se) # returns
-
-    } else if(!is.null(cluster.n) & !is.null(icc)){ # cluster adjusted
-      if(icc < 0 | icc > 1){
-        stop("icc must be between 0 and 1")
-      }
-
-      wt <- (cluster.n - 1) * icc
-
-      # cluster-adjusted smd (Hedges, 2007 eq 15)
-      smd <- smd * sqrt(1 - ((2 * wt) / (N - 2)))
-
-      # cluster-adjusted se (Hedges, 2007, eq 16)
-      left <- ntilde * (1 + wt)
-      nom <- (N - 2) * (1 - icc)^2 + cluster.n * (N - 2 * cluster.n) * icc^2 +
-        2 * (N - (2 * cluster.n)) * icc * (1 - icc)
-      denom <- 2 * (N - 2) * ((N - 2) - 2 * wt)
-      smd.se <- sqrt(left + (smd^2 * (nom / denom)))
-
-      smd <- data.frame(smd = smd, smd.se = smd.se) # returns
-
-      } else{
-      stop("icc and cluster.n (avg cluster size) must be provided to adjust for clustering")
-    }
-  } else {stop("huh")}
-
-  return(smd)
-
-}
-
-
-
-est_smd <- function(outcome = NULL, groups = NULL, m1 = NULL, m2 = NULL,
-                    sdp = NULL, sd1 = NULL, sd2 = NULL, n1 = NULL, n2 = NULL,
-                   hedges.g = FALSE, clusters = NULL, cluster.n = NULL, icc = NULL){
-
-  # calculate sample statistics from raw data
-  if(!is.null(outcome) & !is.null(groups)){
-    groups <- factor(groups)
-    if(length(levels(groups)) > 2){
-      stop("groups must have only 2 levels")
-    }
-
-    means <- tapply(outcome, groups, mean, na.rm = T)
-    sds <- tapply(outcome, groups, sd, na.rm = T)
-    ns <- tapply(outcome, groups, length)
-
-    m1 <- means[[1]]
-    m2 <- means[[2]]
-    sd1 <- sds[[1]]
-    sd2 <- sds[[2]]
-    n1 <- ns[[1]]
-    n2 <- ns[[2]]
-
-    if(!is.null(clusters)){
-
-      ## cluster sizes
-      # ns = sum(cs)
-      cs1 <- table(clusters[groups == levels(groups)[[1]]])
-      nu1 <- (ns[[1]]^2 - sum(cs1^2)) / (ns[[1]] * (length(cs1) - 1))
-      cs2 <- table(clusters[groups == levels(groups)[[2]]])
-      nu2 <- (ns[[2]]^2 - sum(cs2^2)) / (ns[[2]] * (length(cs2) - 1))
-      cluster.n <- mean(c(nu1, nu2))
-
-      ## ICC
-      variances <- lme4::VarCorr(lme4::lmer(outcome ~ 1 + (1|clusters)))
-      variances <- c(as.numeric(variances), attr(variances, "sc")^2)
-      icc <- variances[[1]] / sum(variances)
-
-    }
-  }
-
 
   # raw mean difference
   rmd <- (m2 - m1)

@@ -2,41 +2,34 @@
 #'
 #' Visual inspection of DIF with LOESS regression curves
 #'
-#' @param scale.data data frame of item responses with subjects in rows
+#' @param item.data data frame of item responses with subjects in rows
 #' and items in columns
-#' @param dif.group factor vector of group membership for which DIF is evaluated.
-#' @param score.type character indicating whether \code{match} is a
+#' @param dif.group.id factor vector of group membership for which DIF is evaluated.
+#' @param match.type character indicating whether \code{match.scores} is a
 #' total summed score ("Total") or the summed score excluding the item under
 #' investigation ("Rest").
-#' @param match numeric vector used as the predictor in the LOESS regression.
-#' In \code{dif_loess}, if \code{score.type} = "Rest", \code{match} will be
-#' a list of vectors - one for each item in \code{scale.data}.
-#' @param item integer; item in \code{scale.data} under investigation for DIF
-#' @param pred.scores range of scores to use in \code{\link[stats]{predict}}
-#' for generating the LOESS curves. The values are defined in \code{dif_loess} and
-#' passed to \code{run_loess}.
-#' @param nitem number of items in the scale. Calculated in \code{dif_loess}
-#' and passed to \code{run_loess}.
+#' @param match.scores A numeric vector (if \code{match.type = "Total"}) or
+#' \code{list} of \code{ncol(item.data)} numeric vectors (if \code{match.type = "Rest"})
+#' of match scores used as a predictor in the LOESS regression.
 #'
 #' @details
-#' For a each item in \code{scale.data}, \code{run_loess} regresses the item responses
-#' on the scores supplied to \code{match}. A separate model is run for each
-#' \code{dif.group} level. \code{dif_loess} is a wrapper around \code{run_loess}
-#' that both initiates the call to \code{run_loess} for each item and uses the
-#' results to plot the LOESS curves.
+#' For each item in \code{item.data}, \code{\link[stats]{loess}} is called to regress the
+#' item responses on the scores supplied to \code{match.scores}. A separate model is run for each \code{dif.group.id} level.
 #'
-#' @return A two-element list containing 1) the plot of LOESS curves for each
-#' \code{dif.group} level for every item in \code{scale.data} and 2) the data used
-#' to generate the plot (returned from \code{run_loess}).
+#' @return A list containing:
+#' \itemize{
+#'   \item the plot of LOESS curves for each \code{dif.group.id} level for every item in \code{item.data}
+#'   \item the data used to generate the plot.
+#' }
 #'
 #' @export
 
-dif_loess <- function(scale.data, dif.group, score.type, match){
+dif_loess <- function(item.data, dif.group.id, match.type, match.scores){
 
   ## Number of items in the measure
-  nitems <- ncol(scale.data) # this could be different than n.items in dif_analysis
+  nitems <- ncol(item.data) # this could be different than n.items in dif_analysis
 
-  if(score.type == "Rest"){
+  if(match.type == "Rest"){
 
     pred.scores <- 0:(nitems - 1)  # score range to use with predict function
 
@@ -44,16 +37,16 @@ dif_loess <- function(scale.data, dif.group, score.type, match){
     loess.list <- list()
     for(i in 1:nitems){
 
-      loess.list[[i]] <- run_loess(scale.data = scale.data,
-                                   dif.group = dif.group,
+      loess.list[[i]] <- run_loess(item.data = item.data,
+                                   dif.group.id = dif.group.id,
                                    item = i,
-                                   match = match[[i]],
+                                   match.scores = match.scores[[i]],
                                    pred.scores = pred.scores,
                                    nitems = nitems)
     }
 
 
-  } else if(score.type == "Total"){
+  } else if(match.type == "Total"){
 
     pred.scores <- 0:nitems   # score range to use with predict function
     nitems1 <- nitems + 1    # Needed for the item and group columns in loess.df
@@ -61,24 +54,24 @@ dif_loess <- function(scale.data, dif.group, score.type, match){
     ## Running loess method on each item
     loess.list <- lapply(c(1:nitems),
                          run_loess,
-                         scale.data = scale.data,
-                         dif.group = dif.group,
-                         match = match,
+                         item.data = item.data,
+                         dif.group.id = dif.group.id,
+                         match.scores = match.scores,
                          pred.scores = pred.scores,
                          nitems = nitems1)
 
 
   } else {
-    stop("score.type argument must be 'Rest' or 'Total'")
+    stop("match.type argument must be 'Rest' or 'Total'")
   }
 
   ## Converting list elements into single dataframe
   # group legend currently prints levels in alphabetical order rather than factor order
   loess.df <- Reduce(rbind, loess.list)
-  loess.df$item <- factor(loess.df$item, levels = names(scale.data))
+  loess.df$item <- factor(loess.df$item, levels = names(item.data))
 
   ## Plotting the results
-  poly <- which(apply(scale.data, 2, max, na.rm = TRUE) > 1)
+  poly <- which(apply(item.data, 2, max, na.rm = TRUE) > 1)
   if(length(poly) > 0){
 
     scales <- "free_y"
@@ -90,16 +83,17 @@ dif_loess <- function(scale.data, dif.group, score.type, match){
     ylab <- "Prob(Correct)"
   }
 
-  plot <- ggplot(loess.df, aes(x = score, y = prob, group = dif.group)) +
-    geom_line(aes(color = dif.group), lwd = .8) +
+  plot <- ggplot(loess.df, aes(x = score, y = prob, group = dif.group.id)) +
+    geom_line(aes(color = dif.group.id), lwd = .8) +
     geom_ribbon(aes(ymin = prob - 1.96 * se,
                     ymax = prob + 1.96 * se,
-                    fill = dif.group), alpha = .4) +
-    labs(x = paste(score.type, "Score"),
+                    fill = dif.group.id), alpha = .4) +
+    labs(x = paste(match.type, "Score"),
          y = ylab) + # changing legend name trickier b/c both color and fill scales
     #theme_bw(base_size = 16) +
-    facet_wrap(~ item, ncol = 6, scales = scales) +
-    theme(legend.position = "top")
+    facet_wrap(~item, ncol = 6, scales = scales) +
+    theme(legend.position = "top",
+          legend.title = element_blank())
 
   ## Output data and plot in a list
   loess <- list(data = loess.df,
@@ -108,40 +102,46 @@ dif_loess <- function(scale.data, dif.group, score.type, match){
   return(loess)
 }
 
+#' LOESS regression for DIF analysis
+#'
+#' Internal function for dif_loess
+#'
+#' @param item integer; item in \code{item.data} under investigation for DIF
+#' @param pred.scores range of scores to use in \code{\link[stats]{predict}}
+#' for generating the LOESS curves. The values are defined in \code{link[WBdif]{dif_loess}}.
+#' @param nitem number of items in the scale. Defined in \code{link[WBdif]{dif_loess}}.
+#' @return a \code{data.frame}
 
 
-#' @rdname dif_loess
-#' @export
-
-run_loess <- function(scale.data, dif.group,
-                      item, match,
+run_loess <- function(item.data, dif.group.id,
+                      item, match.scores,
                       pred.scores, nitems){
 
-  # Appending match scores to item data
-  scale.data$score <- match
+  # Appending match.scores scores to item data
+  item.data$score <- match.scores
 
   # Model
-  mod <- paste0(names(scale.data)[item], " ~ score")
+  mod <- paste0(names(item.data)[item], " ~ score")
 
   # levels of the grouping variable
-  dif.group1 <- levels(dif.group)[1]
-  dif.group2 <- levels(dif.group)[2]
+  dif.group1 <- levels(dif.group.id)[1]
+  dif.group2 <- levels(dif.group.id)[2]
 
-  # Loess by dif.group
-  g1.fit <-  loess(mod, data = subset(scale.data, dif.group == dif.group1))
-  g2.fit <-  loess(mod, data = subset(scale.data, dif.group == dif.group2))
+  # Loess by dif.group.id
+  g1.fit <-  stats::loess(mod, data = subset(item.data, dif.group.id == dif.group1))
+  g2.fit <-  stats::loess(mod, data = subset(item.data, dif.group.id == dif.group2))
 
-  # predicted probability by dif.group
+  # predicted probability by dif.group.id
   g1.pred <- predict(g1.fit, newdata = pred.scores, se = T)
   g2.pred <- predict(g2.fit, newdata = pred.scores, se = T)
 
-  # Storage - one row for each pred.scores x dif.group combination
+  # Storage - one row for each pred.scores x dif.group.id combination
   loess.data <- data.frame(
     score = rep(pred.scores, times = 2),
     prob = c(g1.pred$fit, g2.pred$fit),
     se = c(g1.pred$se.fit, g2.pred$se.fit),
-    item = rep(names(scale.data)[item], times = nitems*2),
-    dif.group = rep(c(dif.group1, dif.group2), each = nitems)
+    item = rep(names(item.data)[item], times = nitems*2),
+    dif.group.id = rep(c(dif.group1, dif.group2), each = nitems)
   )
 
   return(loess.data)
