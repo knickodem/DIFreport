@@ -15,141 +15,138 @@ Development of **WBdif** was motivated by questions regarding the psychometric p
 
 The methods for evaluating DIF include semi-parametric regression (LOESS), the Mantel-Haenszel test, logistic regression, and multi-group item response theory (IRT).  
 
-DIF can be evaluated with respect to the treatment variable, or with respect to pre-treatment variables used to examine treatment heterogeneity (e.g., gender, age, and socio-economic status). The **WBdif** documentation refer to these as unconditional and conditional treatment effects,  respectively.
+DIF can be evaluated with respect to the treatment variable, or with respect to pre-treatment variables used to examine treatment heterogeneity (e.g., gender, age, and socio-economic status). The **WBdif** documentation refers to these as unconditional and conditional treatment effects,  respectively.
 
 If assessment items have DIF with respect to treatment, the unconditional treatment effect *may* be biased. The intuitive interpretation here is that the treatment effect varies over the assessment items, so reporting the treatment effect on an aggregate score (e.g., the unit-weighted total score) may not reflect "true" effect on the construct of interest. 
 
 If the assessment items have DIF with respect to a conditioning variable (e.g., gender), the corresponding conditional treatment effects (e.g., the effect just for males, just for females, or their difference) *may* be biased. In other words, randomization of treatment does not protect conditional treatment effects from DIF with respect to the conditioning variable. 
 
-**WBdif** provides two general workflows, both of which are illustrated below. In the "basic" workflow, the user preps the data and then calls an omnibus function (`summary_report`) that automates the DIF analysis and, if there is any DIF detected, computes the treatment effects with and without adjusting for DIF. The results are summarized in an .HTML formatted report. 
+**WBdif** provides two general workflows, both of which are illustrated below. In the "[basic](#basic)" workflow, the user preps the data and then calls an omnibus function (`summary_report()`) that automates the DIF analysis and, if there is any DIF detected, computes the treatment effects with and without adjusting for DIF. The results are summarized in an .HTML formatted report. 
 
-In the "advanced" workflow, the steps automated by `summary_report` can be implemented directly by the user, which gives more control over which DIF analyses are conducted and which items are identified as biased. The advanced workflow is currently under construction, as the output returned by most functions is not very user-friendly. In the future, these outputs may be converted to S3 or S4 objects with methods (e.g., print, summary) that make them more user-friendly. 
+In the "[advanced](#advanced)" workflow, the steps automated by `summary_report()` can be implemented directly by the user, which gives more control over which DIF analyses are conducted and which items are identified as biased. The advanced workflow is currently under construction, as the output returned by most functions is not very user-friendly. In the future, these outputs may be converted to S3 or S4 objects with methods (e.g., print, summary) that make them more user-friendly. 
 
 
 **WBdif** is in the alpha stage of development. Please report any bugs or suggestions by opening a [Github issue](https://github.com/knickodem/WBdif/issues).
-
 
 ## Installation
 
 ```{r, eval = FALSE}
 install.packages("remotes")
 remotes::install_github("knickodem/WBdif")
-library(WBdif)dev
+library(WBdif)
 ```
 
 
-## Basic workflow {#aio}
+## Basic workflow {#basic}
 
 The basic workflow requires only two functions: 
 
 * `dif_data_prep()` is a pre-processing step that organizes input information for use in other **WBdif** functions and conducts some checks on the data. How the data is prepared effects the type of report that will be produced. In general, different reports require different data preps. 
 
-* `summary_report()` is a wrapper around all of the other functions needed to run the analysis and produce the report. The function offers a variety of options to customize the both the analysis and reporting. For more details on each option see the [Advanced workflow](#sbs) section. Given the All-in-One nature of `summary_report()`, the code will usually take a several minutes to run before producing the report.
+* `summary_report()` is a wrapper around all of the other functions needed to run the analysis and produce the report. The function offers a variety of options to customize the both the analysis and reporting. For more details on each option see the [Advanced workflow](#advanced) section. Given the All-in-One nature of `summary_report()`, the code will usually take several minutes to run before producing the report.
 
 ### Unconditional Treatment Effects
 
-When the user is interested to assess DIF with respect to the treatment variable and evaluate robustness of the unconditional treatment effects, only `dif.group.id` need be supplied to `dif_data_prep()`.  Alternatively, one may provide the same variable for `dif.group.id` and `tx.group.id`. However, if different variables are provided to `dif.group.id` and `tx.group.id`, then conditional treatment effects are estimated instead (see below). The function `summary_report()` recognizes how the data are prepared and estimates the appropriate treatment effects. 
+If you are interested in assessing DIF with respect to the treatment variable and evaluating robustness of the unconditional treatment effects, only `dif.group.id` need be supplied to `dif_data_prep()`.  Alternatively, one may provide the same variable for `dif.group.id` and `tx.group.id`. However, if different variables are provided to `dif.group.id` and `tx.group.id`, then conditional treatment effects are estimated instead (see below). The function `summary_report()` recognizes how the data are prepared and estimates the appropriate treatment effects. 
 
-The code below uses the built-in data set "mdatlang" to generate [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Tx-MDAT-Language.html). 
+The code below uses the built-in data set "mdat" to generate [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Tx-MDAT-Language.html). 
 
 ```{r, eval = FALSE}
 # Load the example data (MDAT language assessment, collected in Malawi). 
-data("mdatlang")
+data("mdat")
 
-mdat_tx <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
-                         dif.group.id = mdatlang$treated,
-                         tx.group.id = mdatlang$treated,
-                         cluster.id = mdatlang$clusterid,
-                         std.group = "Control") # "Control" is a value in mdatlang$treated
+mdat_tx <- dif_data_prep(item.data = mdat[5:ncol(mdat)],
+                               dif.group.id = mdat$treated,
+                               cluster.id = mdat$clusterid,
+                               std.group = "Control", # "Control" is a value in mdat$treated
+                               na.to.0 = TRUE)
 
 summary_report(dif.data = mdat_tx,
                file.name = "DIF-Effects-Tx-MDAT-Language",
                report.type = "dif.effects",
-               report.title = "MDAT Language: DIF by treatment condition",
+               report.title = "MDAT Language: DIF by Treatment Condition",
                measure.name = "MDAT Language",
                dataset.name = "Malawi")
 ```
 
 ### Conditional Treatment Effects
 
-When the user is interested to assess DIF with respect to a conditioning variable (e.g., gender) and evaluate robustness of the conditional treatment effects (e.g., for just the females, for just the males, and their difference), then both `dif.group.id` and `tx.group.id`need to be supplied to `dif_data_prep()`. If the same variable is provided to `dif.group.id` and `tx.group.id`, then unconditional treatment effects are estimated instead (see above).
+If you are interested in assessing DIF with respect to a conditioning variable (e.g., gender) and evaluating robustness of the conditional treatment effects (e.g., for just females, for just males, and their difference), then both `dif.group.id` and `tx.group.id`need to be supplied to `dif_data_prep()`. If the same variable is provided to `dif.group.id` and `tx.group.id`, then unconditional treatment effects are estimated instead (see above).
 
-Below we specify both `dif.group.id` and a different `tx.group.id`. The code below generates [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Gender-MDAT-Language.html).
+Below we specify both `dif.group.id` and a different `tx.group.id`. The code below generates [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/README Example Reports/DIF-Effects-Gender-MDAT-Language.html).
 
 ```{r, eval = FALSE}
-data("mdatlang")
+data("mdat")
 
-mdat_gender <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
-                             dif.group.id = mdatlang$gender,
-                             tx.group.id = mdatlang$treated,
-                             cluster.id = mdatlang$clusterid,
+mdat_gender <- dif_data_prep(item.data = mdat[5:ncol(mdat)],
+                             dif.group.id = mdat$gender,
+                             tx.group.id = mdat$treated,
+                             cluster.id = mdat$clusterid,
                              std.group = "Control") 
 
 summary_report(dif.data = mdat_gender,
                file.name = "DIF-Effects-Gender-MDAT-Language",
                report.type = "dif.effects",
-               report.title = "MDAT Language: DIF by gender",
+               report.title = "MDAT Language: DIF by Gender",
                measure.name = "MDAT Language",
                dataset.name = "Malawi")
 
 ```
 
 
-## Advanced workflow {#sbs}
+## Advanced workflow {#advanced}
 
-The advanced workflow shows what is going on under the hood of  `summary_report()` and lets the user have more control over which items are identified as biased in the report. In this section we work through the conditional treatment effect example given in more detail. 
+The advanced workflow shows what is going on under the hood of  `summary_report()` and lets you have more control over which items are identified as biased in the report. In this section we work through the conditional treatment effect example in more detail. 
 
-The first recommended step is still `dif_data_prep()`, which operates in the same manner as the [Basic workflow](#aio). This step is repeated below. 
+The first recommended step is still `dif_data_prep()`, which operates in the same manner as the [Basic workflow](#basic). This step is repeated below. 
 
 
 ```{r, message = FALSE, warning = FALSE}
 library(WBdif)
-data("mdatlang")
+data("mdat")
 
-mdat_gender <- dif_data_prep(item.data = mdatlang[5:ncol(mdatlang)],
-                             tx.group.id = mdatlang$treated,
-                             dif.group.id = mdatlang$gender,
-                             cluster.id = mdatlang$clusterid,
-                             std.group = "Control")
+mdat_gender <- dif_data_prep(item.data = mdat[5:ncol(mdat)],
+                             dif.group.id = mdat$gender,
+                             tx.group.id = mdat$treated,
+                             cluster.id = mdat$clusterid,
+                             std.group = "Control") 
 ```
 
 ### DIF Analysis
 
 The `dif_analysis()` function explores DIF with respect to the `dif.group.id` using various methods. The goal is to arrive at an overall picture of the data that does not depend on the assumptions of any one particular method. Four DIF methods are available for dichotomous data, but only semi-parametric regression and IRT can be used with multi-category ("polytomous") assessment items.  
 
- - LOESS regression - Generates plot of response curves for the two groups on each item. DIF is determined through visual inspection of differences in the groups' response curves.\
+ - LOESS regression - Generates plot of response curves for the two groups on each item. DIF is determined through visual inspection of differences in the groups' response curves.
+
+ - Mantel-Haenszel (MH) Test - *only available for dichotomous items* -  Biased items are identified by conducting a Mantel-Haenszel test (`stats::mantelhaen.test()`) for each item by `dif.group.id` table, stratified by either the unit-weighted total score (`match.type = "Total"`) or the unit-weighted total score computed after removing the item under investigation (`match.type = "Rest"`). Analysis proceeds in two stages, an initial "Purification" stage that tentatively identifies DIF-fy items, and a second "Refinement" stage which removes the tentatively-identified items from the matching variable. The results of the second stage are considered more definitive. One common problem that arises with the MH test is when there are empty cells in the stratified two-way tables. A common remedy is to bin the stratifying variable (e.g., by deciles), as shown in the code below. 
  
- - Mantel-Haenszel (MH) Test - *only available for dichotomous items* -  Biased items are identified by conducting a Mantel-Haenszel test (`stats::mantelhaen.test()`) for each item by  `dif.group.id` table, stratified by either the unit-weighted total score (`match.type = "Total"`) or the unit-weighted total score computed after removing the item under investigation (`match.type = "Rest"`). Analysis proceeds in two stages, an initial "Purification" stage that tentatively identifies DIF-fy items, and a second "Refinement" stage which removes the tentatively-identified items from the matching variable. The results of the second stage are considered more definitive. One common problem that arises when using the MH test is when there are empty cells in the stratified two-way tables. A common remedy is bin the stratifying variable (e.g., by deciles), as shown in the code below. 
+ - Logistic regression - *only available for dichotomous items* - First conducts an omnibus test of DIF by comparing fit of no DIF, uniform DIF, and non-uniform DIF logistic regression models. If the model comparisons suggest DIF, biased items are identified by fitting two models for each item: one where all items parameters are held constant over groups, and one where the item in question interacts with `dif.group.id`. Depending on the type of DIF identified in the omnibus test, the intercept (uniform DIF) or the intercept and slope (non-uniform DIF) may be interacted with `dif.group.id`. The item-by-item testing uses the two-stage purification and refinement approach described in the MH Test.  
  
- - Logistic regression - *only available for dichotomous items* - First conducts an omnibus test of DIF by comparing fit of no DIF, uniform DIF, and non-uniform DIF logistic regression models. If the model comparisons suggest DIF, biased items are identified by fitting two models for each item: one where all items parameters are held constant over groups, and one where the item in question interacts with `dif.group.id`. Depending on the type of DIF identified in the omnibus test, the intercept (uniform DIF) or the intercept and slope (non-uniform DIF) may be interacted with `dif.group.id`. The item-by-item testing uses the two-stage purification and refinement approach described above.  
- 
- - Item Response Theory (IRT) - First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF models via `mirt::multiGroup()`. If the model comparisons suggest DIF, biased items are identified in the same way as described for logistic regression, which is implemented using the `drop` scheme of `mirt::DIF()`, with the exception that the Refinement stage does not make any of items dropped in the Purification stage. The same functionality can be achieved using `mirt::DIF()` using the `drop_sequential` scheme with `max_run = 2`.
+ - Item Response Theory (IRT) - First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF models via `mirt::multiGroup()`. If the model comparisons suggest DIF, biased items are identified in the same way as described for logistic regression, which is implemented using the `drop` scheme of `mirt::DIF()`, with the exception that the Refinement stage does not re-test any of items dropped in the Purification stage. The same functionality can be achieved with `mirt::DIF()` using the `drop_sequential` scheme with `max_run = 2`.
  
 Each method has its own low-level function (`dif_loess()`, `dif_mh()`, `dif_logistic()`, and `dif_irt()`), which are called by `dif_analysis()`. 
  
 ```{r, message = FALSE, warning = FALSE, results='hide'}
 dif.analysis <- dif_analysis(dif.data = mdat_gender,
-                            methods =  c("loess", "MH", "logistic", "IRT"),
+                            dif.methods =  c("loess", "MH", "logistic", "IRT"),
                             match.type = "Total",
                             match.bins = seq(0, 1, by = .1)) # use deciles of matching var in MH
-
-# View the biased items reported by "MH", "logistic", or "IRT" methods
-extract_biased_items(dif.analysis)
-
 ```
 
+```{r}
+# View the biased items reported by "MH", "logistic", or "IRT" methods
+knitr::kable(biased_items_table(dif.analysis))
+```
 
-If the treatment effect estimates are not of interest, a report of the DIF analysis can be generated by setting `report.type = "dif.only"` in  `dif_report()`. The report enables comparison of the DIF methods with one method highlighted via the `bias.method` argument ([example report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/DIF-Only-Gender-MDAT-Language.html)).
+If the treatment effect estimates are not of interest, a report of the DIF analysis can be generated `dif_report()`. The report enables comparison of the DIF methods with one method highlighted via the `biased.items` argument ([example report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/README Example Reports/DIF-Only-Gender-MDAT-Language.html)).
 
 ```{r, message = FALSE, warning = FALSE, eval=FALSE}
 dif_report(dif.analysis = dif.analysis,
-           report.type = "dif.only",
+           file.name = "DIF-Only-Gender-MDAT-Language",
            report.title = "Gender DIF in MDAT Language",
            measure.name = "MDAT Language",
-           file.name = "DIF-Only-Gender-MDAT-Language",
            dataset.name = "Malawi",
-           bias.method = "IRT")
-
+           biased.items = "IRT")
 ```
 
 
@@ -157,13 +154,15 @@ dif_report(dif.analysis = dif.analysis,
 
 The function `dif_models()` estimates a "confirmatory" multigroup IRT model in which the parameters of user-specified items are allowed to vary over levels of `dif.group.id`. This model is used to generate the IRT-based scores for the assessment, which in turn are used to compute the treatment effects (see below). 
 
-The user specifies biased items using the `biased.items` argument. This can be the name one of the DIF methods used by `dif_analysis`, in which case any items identified by that method are treated as biased. Alternatively, the user can specify a custom list of biased items in terms of a numeric vector that indexes the columns of `item.data`. The basic workflow does not provide this user customizable functionality for identifying DIF-fy items. 
+The user specifies biased items using the `biased.items` argument. This can be the name one of the DIF methods run by `dif_analysis()`, in which case any items identified by that method are treated as biased. Alternatively, the user can specify a custom list of biased items in terms of a numeric vector that indexes the columns of `item.data`. The basic workflow does not provide this user customizable functionality for identifying DIF-fy items. 
 
-In the example below, all items identified by any method of `dif_analysis()` are specified as biased. Some supporting graphics for `dif_models` depict the test bias function. 
+In the example below, all items identified by any method of `dif_analysis()` are specified as biased. Some supporting graphics for `dif_models()` depict the test bias function. 
 
-```{r}
+```{r, results='hide'}
 biased.items <- Reduce(unique, extract_biased_items(dif.analysis))
 dif.models <- dif_models(dif.analysis = dif.analysis, biased.items = biased.items)
+```
+```{r}
 bias.plots <- bias_plots(dif.models)
 gridExtra::grid.arrange(bias.plots[[1]], bias.plots[[2]])
 ```
@@ -189,7 +188,7 @@ The information supplied to `dif_data_prep()` (which is passed to `effect_robust
  * The standard deviation used to standardize the effect size is given by `std.group`
  * If `cluster.id` is provided, effect sizes and their standard errors are adjusted for a  multi-stage sampling design in which `cluster.id` is the primary sampling unit. 
  
-In our example, we will be examining treatment effects conditional on gender, using the control group to standardize the effects, and clustering based on the `clusterid` variable from the `mdatlang` data. Some supporting plots for Some support functions for `effects_robutness` tabulate the effects and provide forest plots  
+In our example, we will be examining treatment effects conditional on gender, using the control group to standardize the effects, and clustering based on the `clusterid` variable from the `mdat` data. Some supporting plots for Some support functions for `effects_robutness` tabulate the effects and provide forest plots  
 
 ```{r, message = FALSE, warning = FALSE}
 effect.robustness <- effect_robustness(dif.models = dif.models, irt.scoring = "WLE")
@@ -201,18 +200,17 @@ knitr::kable(effects.tables[[2]], digits = 2, caption = names(effects.tables)[[2
 knitr::kable(effects.tables[[3]], digits = 2, caption = names(effects.tables)[[3]])
 ```
 
-A report with just the robustness of treatment effect estimates to biased items, but no DIF analysis information, can be requested from `dif_report()` by setting `report.type = "effects.only"` and providing objects returned from `dif_models()` and `effect_robustness()`. More often, the DIF analysis results are also of interest, in which case `report.type = "dif.effects"` and the `dif_analysis()` object must be supplied. This done using the code provided below, which produced the [report generated here](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/Logistic-Gender-MDAT-Language.html)
+A report with just the robustness of treatment effect estimates to biased items, but no DIF analysis information, can be requested from `effect_report()`. More often, the DIF analysis results are also of interest, in which case use `dif_effect_report()` to include summaries of both the DIF analysis and the treatment effect robustness checks, such as the [report generated here](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/README Example Reports/Logistic-Gender-MDAT-Language.html)
 
 ```{r, message = FALSE, warning = FALSE, eval=FALSE}
-dif_report(dif.analysis = dif.analysis,
+dif_effect_report(dif.analysis = dif.analysis,
            dif.models = dif.models,
-           effect.robustness = effects,
-           report.type = "dif.effects",
+           effect.robustness = effect.robustness,
+           file.name = "Logistic-Gender-MDAT-Language",
            report.title = "Gender DIF in MDAT Language",
            measure.name = "MDAT Language",
-           file.name = "Logistic-Gender-MDAT-Language",
            dataset.name = "Malawi",
-           bias.method = "logistic")
+           biased.items = "logistic")
 ```
 
 
@@ -221,6 +219,3 @@ dif_report(dif.analysis = dif.analysis,
 Hedges, L. V. (2007). Effect Sizes in Cluster-Randomized Designs. Journal of Educational and Behavioral Statistics, 32, 341–370. https://doi.org/10.3102/1076998606298043.
 
 
-## Support and Suggestions
-
-If you encounter any issues or have a suggestion for additional features, please file a [Github issue](https://github.com/knickodem/WBdif/issues).

@@ -2,8 +2,7 @@
 #'
 #' Visual inspection of DIF with LOESS regression curves
 #'
-#' @param item.data data frame of item responses with subjects in rows
-#' and items in columns
+#' @param item.data data frame of item responses with subjects in rows and items in columns
 #' @param dif.group.id factor vector of group membership for which DIF is evaluated.
 #' @param match.type character indicating whether \code{match.scores} is a
 #' total summed score ("Total") or the summed score excluding the item under

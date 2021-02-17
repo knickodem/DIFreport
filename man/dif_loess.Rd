@@ -7,8 +7,7 @@
 dif_loess(item.data, dif.group.id, match.type, match.scores)
 }
 \arguments{
-\item{item.data}{data frame of item responses with subjects in rows
-and items in columns}
+\item{item.data}{data frame of item responses with subjects in rows and items in columns}
 
 \item{dif.group.id}{factor vector of group membership for which DIF is evaluated.}
 

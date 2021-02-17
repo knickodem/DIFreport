@@ -2,8 +2,7 @@
 #'
 #' Conducts DIF analysis using an item response theory approach
 #'
-#' @param item.data data frame of item responses with subjects in rows
-#' and items in columns
+#' @param item.data data frame of item responses with subjects in rows and items in columns
 #' @param dif.group.id factor vector of group membership for which DIF is evaluated.
 #'
 #' @details

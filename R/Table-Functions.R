@@ -5,6 +5,8 @@
 #' @param dif.analysis Output from \code{\link[WBdif]{dif_analysis}}
 #'
 #' @return a \code{data.frame} with biased items in rows and DIF methods in columns
+#'
+#' @export
 
 biased_items_table <- function(dif.analysis){
 

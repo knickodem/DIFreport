@@ -25,3 +25,22 @@ Estimates a 2PL IRT model with the parameters on biased items feed over groups -
 The No DIF model, which constrains all item parameters to be equal across the groups, is either extracted from \code{dif.analysis} or estimated as well.
 The IRT models are estimated using \code{\link[mirt]{multipleGroup}}.
 }
+\examples{
+data("mdat")
+
+# prep data
+dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)],
+                             dif.group.id = mdat$gender,
+                             na.to.0 = TRUE)
+
+# With biased items identified via DIF analysis
+dif.analysis <- dif_analysis(dif.data = dif.data,
+                             methods =  c("MH", "IRT"),
+                             match.type = "Rest",
+                             match.bins = seq(0, 1, by = .1))
+dif.models <- dif_models(dif.analysis = dif.analysis, biased.items = "MH")
+
+# With user-specified biased items
+dif.models <- dif_models(dif.data = dif.data, biased.items = c(1, 5, 7))
+
+}

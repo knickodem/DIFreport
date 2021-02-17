@@ -45,12 +45,13 @@ This function also runs a number of pre-processing steps:
 }
 }
 \examples{
-data("mdatlang")
+data("mdat")
 
-dif.data <- dif_data_prep(item.data = mdatlang`[`5:ncol(mdatlang)`]`,
-                             dif.group.id = mdatlang$gender,
-                             tx.group.id = mdatlang$treated,
-                             cluster.id = mdatlang$clusterid,
+dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)`]`,
+                             dif.group.id = mdat$gender,
+                             tx.group.id = mdat$treated,
+                             cluster.id = mdat$clusterid,
+                             std.group = "Control",
                              na.to.0 = TRUE)
 
 }

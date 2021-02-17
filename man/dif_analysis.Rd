@@ -6,15 +6,15 @@
 \usage{
 dif_analysis(
   dif.data,
-  methods = c("loess", "MH", "logistic", "IRT"),
+  dif.methods = c("loess", "MH", "logistic", "IRT"),
   match.type = "Total",
   match.bins = NULL
 )
 }
 \arguments{
-\item{dif.data}{The output of \code{\link[WBdif]{data_data_prep}}.}
+\item{dif.data}{The output of \code{\link[WBdif]{dif_data_prep}}.}
 
-\item{methods}{A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.}
+\item{dif.methods}{A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.}
 
 \item{match.type}{Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.}
 
@@ -41,19 +41,17 @@ Usage notes:
 }
 }
 \examples{
-data("mdatlang")
+data("mdat")
 
 # prep data
-dif.data <- dif_data_prep(item.data = mdatlang`[`5:ncol(mdatlang)],
-                             tx.group.id = mdatlang$treated,
-                             dif.group.id = mdatlang$gender,
-                             cluster.id = mdatlang$clusterid,
+dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)],
+                             dif.group.id = mdat$gender,
                              na.to.0 = TRUE)
 
 # DIF analysis by dif.group.id
-# using rest scores and binning match.scores by deciles to avoid empty cells in MH analysis
+# using rest scores and binning match scores by deciles to avoid empty cells in MH analysis
 dif.analysis <- dif_analysis(dif.data = dif.data,
-                           methods =  c("MH", "IRT"),
+                           dif.methods =  c("MH", "IRT"),
                            match.type = "Rest",
                            match.bins = seq(0, 1, by = .1))
 }

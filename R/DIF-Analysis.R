@@ -3,8 +3,8 @@
 #' Evaluates differential item functioning (DIF) using loess, Mantel-Haenszel (MH),
 #' logistic regression, and item response theory (IRT) approaches.
 #'
-#' @param dif.data The output of \code{\link[WBdif]{data_data_prep}}.
-#' @param methods A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.
+#' @param dif.data The output of \code{\link[WBdif]{dif_data_prep}}.
+#' @param dif.methods A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.
 #' @param match.type Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.
 #' @param match.bins (optional) vector of bin sizes for stratifying the matching variable in
 #' the MH method. This is passed to the \code{probs} argument of \code{stas::quantile}.
@@ -24,25 +24,23 @@
 #' @return A \code{list} containing \code{dif.data} and the results from each selected method. The list is not formatted in a very readable way; it is intended to be passed to \code{\link[WBdif]{dif_models}} for further processing or to \code{\link[WBdif]{dif_report}} for user-friendly formatting.
 #'
 #' @examples
-#' data("mdatlang")
+#' data("mdat")
 #'
 #' # prep data
-#' dif.data <- dif_data_prep(item.data = mdatlang`[`5:ncol(mdatlang)],
-#'                              tx.group.id = mdatlang$treated,
-#'                              dif.group.id = mdatlang$gender,
-#'                              cluster.id = mdatlang$clusterid,
+#' dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)],
+#'                              dif.group.id = mdat$gender,
 #'                              na.to.0 = TRUE)
 #'
 #' # DIF analysis by dif.group.id
-#' # using rest scores and binning match.scores by deciles to avoid empty cells in MH analysis
+#' # using rest scores and binning match scores by deciles to avoid empty cells in MH analysis
 #' dif.analysis <- dif_analysis(dif.data = dif.data,
-#'                            methods =  c("MH", "IRT"),
+#'                            dif.methods =  c("MH", "IRT"),
 #'                            match.type = "Rest",
 #'                            match.bins = seq(0, 1, by = .1))
 #' @export
 
 dif_analysis <- function(dif.data,
-                         methods = c("loess", "MH", "logistic", "IRT"),
+                         dif.methods = c("loess", "MH", "logistic", "IRT"),
                          match.type = "Total",
                          match.bins = NULL){
 
@@ -67,7 +65,7 @@ dif_analysis <- function(dif.data,
   match.scores <- NULL
 
   #### LOESS ####
-  if("loess" %in% methods){
+  if("loess" %in% dif.methods){
 
       ## Calculating vector of total scores or list of rest scores
       if(match.type == "Rest"){ # Returns a list with n_items elements of length = nrow(item.data)
@@ -95,7 +93,7 @@ dif_analysis <- function(dif.data,
   }
 
   #### Mantel-Haenszel ####
-  if("MH" %in% methods){
+  if("MH" %in% dif.methods){
 
     if(length(poly.items) > 0){
       stop("Remove polytomous items from item.data to use MH method.")
@@ -132,7 +130,7 @@ dif_analysis <- function(dif.data,
   }
 
   #### Logistic Regression ####
-  if("logistic" %in% methods){
+  if("logistic" %in% dif.methods){
 
     if(length(poly.items) > 0){
       stop("Remove polytomous items from item.data to use logistic method.")
@@ -141,7 +139,7 @@ dif_analysis <- function(dif.data,
     # if match.scores was previously calculated in loess & no items need to be dropped
     # OR match.scores was previously calculated in the MH method, use it.
     # Otherwise, (re-)calculate match.scores
-    if(!is.null(match.scores) & (length(no.var.items) == 0 | ("MH" %in% methods))){
+    if(!is.null(match.scores) & (length(no.var.items) == 0 | ("MH" %in% dif.methods))){
 
       match.scores <- match.scores
 
@@ -175,7 +173,7 @@ dif_analysis <- function(dif.data,
 
 
   #### Item Response Theory ####
-  if("IRT" %in% methods){
+  if("IRT" %in% dif.methods){
 
     ## Removing items with no within group variance, if they exist
     if(length(no.var.by.group.items) > 0){

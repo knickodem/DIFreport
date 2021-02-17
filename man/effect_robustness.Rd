@@ -4,12 +4,10 @@
 \alias{effect_robustness}
 \title{Robustness of treatment effects}
 \usage{
-effect_robustness(dif.models, std.group = NULL, irt.scoring = "WLE")
+effect_robustness(dif.models, irt.scoring = "WLE")
 }
 \arguments{
 \item{dif.models}{Output from \code{\link[WBdif]{dif_models}}}
-
-\item{std.group}{A value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the effect size. If \code{NULL} (default), the pooled standard deviation is used. Note that \code{tx.group.id} is defined in the function \code{\link[WBdif]{dif_data_prep}} and passed to \code{\link[WBdif]{effect_robustness}} via \code{dif.models}.}
 
 \item{irt.scoring}{What type of IRT scoring procedure should be used? Passed to the \code{method} argument of \code{\link[mirt]{fscores}}. See \code{help(fscores, mirt)}.}
 }
@@ -22,14 +20,27 @@ Compares standardized treatment effects estimated with and without adjustments f
 \details{
 Data and models are passed to \code{effect_robustness} via the \code{dif.models} argument. If \code{tx.group.id == dif.group.id}, then the unconditional standardized treatment effect is computed. If \code{tx.group.id != dif.group.id}, the standardized treatment effect is computed conditional on \code{dif.group.id} (e.g., conditional on gender), and the difference in treatment effects is also reported. The treatment effects and their standard errors are computed using the method described by Hedges (2007).
 
-  Treatment effects and their standard errors are reported for four different outcome variables.
+Treatment effects and their standard errors are reported for four different outcome variables.
   \itemize{
   \item The unit-weighted total score computed with all items.
   \item The unit-weighted total score computed with DIFfy items omitted (i.e. the items identified in \code{dif.models$biased.items}).
-  \item  IRT scores computed using a model that constrains all items to have equal parameters over levels of \code{dif.group.id} (ie., \code{dif.models$no.dif.mod}) .
-  \item IRT scores computed using a model that  allows parameters of DIFfy items to vary over levels of \code{dif.group.id} (ie., \code{dif.models$dif.mod}).
+  \item IRT scores computed using a model that constrains all items to have equal parameters over levels of \code{dif.group.id} (i.e., \code{dif.models$no.dif.mod}) .
+  \item IRT scores computed using a model that allows parameters of DIFfy items to vary over levels of \code{dif.group.id} (i.e., \code{dif.models$dif.mod}).
 }
  IRT scores are computed using the method given by \code{irt.scoring}.
+}
+\examples{
+data("mdat")
+
+# prep data
+dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)],
+                             dif.group.id = mdat$gender,
+                             na.to.0 = TRUE)
+
+# With user-specified biased items
+dif.models <- dif_models(dif.data = dif.data, biased.items = c(1, 5, 7))
+effect_robustness(dif.models = dif.models, irt.scoring = "WLE")
+
 }
 \references{
 Hedges, L. V. (2007). Effect Sizes in Cluster-Randomized Designs. Journal of Educational and Behavioral Statistics, 32, 341–370. \url{https://doi.org/10.3102/1076998606298043}.

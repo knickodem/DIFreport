@@ -1,9 +1,3 @@
----
-output:
-   html_document:
-      toc: TRUE
-      always_allow_html: TRUE
----
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
@@ -19,26 +13,26 @@ date: "`r format(Sys.Date(), '%B %d, %Y')`"
 # Summary
 
 ```{r dataset, results='asis'}
-if(!is.null(dataset.name)){
+if(dataset.name != "dataset"){
   cat("**Dataset:**", dataset.name)
   cat("\n\n")
 }
 ```
   
 
-**Measure:** `r paste0(measure.name,  " (", item.name.range, ")")`
+**Measure:** `r if(measure.name == "measure") outputs$item.name.range else paste0(measure.name,  " (", outputs$item.name.range, ")")`
 
-**Comparison groups:** `r paste(dif.group1, dif.group2, sep = " and ")`
+**Comparison groups:** `r paste(outputs$dif.group1, outputs$dif.group2, sep = " and ")`
 
-**Items with no variance:** `r no.var.items`
+**Items with no variance:** `r outputs$no.var.items`
 
-**Items with no variance within levels of comparison variable:** `r no.var.by.group.items`
+**Items with no variance within comparison groups:** `r outputs$no.var.by.group.items`
 
-**Biased items:** `r paste(biased.items, collapse = ", ")`
+**Biased items:** `r paste(names(inputs$item.data)[dif.models$biased.items], collapse = ", ")`
 
 
 ```{r No Var, results='asis'}
-if(no.var.items != "none"){
+if(outputs$no.var.items != "none"){
   
   cat("\n\n")
   cat("^a^ Items were not included in any DIF analysis and were not used to compute 
@@ -47,7 +41,7 @@ if(no.var.items != "none"){
 }
 
 
-if(no.var.by.group.items != "none"){
+if(outputs$no.var.by.group.items != "none"){
   
   cat("\n\n")
   cat("^b^ Items were not included in the IRT-based DIF analysis and were not used 

@@ -1,13 +1,8 @@
----
-output:
-   html_document:
-      toc: TRUE
-      always_allow_html: TRUE
----
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(options(knitr.kable.NA = ''))
+flextable::set_flextable_defaults(fonts_ignore = TRUE)
 
 ```
 
@@ -19,24 +14,24 @@ date: "`r format(Sys.Date(), '%B %d, %Y')`"
 # Summary
 
 ```{r dataset, results='asis'}
-if(!is.null(dataset.name)){
+if(dataset.name != "dataset"){
   cat("**Dataset:**", dataset.name)
   cat("\n\n")
 }
 ```
   
 
-**Measure:** `r paste0(measure.name,  " (", item.name.range, ")")`
+**Measure:** `r if(measure.name == "measure") outputs$item.name.range else paste0(measure.name,  " (", outputs$item.name.range, ")")`
 
-**Comparison groups:** `r paste(dif.group1, dif.group2, sep = " and ")`
+**Comparison groups:** `r paste(outputs$dif.group1, outputs$dif.group2, sep = " and ")`
 
-**Items with no variance:** `r no.var.items`
+**Items with no variance:** `r outputs$no.var.items`
 
-**Items with no variance within levels of comparison variable:** `r no.var.by.group.items`
+**Items with no variance within comparison groups:** `r outputs$no.var.by.group.items`
 
-**DIF detection method:** `r if(bias.method == "IRT") bias.method else paste(bias.method,"using", match.type, "Scores")`
+**DIF detection method:** `r if(biased.items == "IRT") biased.items else paste(biased.items, "using", match.type, "Scores")`
 
-**Total number of biased items:** `r paste(n.biased, "out of", n.items)`
+**Total number of biased items:** `r paste(n.biased, "out of", outputs$n.items)`
 
 **Type of DIF:** `r dif.type`
 
@@ -44,16 +39,16 @@ if(!is.null(dataset.name)){
 if(dif.type == "uniform"){
   if(n.biased > 0){
   
-  cat("* Number of items uniformly biased toward ", dif.group1, ": ", toward[[1]], sep = "")
+  cat("* Number of items uniformly biased toward ", outputs$dif.group1, ": ", toward[[1]], sep = "")
   cat("\n\n")
-  cat("* Number of items uniformly biased toward ", dif.group2, ": ", toward[[2]], sep = "")
+  cat("* Number of items uniformly biased toward ", outputs$dif.group2, ": ", toward[[2]], sep = "")
   }
 }
 ```
   
 
 ```{r No Var, results='asis'}
-if(no.var.items != "none"){
+if(outputs$no.var.items != "none"){
   
   cat("\n\n")
   cat("^a^ Items were not included in any DIF analysis and were not used to compute 
@@ -62,7 +57,7 @@ if(no.var.items != "none"){
 }
 
 
-if(no.var.by.group.items != "none"){
+if(outputs$no.var.by.group.items != "none"){
   
   cat("\n\n")
   cat("^b^ Items were not included in the IRT-based DIF analysis and were not used 
@@ -93,6 +88,8 @@ if(nrow(biased.items.table) != 0){
 
 # Treatment Effect Robustness
 
+"Bias Omitted" treatment effect estimates adjusted for bias in `r paste(names(inputs$item.data)[dif.models$biased.items], collapse = ", ")`.
+
 ```{r bias.plots, results='asis', message=FALSE, fig.width = 5, fig.height = 6}
 
 gridExtra::grid.arrange(bias.plots[[1]], bias.plots[[2]])
@@ -118,7 +115,7 @@ for(i in 1:length(effects.tables)){
 
 # DIF Detection Methods
 
-```{r loess, results='asis', warning=FALSE, fig.width = 10, fig.height = ceiling(n.items / 6)*2 + 1}
+```{r loess, results='asis', warning=FALSE, fig.width = 10, fig.height = ceiling(outputs$n.items / 6)*2 + 1}
 
 if(!is.null(dif.analysis$loess)){
   cat("## Graphical Analysis via loess")
