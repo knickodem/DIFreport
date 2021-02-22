@@ -38,6 +38,16 @@ biased_items_table <- function(dif.analysis){
 
 }
 
+#' Extract Biased Items
+#'
+#' Extracts list of biased items from a \code{dif_analysis} object
+#'
+#' @param dif.analysis Output from \code{\link[WBdif]{dif_analysis}}
+#'
+#' @return a \code{list} of vectors of column locations in \code{item.data} for the biased items identified by each DIF method.
+#'
+#' @export
+
 extract_biased_items <- function(dif.analysis){
 
   da <- dif.analysis[c("MH", "logistic", "IRT")]
@@ -56,6 +66,8 @@ extract_biased_items <- function(dif.analysis){
 #' @param alphas (optional) \code{vector} of score reliabilities (e.g., alpha, omega) to append to the table.
 #'
 #' @return a \code{data.frame} of treatment effect estimates and their standard errors.
+#'
+#' @export
 
 effects_table <- function(effects, alphas = NULL) {
   row.names(effects) <- NULL # sigh

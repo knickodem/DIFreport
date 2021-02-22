@@ -5,7 +5,7 @@
 #' @param dif.data The output of \code{\link[WBdif]{dif_data_prep}}.
 #' @param file.name File name to create on disk. The file path can also be specified here. If the path is omitted, the file is saved to the working directory.
 #' @param report.type A character indicating which type of report to produce: including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only").
-#' @param report.format File format of the report. Default is HTML ("html_document"). See \code{link[rmarkdown]{render}} for other options.
+#' @param report.format File format of the report. Default is HTML ("html_document"). See \code{\link[rmarkdown]{render}} for other options.
 #' @param report.title An optional character string indicating the report title, which is printed in the report.
 #' @param measure.name An optional character string naming the measure being evaluated, which is printed in the report.
 #' @param dataset.name An optional character string naming the dataset used, which is printed in the report.

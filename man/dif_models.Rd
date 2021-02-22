@@ -4,12 +4,10 @@
 \alias{dif_models}
 \title{IRT models with biased items}
 \usage{
-dif_models(dif.analysis = NULL, dif.data = NULL, biased.items = "IRT")
+dif_models(dif.analysis, biased.items = "IRT")
 }
 \arguments{
 \item{dif.analysis}{Output from \code{\link[WBdif]{dif_analysis}}}
-
-\item{dif.data}{Output from \code{\link[WBdif]{dif_data_prep}}. Only required if \code{dif.analysis} is not provided.}
 
 \item{biased.items}{If \code{dif.analysis} is specified, a character indicating the method from which to extract the biased items. Options are "IRT" (default), "logistic", "MH".
 If \code{dif.data} is specified, the \code{vector} of column indices indicating the biased items in \code{dif.data$item.data}}
@@ -33,14 +31,15 @@ dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)],
                              dif.group.id = mdat$gender,
                              na.to.0 = TRUE)
 
-# With biased items identified via DIF analysis
 dif.analysis <- dif_analysis(dif.data = dif.data,
                              methods =  c("MH", "IRT"),
                              match.type = "Rest",
                              match.bins = seq(0, 1, by = .1))
+
+# With biased items identified via DIF analysis
 dif.models <- dif_models(dif.analysis = dif.analysis, biased.items = "MH")
 
 # With user-specified biased items
-dif.models <- dif_models(dif.data = dif.data, biased.items = c(1, 5, 7))
+dif.models2 <- dif_models(dif.analysis = dif.analysis, biased.items = c(1, 5, 7))
 
 }

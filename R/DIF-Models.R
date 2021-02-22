@@ -3,7 +3,6 @@
 #' Primarily an interim function between dif_analysis and effect_robustness
 #'
 #' @param dif.analysis Output from \code{\link[WBdif]{dif_analysis}}
-#' @param dif.data Output from \code{\link[WBdif]{dif_data_prep}}. Only required if \code{dif.analysis} is not provided.
 #' @param biased.items If \code{dif.analysis} is specified, a character indicating the method from which to extract the biased items. Options are "IRT" (default), "logistic", "MH".
 #' If \code{dif.data} is specified, the \code{vector} of column indices indicating the biased items in \code{dif.data$item.data}
 #'
@@ -23,24 +22,22 @@
 #'                              dif.group.id = mdat$gender,
 #'                              na.to.0 = TRUE)
 #'
-#' # With biased items identified via DIF analysis
 #' dif.analysis <- dif_analysis(dif.data = dif.data,
 #'                              methods =  c("MH", "IRT"),
 #'                              match.type = "Rest",
 #'                              match.bins = seq(0, 1, by = .1))
+#'
+#' # With biased items identified via DIF analysis
 #' dif.models <- dif_models(dif.analysis = dif.analysis, biased.items = "MH")
 #'
 #' # With user-specified biased items
-#' dif.models <- dif_models(dif.data = dif.data, biased.items = c(1, 5, 7))
+#' dif.models2 <- dif_models(dif.analysis = dif.analysis, biased.items = c(1, 5, 7))
 #'
 #' @export
 
-dif_models <- function(dif.analysis = NULL, dif.data = NULL, biased.items = "IRT"){
+dif_models <- function(dif.analysis, biased.items = "IRT"){
 
   stop.message <- "biased.items must be one of c(\'IRT\', \'logistic\', \'MH\') or column indices of item.data"
-
-  ## If dif.analysis is provided, extract inputs and no.dif.mod (if it exists)
-  if(!is.null(dif.analysis)){
 
     inputs <- dif.analysis$inputs
 
@@ -49,17 +46,6 @@ dif_models <- function(dif.analysis = NULL, dif.data = NULL, biased.items = "IRT
     } else {
       no.dif.mod <- dif.analysis$IRT$no.dif.mod # IRT model with parameters constrained to be equal between groups
     }
-  } else if(!is.null(dif.data)){
-
-    inputs <- dif.data
-    no.dif.mod <- NULL
-
-    if(is.character(biased.items)){
-      stop("When dif.analysis = NULL, biased.items must be a vector of column indices for dif.data$item.data")
-    }
-  } else {
-    stop("One of dif.analysis or dif.data must be provided.")
-  }
 
   ## biased item checks
   if(is.character(biased.items)){

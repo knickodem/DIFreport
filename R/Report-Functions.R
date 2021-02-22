@@ -7,7 +7,7 @@
 #' @param effect.robustness An object returned from \code{\link[WBdif]{effect_robustness}}
 #' @param file.name File name to create on disk. The file path can also be specified here. If the path is omitted, the file is saved to the working directory.
 #' @param biased.items Οne of \code{c("MH", "logistic", "IRT")}. Determines which DIF method should be used to identify biased items. Default is "IRT".
-#' @param report.format File format of the report. Default is HTML ("html_document"). See \code{link[rmarkdown]{render}} for other options.
+#' @param report.format File format of the report. Default is HTML ("html_document"). See \code{\link[rmarkdown]{render}} for other options.
 #' @param report.title An optional character string indicating the report title, which is printed in the report.
 #' @param measure.name An optional character string naming the measure being evaluated, which is printed in the report.
 #' @param dataset.name An optional character string naming the dataset used, which is printed in the report.

@@ -43,7 +43,7 @@ dif_effect_report(
 
 \item{file.name}{File name to create on disk. The file path can also be specified here. If the path is omitted, the file is saved to the working directory.}
 
-\item{report.format}{File format of the report. Default is HTML ("html_document"). See \code{link[rmarkdown]{render}} for other options.}
+\item{report.format}{File format of the report. Default is HTML ("html_document"). See \code{\link[rmarkdown]{render}} for other options.}
 
 \item{report.title}{An optional character string indicating the report title, which is printed in the report.}
 

@@ -26,7 +26,7 @@ summary_report(
 
 \item{report.type}{A character indicating which type of report to produce: including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only").}
 
-\item{report.format}{File format of the report. Default is HTML ("html_document"). See \code{link[rmarkdown]{render}} for other options.}
+\item{report.format}{File format of the report. Default is HTML ("html_document"). See \code{\link[rmarkdown]{render}} for other options.}
 
 \item{report.title}{An optional character string indicating the report title, which is printed in the report.}
 
