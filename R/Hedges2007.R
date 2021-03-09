@@ -21,7 +21,9 @@
 
 hedges2007 <- function(outcome, tx.group.id, std.group = NULL, cluster.id = NULL, subset = NULL) {
 
-  std.group <- as.character(std.group) # in case numeric is supplied
+  if(!is.null(std.group)){
+    std.group <- as.character(std.group) # in case numeric is supplied
+  }
   tx.groups <- get_tx.groups(tx.group.id, std.group)
 
   if (!is.null(subset)) {
