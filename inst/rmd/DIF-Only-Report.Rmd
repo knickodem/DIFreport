@@ -69,6 +69,8 @@ if(outputs$no.var.by.group.items != "none"){
 
 # DIF Detection Methods
 
+*Note.* Logical values in bias columns are based on p-values adjusted with the Benjamini & Hochberg (1995) method rather than directly on the p-value columns.
+
 ## Biased Item Summary
 
 ```{r bi summary, results = 'asis', ft.align="left"}
@@ -88,6 +90,7 @@ if(nrow(biased.items.table) != 0){
 ```
 
 
+
 ```{r loess, results='asis', warning=FALSE, fig.width = 10, fig.height = ceiling(outputs$n.items / 6)*2 + 1}
 
 if(!is.null(dif.analysis$loess)){
@@ -98,6 +101,7 @@ if(!is.null(dif.analysis$loess)){
   
 }
 ```
+
 
 
 ```{r MH, results='asis', ft.align="left"}

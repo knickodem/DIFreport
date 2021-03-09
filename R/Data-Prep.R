@@ -65,6 +65,7 @@ dif_data_prep <- function(item.data, dif.group.id, tx.group.id = dif.group.id,
   }
 
   if (!is.null(std.group)) {
+    std.group <- as.character(std.group) # in case numeric is supplied
     if(!(std.group %in% levels(tx.group.id))) {
       stop("std.group is not in tx.group.id")
     }}

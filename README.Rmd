@@ -96,7 +96,7 @@ summary_report(dif.data = mdat_gender,
 
 ## Advanced workflow {#advanced}
 
-The advanced workflow shows what is going on under the hood of  `summary_report()` and lets you have more control over which items are identified as biased in the report. In this section we work through the conditional treatment effect example in more detail. 
+The advanced workflow shows what is going on under the hood of `summary_report()` and lets you have more control over which items are identified as biased in the report. In this section we work through the conditional treatment effect example in more detail. 
 
 The first recommended step is still `dif_data_prep()`, which operates in the same manner as the [Basic workflow](#basic). This step is repeated below. 
 

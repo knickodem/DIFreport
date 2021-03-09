@@ -51,7 +51,7 @@ effect_robustness <- function(dif.models, irt.scoring = "WLE") {
   poly.items <- inputs$poly.items
 
   # Get outcome variables
-  total.score <- sum_score(inputs$item.data, poly.items = inputs$poly.items)
+  total.score <- sum_score(inputs$item.data, poly.items = poly.items)
   adj.total.score <- sum_score(inputs$item.data, drops = biased.items, poly.items = poly.items)
   irt.score <- mirt::fscores(dif.models$no.dif.mod, method = irt.scoring)
   adj.irt.score <- mirt::fscores(dif.models$dif.mod, method = irt.scoring)

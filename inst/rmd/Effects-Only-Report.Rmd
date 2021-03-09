@@ -60,6 +60,8 @@ gridExtra::grid.arrange(bias.plots[[1]], bias.plots[[2]])
 
 ```
 
+"Bias Omitted" treatment effect estimates adjusted for bias in `r paste(names(inputs$item.data)[dif.models$biased.items], collapse = ", ")`.
+
 ```{r Treatment_Effects, results='asis', warning=FALSE, ft.align="left", fig.width = 5, fig.height = 4}
 
 for(i in 1:length(effects.tables)){

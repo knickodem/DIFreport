@@ -88,13 +88,13 @@ if(nrow(biased.items.table) != 0){
 
 # Treatment Effect Robustness
 
-"Bias Omitted" treatment effect estimates adjusted for bias in `r paste(names(inputs$item.data)[dif.models$biased.items], collapse = ", ")`.
-
 ```{r bias.plots, results='asis', message=FALSE, fig.width = 5, fig.height = 6}
 
 gridExtra::grid.arrange(bias.plots[[1]], bias.plots[[2]])
 
 ```
+
+"Bias Omitted" treatment effect estimates adjusted for bias in `r paste(names(inputs$item.data)[dif.models$biased.items], collapse = ", ")`.
 
 ```{r Treatment_Effects, results='asis', warning=FALSE, ft.align="left", fig.width = 5, fig.height = 4}
 
@@ -114,6 +114,8 @@ for(i in 1:length(effects.tables)){
 
 
 # DIF Detection Methods
+
+*Note.* Logical values in bias columns are based on p-values adjusted with the Benjamini & Hochberg (1995) method rather than directly on the p-value columns.
 
 ```{r loess, results='asis', warning=FALSE, fig.width = 10, fig.height = ceiling(outputs$n.items / 6)*2 + 1}
 

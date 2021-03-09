@@ -9,8 +9,7 @@ dif_models(dif.analysis, biased.items = "IRT")
 \arguments{
 \item{dif.analysis}{Output from \code{\link[WBdif]{dif_analysis}}}
 
-\item{biased.items}{If \code{dif.analysis} is specified, a character indicating the method from which to extract the biased items. Options are "IRT" (default), "logistic", "MH".
-If \code{dif.data} is specified, the \code{vector} of column indices indicating the biased items in \code{dif.data$item.data}}
+\item{biased.items}{A character of "IRT" (default), "logistic", or "MH" indicating the method from which to extract the biased items or a \code{numeric vector} of column indices indicating the biased items in \code{dif.analysis$inputs$item.data}}
 }
 \value{
 A named \code{list} containing the data and IRT models to estimate treatment effects.

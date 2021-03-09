@@ -4,10 +4,10 @@
 \alias{get_avg_cluster_n}
 \title{Compute average cluster size}
 \usage{
-get_avg_cluster_n(group.id, cluster.id)
+get_avg_cluster_n(tx.group.id, cluster.id)
 }
 \arguments{
-\item{group.id}{A \code{vector} of indicating the treatment groups.}
+\item{tx.group.id}{A \code{vector} of indicating the treatment groups.}
 
 \item{cluster.id}{An optional \code{vector} of \code{length(group.id)} indicating the primary sampling unit in a multi-stage / clustered sampling design.}
 }

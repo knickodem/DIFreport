@@ -4,12 +4,12 @@
 \alias{get_sd}
 \title{Computes the pooled standard deviation}
 \usage{
-get_sd(outcome, group.id, std.group = NULL)
+get_sd(outcome, tx.group.id, std.group = NULL)
 }
 \arguments{
 \item{outcome}{A numeric \code{vector} containing the outcome variable.}
 
-\item{group.id}{A \code{vector} of \code{length(outcome)} indicating the treatment groups.}
+\item{tx.group.id}{A \code{vector} of \code{length(outcome)} indicating the treatment groups.}
 
 \item{std.group}{An optional value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the treatment effect. If \code{NULL} (default), the pooled standard devaition is used.}
 }
