@@ -34,7 +34,7 @@ sum_score <- function(item.data, drops = NULL, poly.items = integer()){
   # unit scale all polytomous items
   if(length(poly.items) > 0){
 
-    item.data[,poly.items] <- apply(item.data[,poly.items], 2, function(x) x / max(x, na.rm = TRUE))
+    item.data[,poly.items] <- apply(as.matrix(item.data[,poly.items]), 2, function(x) x / max(x, na.rm = TRUE))
 
   }
 
