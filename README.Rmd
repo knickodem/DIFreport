@@ -10,8 +10,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # WBdif
 
-## Summary 
-Development of **WBdif** was motivated by questions regarding the psychometric properties of  early childhood development assessments used as outcome measures in impact evaluations. This package provides methods for (a) evaluating differential item functioning (DIF),  (b) checking whether DIF leads to biased treatment effects on the unit-weighted total score or IRT-based scoring methods, and (c) providing DIF-corrected treatment effects by either removing biased items (for the unit-weighted total score) or using an IRT models that adjusts for the item bias (for IRT-based scoring). The methods are documented in the report: (forthcoming).  
+## Summary
+
+Development of **WBdif** was motivated by questions regarding the psychometric properties of  early childhood development assessments used as outcome measures in impact evaluations. This package provides methods for (a) evaluating differential item functioning (DIF),  (b) checking whether DIF leads to biased treatment effects on the unit-weighted total score or IRT-based scoring methods, and (c) providing DIF-corrected treatment effects by either removing biased items (for the unit-weighted total score) or using an IRT models that adjusts for the item bias (for IRT-based scoring). The methods are documented in the report: (forthcoming).
+
+### Methods
 
 The methods for evaluating DIF include semi-parametric regression (LOESS), the Mantel-Haenszel test, logistic regression, and multi-group item response theory (IRT).  
 
@@ -21,9 +24,11 @@ If assessment items have DIF with respect to treatment, the unconditional treatm
 
 If the assessment items have DIF with respect to a conditioning variable (e.g., gender), the corresponding conditional treatment effects (e.g., the effect just for males, just for females, or their difference) *may* be biased. In other words, randomization of treatment does not protect conditional treatment effects from DIF with respect to the conditioning variable. 
 
-**WBdif** provides two general workflows, both of which are illustrated below. In the "[basic](#basic)" workflow, the user preps the data and then calls an omnibus function (`summary_report()`) that automates the DIF analysis and, if there is any DIF detected, computes the treatment effects with and without adjusting for DIF. The results are summarized in an .HTML formatted report. 
+### Workflows
 
-In the "[advanced](#advanced)" workflow, the steps automated by `summary_report()` can be implemented directly by the user, which gives more control over which DIF analyses are conducted and which items are identified as biased. The advanced workflow is currently under construction, as the output returned by most functions is not very user-friendly. In the future, these outputs may be converted to S3 or S4 objects with methods (e.g., print, summary) that make them more user-friendly. 
+**WBdif** provides two general workflows, both of which are illustrated below. In the "[basic](#basic)" workflow, `summary_report()` is an omnibus function that automates the DIF analysis and, if there is any DIF detected, computes the treatment effects with and without adjusting for DIF. The results are summarized in an rmarkdown produced report. 
+
+In the "[advanced](#advanced)" workflow, the steps automated by `summary_report()` can be implemented directly, which gives more control over which DIF analyses are conducted and which items are identified as biased. The advanced workflow is currently under construction, as the output returned by most functions is not very user-friendly. In the future, these outputs may be converted to S3 or S4 objects with methods (e.g., print, summary) to provide greater utility. 
 
 
 **WBdif** is in the alpha stage of development. Please report any bugs or suggestions by opening a [Github issue](https://github.com/knickodem/WBdif/issues).
@@ -36,20 +41,21 @@ remotes::install_github("knickodem/WBdif")
 library(WBdif)
 ```
 
+# Workflows
 
-## Basic workflow {#basic}
+## Basic {#basic}
 
 The basic workflow requires only two functions: 
 
-* `dif_data_prep()` is a pre-processing step that organizes input information for use in other **WBdif** functions and conducts some checks on the data. How the data is prepared effects the type of report that will be produced. In general, different reports require different data preps. 
+* `dif_data_prep()` is a pre-processing step that organizes input information for use in other **WBdif** functions and conducts some checks on the data. How the data is prepared determines the type of report produced. In general, different reports require different data preps. 
 
-* `summary_report()` is a wrapper around all of the other functions needed to run the analysis and produce the report. The function offers a variety of options to customize the both the analysis and reporting. For more details on each option see the [Advanced workflow](#advanced) section. Given the All-in-One nature of `summary_report()`, the code will usually take several minutes to run before producing the report.
+* `summary_report()` is a wrapper around all of the other functions needed to run the analysis and produce the report. The function offers a variety of options to customize the both the analysis and reporting. For more details on each option see the [Advanced workflow](#advanced) section. Given the all-in-one nature of `summary_report()`, the code will usually take several minutes to run before producing the report.
 
 ### Unconditional Treatment Effects
 
 If you are interested in assessing DIF with respect to the treatment variable and evaluating robustness of the unconditional treatment effects, only `dif.group.id` need be supplied to `dif_data_prep()`.  Alternatively, one may provide the same variable for `dif.group.id` and `tx.group.id`. However, if different variables are provided to `dif.group.id` and `tx.group.id`, then conditional treatment effects are estimated instead (see below). The function `summary_report()` recognizes how the data are prepared and estimates the appropriate treatment effects. 
 
-The code below uses the built-in data set "mdat" to generate [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Tx-MDAT-Language.html). 
+The code below uses the built-in dataset "mdat" to generate [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Tx-MDAT-Language.html). 
 
 ```{r, eval = FALSE}
 # Load the example data (MDAT language assessment, collected in Malawi). 
@@ -94,7 +100,7 @@ summary_report(dif.data = mdat_gender,
 ```
 
 
-## Advanced workflow {#advanced}
+## Advanced {#advanced}
 
 The advanced workflow shows what is going on under the hood of `summary_report()` and lets you have more control over which items are identified as biased in the report. In this section we work through the conditional treatment effect example in more detail. 
 
@@ -184,9 +190,11 @@ Treatment effects and their standard errors are reported for four different outc
 The information supplied to `dif_data_prep()` (which is passed to `effect_robustness()` through `dif.models`) provides additional details about how the treatment effects are computed 
 
 
- * Treatment effects are computed for `tx.group.id`. If `tx.group.id == dif.group.id` unconditional treatment effects are reported. Otherwise treatment effects are computed condition on `dif.group.id`. 
- * The standard deviation used to standardize the effect size is given by `std.group`
- * If `cluster.id` is provided, effect sizes and their standard errors are adjusted for a  multi-stage sampling design in which `cluster.id` is the primary sampling unit. 
+* Treatment effects are computed for `tx.group.id`. If `tx.group.id == dif.group.id` unconditional treatment effects are reported. Otherwise treatment effects are computed condition on `dif.group.id`. 
+ 
+* The standard deviation used to standardize the effect size is given by `std.group`
+ 
+* If `cluster.id` is provided, effect sizes and their standard errors are adjusted for a  multi-stage sampling design in which `cluster.id` is the primary sampling unit. 
  
 In our example, we will be examining treatment effects conditional on gender, using the control group to standardize the effects, and clustering based on the `clusterid` variable from the `mdat` data. Some supporting plots for Some support functions for `effects_robutness` tabulate the effects and provide forest plots  
 

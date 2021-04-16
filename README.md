@@ -14,6 +14,8 @@ total score) or using an IRT models that adjusts for the item bias (for
 IRT-based scoring). The methods are documented in the report:
 (forthcoming).
 
+### Methods
+
 The methods for evaluating DIF include semi-parametric regression
 (LOESS), the Mantel-Haenszel test, logistic regression, and multi-group
 item response theory (IRT).
@@ -38,21 +40,21 @@ be biased. In other words, randomization of treatment does not protect
 conditional treatment effects from DIF with respect to the conditioning
 variable.
 
+### Workflows
+
 **WBdif** provides two general workflows, both of which are illustrated
-below. In the “[basic](#basic)” workflow, the user preps the data and
-then calls an omnibus function (`summary_report()`) that automates the
-DIF analysis and, if there is any DIF detected, computes the treatment
-effects with and without adjusting for DIF. The results are summarized
-in an .HTML formatted report.
+below. In the “[basic](#basic)” workflow, `summary_report()` is an
+omnibus function that automates the DIF analysis and, if there is any
+DIF detected, computes the treatment effects with and without adjusting
+for DIF. The results are summarized in an rmarkdown produced report.
 
 In the “[advanced](#advanced)” workflow, the steps automated by
-`summary_report()` can be implemented directly by the user, which gives
-more control over which DIF analyses are conducted and which items are
-identified as biased. The advanced workflow is currently under
-construction, as the output returned by most functions is not very
-user-friendly. In the future, these outputs may be converted to S3 or S4
-objects with methods (e.g., print, summary) that make them more
-user-friendly.
+`summary_report()` can be implemented directly, which gives more control
+over which DIF analyses are conducted and which items are identified as
+biased. The advanced workflow is currently under construction, as the
+output returned by most functions is not very user-friendly. In the
+future, these outputs may be converted to S3 or S4 objects with methods
+(e.g., print, summary) to provide greater utility.
 
 **WBdif** is in the alpha stage of development. Please report any bugs
 or suggestions by opening a [Github
@@ -66,21 +68,23 @@ remotes::install_github("knickodem/WBdif")
 library(WBdif)
 ```
 
-## Basic workflow
+# Workflows
+
+## Basic
 
 The basic workflow requires only two functions:
 
   - `dif_data_prep()` is a pre-processing step that organizes input
     information for use in other **WBdif** functions and conducts some
-    checks on the data. How the data is prepared effects the type of
-    report that will be produced. In general, different reports require
-    different data preps.
+    checks on the data. How the data is prepared determines the type of
+    report produced. In general, different reports require different
+    data preps.
 
   - `summary_report()` is a wrapper around all of the other functions
     needed to run the analysis and produce the report. The function
     offers a variety of options to customize the both the analysis and
     reporting. For more details on each option see the [Advanced
-    workflow](#advanced) section. Given the All-in-One nature of
+    workflow](#advanced) section. Given the all-in-one nature of
     `summary_report()`, the code will usually take several minutes to
     run before producing the report.
 
@@ -96,7 +100,7 @@ estimated instead (see below). The function `summary_report()`
 recognizes how the data are prepared and estimates the appropriate
 treatment effects.
 
-The code below uses the built-in data set “mdat” to generate [this
+The code below uses the built-in dataset “mdat” to generate [this
 report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Tx-MDAT-Language.html).
 
 ``` r
@@ -148,7 +152,7 @@ summary_report(dif.data = mdat_gender,
                dataset.name = "Malawi")
 ```
 
-## Advanced workflow
+## Advanced
 
 The advanced workflow shows what is going on under the hood of
 `summary_report()` and lets you have more control over which items are
@@ -322,8 +326,10 @@ about how the treatment effects are computed
     dif.group.id` unconditional treatment effects are reported.
     Otherwise treatment effects are computed condition on
     `dif.group.id`.
+
   - The standard deviation used to standardize the effect size is given
     by `std.group`
+
   - If `cluster.id` is provided, effect sizes and their standard errors
     are adjusted for a multi-stage sampling design in which `cluster.id`
     is the primary sampling unit.
