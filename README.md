@@ -136,8 +136,6 @@ code below generates [this
 report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/README%20Example%20Reports/DIF-Effects-Gender-MDAT-Language.html).
 
 ``` r
-data("mdat")
-
 mdat_gender <- dif_data_prep(item.data = mdat[5:ncol(mdat)],
                              dif.group.id = mdat$gender,
                              tx.group.id = mdat$treated,
@@ -237,16 +235,17 @@ dif.analysis <- dif_analysis(dif.data = mdat_gender,
 
 ``` r
 # View the biased items reported by "MH", "logistic", or "IRT" methods
+options(knitr.kable.NA = '')
 knitr::kable(biased_items_table(dif.analysis))
 ```
 
 |    | biased.items | MH | logistic | IRT |
 | :- | :----------- | :- | :------- | :-- |
-| 12 | l33          | X  | NA       | NA  |
-| 13 | l34          | X  | X        | NA  |
+| 12 | l33          | X  |          |     |
+| 13 | l34          | X  | X        |     |
 | 14 | l35          | X  | X        | X   |
-| 25 | l47          | NA | NA       | X   |
-| 26 | l48          | X  | NA       | NA  |
+| 25 | l47          |    |          | X   |
+| 26 | l48          | X  |          |     |
 
 If the treatment effect estimates are not of interest, a report of the
 DIF analysis can be generated `dif_report()`. The report enables

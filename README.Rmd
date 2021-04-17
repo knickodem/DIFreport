@@ -82,8 +82,6 @@ If you are interested in assessing DIF with respect to a conditioning variable (
 Below we specify both `dif.group.id` and a different `tx.group.id`. The code below generates [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/README Example Reports/DIF-Effects-Gender-MDAT-Language.html).
 
 ```{r, eval = FALSE}
-data("mdat")
-
 mdat_gender <- dif_data_prep(item.data = mdat[5:ncol(mdat)],
                              dif.group.id = mdat$gender,
                              tx.group.id = mdat$treated,
@@ -141,6 +139,7 @@ dif.analysis <- dif_analysis(dif.data = mdat_gender,
 
 ```{r}
 # View the biased items reported by "MH", "logistic", or "IRT" methods
+options(knitr.kable.NA = '')
 knitr::kable(biased_items_table(dif.analysis))
 ```
 
