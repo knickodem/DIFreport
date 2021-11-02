@@ -55,7 +55,7 @@ The basic workflow requires only two functions:
 
 If you are interested in assessing DIF with respect to the treatment variable and evaluating robustness of the unconditional treatment effects, only `dif.group.id` need be supplied to `dif_data_prep()`.  Alternatively, one may provide the same variable for `dif.group.id` and `tx.group.id`. However, if different variables are provided to `dif.group.id` and `tx.group.id`, then conditional treatment effects are estimated instead (see below). The function `summary_report()` recognizes how the data are prepared and estimates the appropriate treatment effects. 
 
-The code below uses the built-in dataset "mdat" to generate [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/DIF-Effects-Tx-MDAT-Language.html). 
+The code below uses the built-in dataset "mdat" to generate [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/README Example Reports/DIF-Effects-Tx-MDAT-Language.html). 
 
 ```{r, eval = FALSE}
 # Load the example data (MDAT language assessment, collected in Malawi). 
