@@ -180,8 +180,7 @@ run_global_irt <- function(item.data, dif.group.id){
   ## Extracting comparison results
   tab <- rbind(uniform.tab, nonunif.tab[2,])
   tab$model <- c("No DIF", "Uniform", "Non-uniform")
-  tab <- tab[, -c(1:5)]
-  tab <- tab[, c(5, 1:4)]
+  tab <- tab[,c("model", "logLik", "X2", "df", "p")]
 
 
   ## Do we need to test for DIF at the item-level, and if so, which parameter?

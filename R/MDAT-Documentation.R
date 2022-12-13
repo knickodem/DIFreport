@@ -2,6 +2,10 @@
 #'
 #' A dataset containing the 26 item MDAT language assessment and indicators for treatment condition and gender
 #'
+#' @docType data
+#'
+#' @usage data(mdat)
+#'
 #' @format A data frame with 2122 rows and 30 variables:
 #' \describe{
 #'   \item{clusterid}{cluster identifier}

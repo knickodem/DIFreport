@@ -1,6 +1,6 @@
 #' Internal convenience functions
 #'
-#' Collection of convenience functions to improve automaticity and code readability
+#' Collection of convenience functions to improve automation and code readability
 #'
 #' @param item.data frame of item responses with subjects in rows
 #' and items in columns.
