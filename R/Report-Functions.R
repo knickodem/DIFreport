@@ -228,16 +228,11 @@ inputs2report <- function(inputs){
                                   paste("^b^", paste(names(inputs$no.var.by.group.items), collapse = ", ")),
                                   "none")
 
-  # levels of the dif.group variable
-  dif.group1 <- levels(inputs$dif.group.id)[[1]]
-  dif.group2 <- levels(inputs$dif.group.id)[[2]]
-
   return(list(n.items = n.items,
               item.name.range = item.name.range,
               no.var.items = no.var.items,
               no.var.by.group.items = no.var.by.group.items,
-              dif.group1 = dif.group1,
-              dif.group2 = dif.group2))
+              dif.groups = levels(inputs$dif.group.id)))
 
 }
 
@@ -247,9 +242,11 @@ which_direction <- function(dif.analysis, biased.items, dif.models = NULL){
   if(biased.items %in% c("MH", "logistic")){
 
     item.level <- dif.analysis[[biased.items]]$item.level
+    item.level <- item.level[item.level$refined.bias == TRUE,]
 
-    toward1 <- nrow(item.level[item.level$refined.bias == TRUE & item.level$refined.OR < 1, ])
-    toward2 <- nrow(item.level[item.level$refined.bias == TRUE & item.level$refined.OR > 1, ])
+    toward.df <- data.frame(Group = levels(dif.analysis$inputs$dif.group.id),
+                            `n Items` = c(nrow(item.level[item.level$refined.OR < 1, ]),
+                                          nrow(item.level[item.level$refined.OR > 1, ])))
 
   } else if(biased.items == "IRT"){
 
@@ -262,23 +259,30 @@ which_direction <- function(dif.analysis, biased.items, dif.models = NULL){
     }
 
     ## extract biased item parameter estimates for each dif.group
-    b1 <- mirt::coef(dif.mod, IRTpars = TRUE)[[1]][c(biased.items)]
-    b1 <- lapply(b1, function(x) x[, 2]) # extracts b parameter (or first threshold)
-    b1.df <- as.data.frame(Reduce(rbind, b1)) # single column
+    params <- mirt::coef(dif.mod, IRTpars = TRUE, simplify = TRUE)
 
-    b2 <- mirt::coef(dif.mod, IRTpars = TRUE)[[2]][c(biased.items)]
-    b2 <- lapply(b2, function(x) x[, 2]) # extracts b parameter (or first threshold)
-    b2.df <- as.data.frame(Reduce(rbind, b2))
+    # extract b parameter (or first threshold) for each item
+    b.vec <- lapply(params, function(x){
+      x$items[biased.items, 2]
+    })
+    b.df <- Reduce(rbind, b.vec) # group x item
+    b.min <- apply(b.df, 2, min, na.rm = TRUE) # min b for each item
 
-    # alternative parameter extraction, especially for using 2nd threshold
-    # g1 <- lapply(g1, function(x) x[,grepl("b$|b2", dimnames(x)[[2]])])
+    bl <- t(b.df) == b.min # logical
 
-    # calculate difference in b (difficulty) parameter
-    b.diff <- b1.df[[1]] - b2.df[[1]]
+    # use logicals to grab group name corresponding to min b for each item
+    toward <- vector("character", length = nrow(bl))
+    for(i in 1:nrow(bl)){
+      toward[[i]] <- names(params)[bl[i,]]
+    }
+    names(toward) <- names(b.min)
 
-    toward1 <- length(b.diff[b.diff < 0])
-    toward2 <- length(b.diff[b.diff > 0])
+    # gather results into a table
+    toward.df <- as.data.frame(table(toward))
+    names(toward.df) <- c("Group", "n Items")
+    toward.df$Group <- factor(toward.df$Group, levels = names(params))
+    toward.df <- toward.df[order(toward.df$Group),]
 
   }
-  return(c(toward1, toward2))
+  return(toward.df)
 }

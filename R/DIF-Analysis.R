@@ -68,7 +68,7 @@ dif_analysis <- function(dif.data,
   if("loess" %in% dif.methods){
 
       ## Calculating vector of total scores or list of rest scores
-      if(match.type == "Rest"){ # Returns a list with n_items elements of length = nrow(item.data)
+      if(match.type == "Rest"){ # Returns a list with n.items elements of length = nrow(item.data)
 
         match.scores <- lapply(X = c(1:ncol(item.data.orig)), FUN = sum_score,
                                item.data = item.data.orig, poly.items = poly.items)

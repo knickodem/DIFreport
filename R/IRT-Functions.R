@@ -43,13 +43,14 @@ dif_irt <- function(item.data, dif.group.id){
 
   } else {
 
-    nitems <- 1:ncol(item.data)
-
     ## If DIF was detected in the global tests
     if(length(global.irt$dif.params) > 0){
 
+      ## Number of items in the measure
+      nitems <- ncol(item.data)
+
       ## Stage 1 - Initial DIF
-      stage1 <- lapply(nitems, run_item_irt, global.irt = global.irt, which.model = "no.dif.mod")
+      stage1 <- lapply(1:nitems, run_item_irt, global.irt = global.irt, which.model = "no.dif.mod")
       # if we want more flexibility in the code, might need to use a for loop instead
 
       # convert list to df
@@ -78,7 +79,7 @@ dif_irt <- function(item.data, dif.group.id){
                                                                      names(item.data)[-irt.free]))
 
 
-        stage2 <- lapply(nitems[-irt.free], run_item_irt,
+        stage2 <- lapply(c(1:nitems)[-irt.free], run_item_irt,
                          global.irt = global.irt,
                          which.model = "no.dif.mod2")
         # if we want more flexiblity in the code, might need to use a for loop instead
@@ -231,7 +232,7 @@ run_item_irt <- function(global.irt,
   # order to get all the output we need
 
   # identify if item is dichotomous or polytomous
-  itemtype <- extract.mirt(global.irt[[which.model]], "itemtype")[[items2test]]
+  itemtype <- mirt::extract.mirt(global.irt[[which.model]], "itemtype")[[items2test]]
 
   if(itemtype == "graded" & ("d" %in% global.irt$dif.params)){
 

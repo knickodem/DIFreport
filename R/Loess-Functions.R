@@ -65,16 +65,17 @@ dif_loess <- function(item.data, dif.group.id, match.type, match.scores){
   }
 
   ## Converting list elements into single dataframe
-  # group legend currently prints levels in alphabetical order rather than factor order
   loess.df <- Reduce(rbind, loess.list)
   loess.df$item <- factor(loess.df$item, levels = names(item.data))
+  loess.df$dif.group.id <- factor(loess.df$dif.group.id, levels = levels(dif.group.id))
 
   ## Plotting the results
-  poly <- which(apply(item.data, 2, max, na.rm = TRUE) > 1)
+  max.val <- apply(item.data, 2, max, na.rm = TRUE) # highest response option
+  poly <- which(max.val > 1) # number of polytomous items
   if(length(poly) > 0){
 
-    scales <- "free_y"
     ylab <- "Predicted Item Score"
+    if(var(max.val) == 0) scales <- "fixed" else   scales <- "free_y"
 
   } else {
 
@@ -89,7 +90,9 @@ dif_loess <- function(item.data, dif.group.id, match.type, match.scores){
                     fill = dif.group.id), alpha = .4) +
     labs(x = paste(match.type, "Score"),
          y = ylab) + # changing legend name trickier b/c both color and fill scales
-    #theme_bw(base_size = 16) +
+    scale_color_brewer(palette = "Set2") +
+    scale_fill_brewer(palette = "Set2") +
+    theme_bw(base_size = 18) +
     facet_wrap(~item, ncol = 6, scales = scales) +
     theme(legend.position = "top",
           legend.title = element_blank())
@@ -123,24 +126,23 @@ run_loess <- function(item.data, dif.group.id,
   mod <- paste0(names(item.data)[item], " ~ score")
 
   # levels of the grouping variable
-  dif.group1 <- levels(dif.group.id)[1]
-  dif.group2 <- levels(dif.group.id)[2]
+  dg.levs <- levels(dif.group.id)
+  num.levs <- length(dg.levs)
 
-  # Loess by dif.group.id
-  g1.fit <-  stats::loess(mod, data = subset(item.data, dif.group.id == dif.group1))
-  g2.fit <-  stats::loess(mod, data = subset(item.data, dif.group.id == dif.group2))
+  # loess and predicted probability by group
+  pred <- vector(mode = "list", length = num.levs)
+  for(g in 1:length(dg.levs)){
+    fit <- stats::loess(mod, data = subset(item.data, dif.group.id == dg.levs[[g]]))
+    pred[[g]] <- predict(fit, newdata = pred.scores, se = T)
+  }
 
-  # predicted probability by dif.group.id
-  g1.pred <- predict(g1.fit, newdata = pred.scores, se = T)
-  g2.pred <- predict(g2.fit, newdata = pred.scores, se = T)
-
-  # Storage - one row for each pred.scores x dif.group.id combination
+  # Storage - one row for each pred.scores x group combination
   loess.data <- data.frame(
-    score = rep(pred.scores, times = 2),
-    prob = c(g1.pred$fit, g2.pred$fit),
-    se = c(g1.pred$se.fit, g2.pred$se.fit),
-    item = rep(names(item.data)[item], times = nitems*2),
-    dif.group.id = rep(c(dif.group1, dif.group2), each = nitems)
+    score = rep(pred.scores, times = num.levs),
+    prob = unlist(lapply(1:num.levs, function(x) pred[[x]]$fit)),
+    se = unlist(lapply(1:num.levs, function(x) pred[[x]]$se.fit)),
+    item = rep(names(item.data)[item], times = nitems*num.levs),
+    dif.group.id = rep(dg.levs, each = nitems)
   )
 
   return(loess.data)

@@ -22,7 +22,7 @@ if(dataset.name != "dataset"){
 
 **Measure:** `r if(measure.name == "measure") outputs$item.name.range else paste0(measure.name,  " (", outputs$item.name.range, ")")`
 
-**Comparison groups:** `r paste(outputs$dif.group1, outputs$dif.group2, sep = " and ")`
+**Comparison groups:** `r if(length(outputs$dif.groups) == 2) paste(outputs$dif.groups, collapse = " and ") else paste(outputs$dif.groups, collapse = ", ")`
 
 **Items with no variance:** `r outputs$no.var.items`
 
