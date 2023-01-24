@@ -21,6 +21,7 @@
 #'   \item the data used to generate the plot.
 #' }
 #'
+#' @import ggplot2
 #' @export
 
 dif_loess <- function(item.data, dif.group.id, match.type, match.scores){

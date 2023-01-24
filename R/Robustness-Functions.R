@@ -35,6 +35,7 @@
 #' @references
 #' Hedges, L. V. (2007). Effect Sizes in Cluster-Randomized Designs. Journal of Educational and Behavioral Statistics, 32, 341–370. \url{https://doi.org/10.3102/1076998606298043}.
 #'
+#' @import mirt
 #' @export
 
 effect_robustness <- function(dif.models, irt.scoring = "WLE") {

@@ -22,6 +22,7 @@
 #' \item IRT models needed for treatment effect robustness check
 #' }
 #'
+#' @import mirt
 #' @export
 
 dif_irt <- function(item.data, dif.group.id){

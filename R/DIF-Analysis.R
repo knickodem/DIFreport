@@ -7,7 +7,7 @@
 #' @param dif.methods A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.
 #' @param match.type Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.
 #' @param match.bins (optional) vector of bin sizes for stratifying the matching variable in
-#' the MH method. This is passed to the \code{probs} argument of \code{stas::quantile}.
+#' the MH method. This is passed to the \code{probs} argument of \code{stats::quantile}.
 #'
 #' @details
 #'  This is a wrapper for the functions \code{\link[WBdif]{dif_loess}}, \code{\link[WBdif]{dif_mh}}, \code{\link[WBdif]{dif_logistic}}, and \code{\link[WBdif]{dif_irt}}. Runs the requested DIF analyses on \code{dif.data$item.data} using \code{dif.data$dif.group.id} as the conditioning variable.

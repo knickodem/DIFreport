@@ -60,6 +60,9 @@
 #'            report.title = "MDAT Language: Gender DIF and Tx Effects",
 #'            measure.name = "MDAT Language")
 #'
+#' @import rmarkdown
+#' @importFrom gridExtra grid.arrange
+#' @importFrom knitr knit knit_print opts_chunk
 #' @export
 
 dif_report <- function(dif.analysis,

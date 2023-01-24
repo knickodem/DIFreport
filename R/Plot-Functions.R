@@ -10,6 +10,8 @@
 #' @return
 #' A \code{list} of two \code{ggplot} objects.
 #'
+#' @import ggplot2
+#' @import mirt
 #' @export
 
 bias_plots <- function(dif.models){
@@ -105,7 +107,7 @@ effects_plot <- function(effects){
     ylab("Scoring Method") +
     # ggtitle(main) +
     theme(strip.placement = "outside",
-          strip.text.y = element_text(angle = 180,vjust = 1, face = "bold"),
+          strip.text.y = element_text(angle = 180, vjust = 1, face = "bold"),
           strip.background = element_blank(),
           panel.spacing = unit(0,"cm"),
           panel.background = element_blank(),

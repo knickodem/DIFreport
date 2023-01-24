@@ -19,7 +19,7 @@ dif_analysis(
 \item{match.type}{Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.}
 
 \item{match.bins}{(optional) vector of bin sizes for stratifying the matching variable in
-the MH method. This is passed to the \code{probs} argument of \code{stas::quantile}.}
+the MH method. This is passed to the \code{probs} argument of \code{stats::quantile}.}
 }
 \value{
 A \code{list} containing \code{dif.data} and the results from each selected method. The list is not formatted in a very readable way; it is intended to be passed to \code{\link[WBdif]{dif_models}} for further processing or to \code{\link[WBdif]{dif_report}} for user-friendly formatting.

@@ -70,6 +70,8 @@ hedges2007 <- function(outcome, tx.group.id, std.group = NULL, cluster.id = NULL
 #' @param cluster.id An optional \code{vector} of \code{length(outcome)} indicating the primary sampling unit in a multi-stage / clustered sampling design.
 #' @return
 #' The ICC; returns 0 if \code{is.null(cluster.id)}.
+#'
+#' @importFrom lme4 VarCorr lmer
 
 get_icc <- function(outcome, cluster.id) {
   if (!is.null(cluster.id)) {
@@ -131,4 +133,29 @@ get_sd <- function(outcome, tx.group.id, std.group = NULL){
     SD <- sqrt(Var[std.group])
   }
   return(SD)
+}
+
+#' Tries to guess the control group and checks for input errors
+#'
+#' Helper function for \code{hedges2007}.
+#'
+#' @param tx.group.id A \code{vector} indicating the treatment groups.
+#' @param std.group An optional value of \code{tx.group.id} that identifies the group whose standard deviation will be used to standardize the treatment effect.
+#' @return A vector containing the two unique values of \code{tx.group.id}, with the name of the control group in the first position, and the name of the treatment group in the second position.
+
+get_tx.groups <- function(tx.group.id, std.group){
+
+  tx.group.id <- factor(tx.group.id)
+  tx.groups <- levels(tx.group.id)
+  if (length(tx.groups) != 2) {
+    stop("tx.group.id must have exactly 2 unique values")
+  }
+
+  if (!is.null(std.group)) {
+    if(!std.group %in% tx.groups) {
+      stop("std.group is not in tx.group.id")
+      tx.groups <- c(tx.groups[std.group == tx.groups], tx.groups[std.group != tx.groups])
+    }
+  }
+  tx.groups
 }
