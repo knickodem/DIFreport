@@ -47,7 +47,7 @@ This function also runs a number of pre-processing steps:
 \examples{
 data("mdat")
 
-dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)`]`,
+dif.data <- dif_data_prep(item.data = mdat[5:ncol(mdat)],
                              dif.group.id = mdat$gender,
                              tx.group.id = mdat$treated,
                              cluster.id = mdat$clusterid,

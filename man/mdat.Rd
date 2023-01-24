@@ -18,7 +18,7 @@ A data frame with 2122 rows and 30 variables:
 \url{https://www.worldbank.org/en/programs/sief-trust-fund/brief/effects-of-quality-improvement-strategies-on-early-childhood-development-in-community-based-childcare-centers-in-malawi}
 }
 \usage{
-mdat
+data(mdat)
 }
 \description{
 A dataset containing the 26 item MDAT language assessment and indicators for treatment condition and gender

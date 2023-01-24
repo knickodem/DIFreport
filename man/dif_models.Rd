@@ -2,38 +2,33 @@
 % Please edit documentation in R/DIF-Models.R
 \name{dif_models}
 \alias{dif_models}
-\title{IRT models with biased items}
+\title{Estimate a 2-group IRT model with biased items}
 \usage{
 dif_models(dif.analysis, biased.items = "IRT")
 }
 \arguments{
 \item{dif.analysis}{Output from \code{\link[WBdif]{dif_analysis}}}
 
-\item{biased.items}{A character of "IRT" (default), "logistic", or "MH" indicating the method from which to extract the biased items or a \code{numeric vector} of column indices indicating the biased items in \code{dif.analysis$inputs$item.data}}
+\item{biased.items}{One of \code{"IRT" "logistic", "MH"}, indicating the method from \code{dif_analysis} used to identify the biased items, or a numeric vector indicating the column indices of \code{item.data} that identify the biased items.}
 }
 \value{
-A named \code{list} containing the data and IRT models to estimate treatment effects.
+A named \code{list} containing the DIF and no-DIF IRT models, the column indices if \code{item.data} identifying the biased items, as well as the output of \code{dif_data_prep} (passed from \code{dif.analysis}).
 }
 \description{
-Primarily an interim function between dif_analysis and effect_robustness
+This function is a wrapper for \code{mirt::multipleGroup} that lets the user extract biased items from the output of \code{dif.analysis} or specify a custom list of biased items. All parameters of items identified as biased items are allowed to vary over groups (i.e. non-uniform DIF is assumed).
 }
 \details{
-Estimates a 2PL IRT model with the parameters on biased items feed over groups - the DIF model.
-The No DIF model, which constrains all item parameters to be equal across the groups, is either extracted from \code{dif.analysis} or estimated as well.
-The IRT models are estimated using \code{\link[mirt]{multipleGroup}}.
+Estimates a 2PL / GRM IRT model with the parameters of biased items freed over groups. A comparable model in which all item parameters are equal across the groups is either extracted from \code{dif.analysis} or estimated. The IRT models are estimated using \code{\link[mirt]{multipleGroup}}.
 }
 \examples{
 data("mdat")
 
 # prep data
-dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)],
+dif.data <- dif_data_prep(item.data = mdat[5:ncol(mdat)],
                              dif.group.id = mdat$gender,
                              na.to.0 = TRUE)
 
-dif.analysis <- dif_analysis(dif.data = dif.data,
-                             methods =  c("MH", "IRT"),
-                             match.type = "Rest",
-                             match.bins = seq(0, 1, by = .1))
+dif.analysis <- dif_analysis(dif.data = dif.data, dif.methods =  c("MH", "IRT"))
 
 # With biased items identified via DIF analysis
 dif.models <- dif_models(dif.analysis = dif.analysis, biased.items = "MH")

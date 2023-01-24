@@ -41,7 +41,7 @@ displays model comparisons ("model") or item-level tests ("item").}
 \code{est_alpha} returns a numeric value
 }
 \description{
-Collection of convenience functions to improve automaticity and code readability
+Collection of convenience functions to improve automation and code readability
 }
 \details{
 \code{sum_score} sums item responses into a scale score. Polytomous items are
