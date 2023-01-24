@@ -49,19 +49,19 @@ dif_data_prep <- function(item.data, dif.group.id, tx.group.id = dif.group.id,
   }
 
   # Need tx.group.id to be a 2-level factor
-  if(!is.null(tx.group.id) & !is.factor(tx.group.id)){
+  if(!is.factor(tx.group.id)){
     tx.group.id <- factor(tx.group.id)
-    if(length(levels(tx.group.id)) > 2){
-      stop("tx.group.id must have only 2 levels")
-    }
+  }
+  if(length(levels(tx.group.id)) > 2){
+    stop("tx.group.id must have only 2 levels")
   }
 
   # Need dif.group.id to be a 2-level factor
-  if(!is.null(dif.group.id) & !is.factor(dif.group.id)){
+  if(!is.factor(dif.group.id)){
     dif.group.id <- factor(dif.group.id)
-    if(length(levels(dif.group.id)) > 2){
-      stop("dif.group.id must have only 2 levels")
-    }
+  }
+  if(length(levels(dif.group.id)) > 2){
+    stop("dif.group.id must have only 2 levels")
   }
 
   if (!is.null(std.group)) {

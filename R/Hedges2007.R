@@ -24,6 +24,9 @@ hedges2007 <- function(outcome, tx.group.id, std.group = NULL, cluster.id = NULL
   if(!is.null(std.group)){
     std.group <- as.character(std.group) # in case numeric is supplied
   }
+  if(!is.factor(tx.group.id)){
+  tx.group.id <- factor(tx.group.id) # must be factor, otherwise output orders will be inconsistent
+  }
   tx.groups <- get_tx.groups(tx.group.id, std.group)
 
   if (!is.null(subset)) {
@@ -119,8 +122,8 @@ get_avg_cluster_n <- function(tx.group.id, cluster.id) {
 #' @return If \code{is.null(std.group)}, returns the pooled standard deviation; else returns the standard deviation of \code{std.group}.
 
 get_sd <- function(outcome, tx.group.id, std.group = NULL){
-  N <- table(tx.group.id)
-  Var <- tapply(outcome, tx.group.id, var, na.rm = T)
+  N <- table(tx.group.id) # output in order of tx.group.id levels
+  Var <- tapply(outcome, tx.group.id, var, na.rm = T) # output in alphabetical order
 
   if (is.null(std.group)) {
     SD <- sqrt(((N[1] - 1) * Var[1] + (N[2] - 1) * Var[2]) / (sum(N) - 2))

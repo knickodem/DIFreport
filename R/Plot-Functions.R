@@ -15,10 +15,8 @@
 bias_plots <- function(dif.models){
 
   # Levels of the dif.group variable
-
   dif.groups <- levels(dif.models$inputs$dif.group.id)
-  dif.group.order <- order(dif.groups)
-  n.dif.groups <- 2
+  n.dif.groups <- length(dif.groups)
 
   # Range for plots
   n.bins <- 200
@@ -36,7 +34,7 @@ bias_plots <- function(dif.models){
     #pdf <- approxfun(density(f.scores), rule = 2)
 
     # Get test characteristic curve
-    tcc <- mirt::expected.test(dif.models$dif.mod, group = dif.group.order[i], Theta = Theta)
+    tcc <- mirt::expected.test(dif.models$dif.mod, group = i, Theta = Theta)
 
     # Save
     data[[i]] <- data.frame(Group = dif.groups[i],
@@ -49,7 +47,7 @@ bias_plots <- function(dif.models){
   long.data <- Reduce(rbind, data)
 
   tcc.plot <- ggplot(data = long.data, aes(x = x, group = Group)) +
-                geom_line(aes(y = tcc, color = Group), lwd = 1, lty = 1) +
+                geom_line(aes(y = tcc, color = Group), linewidth = 1, linetype = 1) +
                 ggtitle("Test characteristic curves (TCCs)") +
                 scale_x_continuous(breaks = seq(-6, 6, 1), name = expression(theta)) +
                 scale_y_continuous(name = "Expected total score") +
@@ -61,14 +59,14 @@ bias_plots <- function(dif.models){
   ## Bias Plot
 
   wide.data <- merge(data[[1]], data[[2]], by = "x")
-  wide.data$bias <- wide.data$tcc.x - wide.data$tcc.y
+  wide.data$bias <- wide.data$tcc.y - wide.data$tcc.x
 
   main <- paste0("Test score bias: ",
-                dif.groups[dif.group.order[1]], " - ",
-                dif.groups[dif.group.order[2]])
+                dif.groups[2], " - ",
+                dif.groups[1])
 
   bias.plot <- ggplot(data = wide.data, aes(x = x, y = bias)) +
-                geom_line(lwd = 1, lty = 1) +
+                geom_line(linewidth = 1, linetype = 1) +
                 scale_x_continuous(breaks = seq(-6, 6, 1), name = expression(theta)) +
                 scale_y_continuous(name = "Bias (difference of TCCs)") +
                ggtitle(main) +
