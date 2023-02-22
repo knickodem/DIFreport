@@ -183,11 +183,11 @@ run_global_logistic <- function(item.data, dif.group.id, match.scores){
   long.data <- long.data[-1, ]  # removes first row which is all NA
 
   ## No DIF model, then adding grouping variable
-  mod0 <- stats::glm(response ~ -1 + item + match.scores:item,
+  mod0 <- stats::glm(response ~ -1 + item*match.scores,
               data = long.data, family = binomial)    # No DIF
-  mod1 <- stats::glm(response ~ -1 + item + match.scores:item + dif.group.id:item,
+  mod1 <- stats::glm(response ~ -1 + item*match.scores + item*dif.group.id,
               data = long.data, family = binomial)    # uniform DIF
-  mod2 <- stats::glm(response ~ -1 + item + match.scores:item + dif.group.id:item + dif.group.id:match.scores:item,
+  mod2 <- stats::glm(response ~ -1 + item*match.scores*dif.group.id,
               data = long.data, family = binomial)    # nonuniform DIF
 
   ## Omnibus test for any DIF
