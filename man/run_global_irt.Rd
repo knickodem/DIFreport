@@ -4,13 +4,15 @@
 \alias{run_global_irt}
 \title{IRT Model Comparisons for DIF}
 \usage{
-run_global_irt(item.data, dif.group.id)
+run_global_irt(item.data, dif.group.id, item.type)
 }
 \arguments{
-\item{item.data}{data frame of item responses with subjects in rows
-and items in columns}
+\item{item.data}{data frame of item responses with subjects in rows and items in columns}
 
 \item{dif.group.id}{factor vector of group membership for which DIF is evaluated.}
+
+\item{item.type}{When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+See \code{\link[mirt]{mirt}} for more options and details.}
 }
 \value{
 A list containing model comparison results table, the type of DIF, and the model objects

@@ -8,7 +8,8 @@ dif_analysis(
   dif.data,
   dif.methods = c("loess", "MH", "logistic", "IRT"),
   match.type = "Total",
-  match.bins = NULL
+  match.bins = NULL,
+  item.type = NULL
 )
 }
 \arguments{
@@ -20,6 +21,9 @@ dif_analysis(
 
 \item{match.bins}{(optional) vector of bin sizes for stratifying the matching variable in
 the MH method. This is passed to the \code{probs} argument of \code{stats::quantile}.}
+
+\item{item.type}{When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+See \code{\link[mirt]{mirt}} for more options and details.}
 }
 \value{
 A \code{list} containing \code{dif.data} and the results from each selected method. The list is not formatted in a very readable way; it is intended to be passed to \code{\link[WBdif]{dif_models}} for further processing or to \code{\link[WBdif]{dif_report}} for user-friendly formatting.

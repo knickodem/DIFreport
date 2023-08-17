@@ -2,18 +2,11 @@
 #'
 #' Conduct a DIF analysis, estimate treatment effect robustness, and produce report summarizing results
 #'
-#' @param dif.data The output of \code{\link[WBdif]{dif_data_prep}}.
-#' @param file.name File name to create on disk. The file path can also be specified here. If the path is omitted, the file is saved to the working directory.
+#' @inheritParams dif_analysis
+#' @inheritParams dif_report
+#' @inheritParams effect_robustness
+#'
 #' @param report.type A character indicating which type of report to produce: including both the DIF analysis results and treatment effect robustness checks ("dif.effects"; default), only DIF analysis ("dif.only"), or only treatment effect robustness checks ("effects.only").
-#' @param report.format File format of the report. Default is HTML ("html_document"). See \code{\link[rmarkdown]{render}} for other options.
-#' @param report.title An optional character string indicating the report title, which is printed in the report.
-#' @param measure.name An optional character string naming the measure being evaluated, which is printed in the report.
-#' @param dataset.name An optional character string naming the dataset used, which is printed in the report.
-#' @param dif.methods A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.
-#' @param biased.items Οne of \code{c("MH", "logistic", "IRT")}. Determines which DIF method should be used to identify biased items. Default is "IRT".
-#' @param match.type Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods. Default is "Total".
-#' @param match.bins An optional vector of bin sizes for stratifying the matching variable in the MH method. This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.
-#' @param irt.scoring Factor score estimation method, which is passed to \code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}} documentation for other options.
 #'
 #' @details
 #' This function is a wrapper around \code{\link[WBdif]{dif_analysis}}, \code{\link[WBdif]{dif_models}}, \code{\link[WBdif]{effect_robustness}}, and \code{\link[WBdif]{dif_report}} in order to simplify report production when desired.
@@ -48,6 +41,7 @@ summary_report <- function(dif.data,
                            biased.items = "IRT",
                            match.type  = "Total",
                            match.bins = NULL,
+                           item.type = NULL,
                            irt.scoring = "WLE"){
 
   ## Input checks
@@ -55,16 +49,17 @@ summary_report <- function(dif.data,
     stop("biased.items must be one of c(\'MH\', \'logistic\', \'IRT\').")
   }
 
-  if(report.type %in% c("dif.only", "dif.effects")){
+  # if(report.type %in% c("dif.only", "dif.effects")){ # need to run this for "effects.only" too, right?
 
     ## run dif_analysis
     dif.analysis <- dif_analysis(dif.data = dif.data,
                                  dif.methods = dif.methods,
                                  match.type = match.type,
-                                 match.bins = match.bins)
+                                 match.bins = match.bins,
+                                 item.type = item.type)
 
     nodif <- is.character(dif.analysis[[biased.items]]$biased.items) # T if no diffy items
-  }
+  # }
 
   if(report.type == "dif.only" | nodif == TRUE){
 
@@ -80,7 +75,8 @@ summary_report <- function(dif.data,
   } else {
 
     dif.models <- dif_models(dif.analysis = dif.analysis,
-                             biased.items = biased.items)
+                             biased.items = biased.items,
+                             item.type = item.type)
 
     effect.robustness <- effect_robustness(dif.models = dif.models,
                                            irt.scoring = irt.scoring)

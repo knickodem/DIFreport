@@ -1,9 +1,11 @@
 #' Estimate a 2-group IRT model with biased items
 #'
-#'  This function is a wrapper for \code{mirt::multipleGroup} that lets the user extract biased items from the output of \code{dif.analysis} or specify a custom list of biased items. All parameters of items identified as biased items are allowed to vary over groups (i.e. non-uniform DIF is assumed).
+#' This function is a wrapper for \code{\link[mirt]{multipleGroup}} that lets the user extract biased items from the output of \code{dif.analysis} or specify a custom list of biased items.
+#' All parameters of items identified as biased items are allowed to vary over groups (i.e. non-uniform DIF is assumed).
 #'
 #' @param dif.analysis Output from \code{\link[WBdif]{dif_analysis}}
 #' @param biased.items One of \code{"IRT" "logistic", "MH"}, indicating the method from \code{dif_analysis} used to identify the biased items, or a numeric vector indicating the column indices of \code{item.data} that identify the biased items.
+#' @inheritParams dif_analysis
 #'
 #' @details
 #' Estimates a 2PL / GRM IRT model with the parameters of biased items freed over groups. A comparable model in which all item parameters are equal across the groups is either extracted from \code{dif.analysis} or estimated. The IRT models are estimated using \code{\link[mirt]{multipleGroup}}.
@@ -29,7 +31,7 @@
 #'
 #' @export
 
-dif_models <- function(dif.analysis, biased.items = "IRT"){
+dif_models <- function(dif.analysis, biased.items = "IRT", item.type = NULL){
 
   stop.message <- "biased.items must be one of c(\'IRT\', \'logistic\', \'MH\') or column indices of item.data"
 
@@ -70,6 +72,7 @@ dif_models <- function(dif.analysis, biased.items = "IRT"){
   if(is.null(no.dif.mod)){
     no.dif.mod <- mirt::multipleGroup(data = inputs$item.data,
                                       model = 1,
+                                      itemtype = item.type,
                                       group = inputs$dif.group.id,
                                       invariance = c('slopes', 'intercepts',
                                                      'free_var','free_means'))
@@ -78,6 +81,7 @@ dif_models <- function(dif.analysis, biased.items = "IRT"){
   # IRT model with biased items freed over groups
   dif.mod <- mirt::multipleGroup(data = inputs$item.data,
                                  model = 1,
+                                 itemtype = item.type,
                                  group = inputs$dif.group.id,
                                  invariance = c(names(inputs$item.data)[-biased.items],
                                                 'free_var','free_means'))

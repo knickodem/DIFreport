@@ -92,20 +92,6 @@ if(nrow(biased.items.table) != 0){
 ```
 
 
-
-```{r loess, results='asis', warning=FALSE, fig.width = 10, fig.height = ceiling(outputs$n.items / 6)*2 + 1}
-
-if(!is.null(dif.analysis$loess)){
-  cat("## Graphical Analysis via loess")
-  cat("\n\n")
-  
-  print(dif.analysis$loess$plot)
-  
-}
-```
-
-
-
 ```{r MH, results='asis', ft.align="left"}
 
 if(!is.null(dif.analysis$MH)){
@@ -197,3 +183,17 @@ if(!is.null(dif.analysis$IRT)){
 }
 
 ```
+
+
+```{r loess, results='asis', warning=FALSE, fig.width = 10, fig.height = ceiling(outputs$n.items / 6)*2 + 1}
+
+if(!is.null(dif.analysis$loess)){
+  cat("## Graphical Analysis via loess")
+  cat("\n\n")
+  print(dif.analysis$loess$plot)
+  cat("\n\n")
+  cat("*Note.* Polytomous items are unit scaled when calculating the total or rest score. Thus, the maximum score is equal to the number of items.")
+  cat("\n\n")
+}
+```
+

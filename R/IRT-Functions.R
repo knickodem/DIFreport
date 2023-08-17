@@ -4,6 +4,7 @@
 #'
 #' @param item.data data frame of item responses with subjects in rows and items in columns
 #' @param dif.group.id factor vector of group membership for which DIF is evaluated.
+#' @inheritParams dif_analysis
 #'
 #' @details
 #' First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
@@ -25,11 +26,11 @@
 #' @import mirt
 #' @export
 
-dif_irt <- function(item.data, dif.group.id){
+dif_irt <- function(item.data, dif.group.id, item.type){
 
   #### Comparing no dif, uniform dif, and nonuniform dif models ####
   global.irt <- tryCatch(expr = {
-    run_global_irt(item.data = item.data, dif.group.id = dif.group.id)
+    run_global_irt(item.data = item.data, dif.group.id = dif.group.id, item.type = item.type)
   },
   error = function(e){
     message("Did not run IRT method. Possible empty cell(s) in the item by group
@@ -51,31 +52,35 @@ dif_irt <- function(item.data, dif.group.id){
       nitems <- ncol(item.data)
 
       ## Stage 1 - Initial DIF
-      stage1 <- lapply(1:nitems, run_item_irt, global.irt = global.irt, which.model = "no.dif.mod")
+      stage1 <- lapply(1:nitems, run_item_irt,
+                       global.irt = global.irt,
+                       which.model = "no.dif.mod")
       # if we want more flexibility in the code, might need to use a for loop instead
 
       # convert list to df
       stage1.df <- Reduce(rbind, stage1)
 
       # Benjamini–Hochberg procedure for false discovery rate < 5%
-      stage1.df$bias <- stats::p.adjust(stage1.df$p, method = "BH") < .05
+      stage1.df$adj.p <- stats::p.adjust(stage1.df$p, method = "BH")
+      stage1.df$bias <- stage1.df$adj.p < .05
 
       # The items to free in stage 2
       irt.free <- which(stage1.df$bias == 1)
 
       # Extracting X2 test results from initial run for output
       initial.df <- cbind(rownames(stage1.df),
-                          data.frame(stage1.df[,6:9], row.names = NULL))
-      names(initial.df) <- c("item", "chisq", "df", "p", "bias")
+                          data.frame(stage1.df[,names(stage1.df) %in% c("X2", "df", "p", "adj.p", "bias")], row.names = NULL))
+      names(initial.df) <- c("item", "chisq", "df", "p", "adj.p", "bias")
 
 
       if(length(irt.free) > 0){
-        names(initial.df)[2:5] <- paste0("initial.", names(initial.df)[2:5])
+        names(initial.df)[2:6] <- paste0("initial.", names(initial.df)[2:6])
 
         ## Stage 2 - Refine/Purify
         # Re-estimate no dif model while freeing IRT_free items
         global.irt$no.dif.mod2 <- mirt::multipleGroup(item.data, model = 1,
                                                       group = dif.group.id,
+                                                      itemtype = item.type,
                                                       invariance = c('free_var','free_means',
                                                                      names(item.data)[-irt.free]))
 
@@ -89,13 +94,14 @@ dif_irt <- function(item.data, dif.group.id){
         stage2.df <- Reduce(rbind, stage2)
 
         # Benjamini–Hochberg procedure for false discovery rate < 5%
-        stage2.df$bias <- stats::p.adjust(stage2.df$p, method = "BH") < .05
+        stage2.df$adj.p <- stats::p.adjust(stage2.df$p, method = "BH")
+        stage2.df$bias <- stage2.df$adj.p < .05
 
         ## Extracting X2 test results from refined run for output
         refined.df <- cbind(rownames(stage2.df),
-                            data.frame(stage2.df[,6:9], row.names = NULL))
+                            data.frame(stage2.df[,names(stage1.df) %in% c("X2", "df", "p", "adj.p", "bias")], row.names = NULL))
         names(refined.df) <- c("item", "refined.chisq",
-                               "refined.df", "refined.p", "refined.bias")
+                               "refined.df", "refined.p", "refined.adj.p", "refined.bias")
 
         ## Combining initial and refined output
         item.irt <- merge(x = initial.df,
@@ -158,20 +164,19 @@ dif_irt <- function(item.data, dif.group.id){
 #'
 #' Conduct an omnibus test for DIF by comparing no DIF, uniform DIF, and non-uniform DIF IRT models
 #'
-#' @param item.data data frame of item responses with subjects in rows
-#' and items in columns
-#' @param dif.group.id factor vector of group membership for which DIF is evaluated.
+#' @inheritParams dif_irt
+#'
 #' @return A list containing model comparison results table, the type of DIF, and the model objects
 
-run_global_irt <- function(item.data, dif.group.id){
+run_global_irt <- function(item.data, dif.group.id, item.type){
 
   ## Fitting nested models - Fit 2PL models with varying constraints
-  nonuniform.mod <- mirt::multipleGroup(item.data, model = 1, group = dif.group.id, SE = F)
+  nonuniform.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.group.id, SE = F)
 
-  uniform.mod <- mirt::multipleGroup(item.data, model = 1, group = dif.group.id,
+  uniform.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.group.id,
                                      invariance = c('slopes', 'free_var'), SE = F)
 
-  no.dif.mod <- mirt::multipleGroup(item.data, model = 1, group = dif.group.id,
+  no.dif.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.group.id,
                                     invariance = c('slopes', 'intercepts',
                                                    'free_var','free_means'), SE = F)
 
@@ -222,9 +227,10 @@ run_global_irt <- function(item.data, dif.group.id){
 #'
 #' @param global.irt an object returned from \code{\link[WBdif]{run_global_irt}}
 #' @param which.model the model in \code{global.irt} to use for testing DIF. Options
-#' are "no.dif.mod" (default), "uniform.mod" or "nonuniform.mod".
+#' are \code{"no.dif.mod"} (default), \code{"uniform.mod"} or \code{"nonuniform.mod"}.
 #' @param items2test numeric; the item to test for DIF, which is passed to the
 #' items2test argument of \code{\link[mirt]{DIF}}.
+#'
 #' @return an object returned from \code{\link[mirt]{DIF}}
 
 run_item_irt <- function(global.irt,

@@ -4,18 +4,22 @@
 \alias{dif_models}
 \title{Estimate a 2-group IRT model with biased items}
 \usage{
-dif_models(dif.analysis, biased.items = "IRT")
+dif_models(dif.analysis, biased.items = "IRT", item.type = NULL)
 }
 \arguments{
 \item{dif.analysis}{Output from \code{\link[WBdif]{dif_analysis}}}
 
 \item{biased.items}{One of \code{"IRT" "logistic", "MH"}, indicating the method from \code{dif_analysis} used to identify the biased items, or a numeric vector indicating the column indices of \code{item.data} that identify the biased items.}
+
+\item{item.type}{When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+See \code{\link[mirt]{mirt}} for more options and details.}
 }
 \value{
 A named \code{list} containing the DIF and no-DIF IRT models, the column indices if \code{item.data} identifying the biased items, as well as the output of \code{dif_data_prep} (passed from \code{dif.analysis}).
 }
 \description{
-This function is a wrapper for \code{mirt::multipleGroup} that lets the user extract biased items from the output of \code{dif.analysis} or specify a custom list of biased items. All parameters of items identified as biased items are allowed to vary over groups (i.e. non-uniform DIF is assumed).
+This function is a wrapper for \code{mirt::multipleGroup} that lets the user extract biased items from the output of \code{dif.analysis} or specify a custom list of biased items.
+All parameters of items identified as biased items are allowed to vary over groups (i.e. non-uniform DIF is assumed).
 }
 \details{
 Estimates a 2PL / GRM IRT model with the parameters of biased items freed over groups. A comparable model in which all item parameters are equal across the groups is either extracted from \code{dif.analysis} or estimated. The IRT models are estimated using \code{\link[mirt]{multipleGroup}}.

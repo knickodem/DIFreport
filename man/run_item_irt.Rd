@@ -10,7 +10,7 @@ run_item_irt(global.irt, which.model = "no.dif.mod", items2test)
 \item{global.irt}{an object returned from \code{\link[WBdif]{run_global_irt}}}
 
 \item{which.model}{the model in \code{global.irt} to use for testing DIF. Options
-are "no.dif.mod" (default), "uniform.mod" or "nonuniform.mod".}
+are \code{"no.dif.mod"} (default), \code{"uniform.mod"} or \code{"nonuniform.mod"}.}
 
 \item{items2test}{numeric; the item to test for DIF, which is passed to the
 items2test argument of \code{\link[mirt]{DIF}}.}

@@ -49,13 +49,14 @@ bias_plots <- function(dif.models){
   long.data <- Reduce(rbind, data)
 
   tcc.plot <- ggplot(data = long.data, aes(x = x, group = Group)) +
-                geom_line(aes(y = tcc, color = Group), linewidth = 1, linetype = 1) +
-                ggtitle("Test characteristic curves (TCCs)") +
-                scale_x_continuous(breaks = seq(-6, 6, 1), name = expression(theta)) +
-                scale_y_continuous(name = "Expected total score") +
-                theme(legend.position = "right",
-                     panel.grid.minor = element_blank(),
-                     text = element_text(size = 14))
+    geom_line(aes(y = tcc, color = Group), linewidth = 1, linetype = 1) +
+    ggtitle("Test characteristic curves (TCCs)") +
+    scale_x_continuous(breaks = seq(-6, 6, 1), name = expression(theta)) +
+    scale_y_continuous(name = "Expected total score") +
+    theme_bw() +
+    theme(legend.position = "right",
+          panel.grid.minor = element_blank(),
+          text = element_text(size = 14))
 
 
   ## Bias Plot
@@ -68,12 +69,13 @@ bias_plots <- function(dif.models){
                 dif.groups[1])
 
   bias.plot <- ggplot(data = wide.data, aes(x = x, y = bias)) +
-                geom_line(linewidth = 1, linetype = 1) +
-                scale_x_continuous(breaks = seq(-6, 6, 1), name = expression(theta)) +
-                scale_y_continuous(name = "Bias (difference of TCCs)") +
-               ggtitle(main) +
-                theme(panel.grid.minor = element_blank(),
-                      text = element_text(size=14))
+    geom_line(linewidth = 1, linetype = 1) +
+    scale_x_continuous(breaks = seq(-6, 6, 1), name = expression(theta)) +
+    scale_y_continuous(name = "Bias (difference of TCCs)") +
+    theme_bw() +
+    ggtitle(main) +
+    theme(panel.grid.minor = element_blank(),
+          text = element_text(size = 14))
 
   return(list(tcc.plot, bias.plot))
 }

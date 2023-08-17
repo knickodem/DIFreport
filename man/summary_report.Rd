@@ -16,6 +16,7 @@ summary_report(
   biased.items = "IRT",
   match.type = "Total",
   match.bins = NULL,
+  item.type = NULL,
   irt.scoring = "WLE"
 )
 }
@@ -38,11 +39,15 @@ summary_report(
 
 \item{biased.items}{Οne of \code{c("MH", "logistic", "IRT")}. Determines which DIF method should be used to identify biased items. Default is "IRT".}
 
-\item{match.type}{Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods. Default is "Total".}
+\item{match.type}{Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.}
 
-\item{match.bins}{An optional vector of bin sizes for stratifying the matching variable in the MH method. This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.}
+\item{match.bins}{(optional) vector of bin sizes for stratifying the matching variable in
+the MH method. This is passed to the \code{probs} argument of \code{stats::quantile}.}
 
-\item{irt.scoring}{Factor score estimation method, which is passed to \code{\link[mirt]{fscores}}. Default is "WLE". See \code{\link[mirt]{fscores}} documentation for other options.}
+\item{item.type}{When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+See \code{\link[mirt]{mirt}} for more options and details.}
+
+\item{irt.scoring}{What type of IRT scoring procedure should be used? Passed to the \code{method} argument of \code{\link[mirt]{fscores}}. See \code{help(fscores, mirt)}.}
 }
 \value{
 a summary report of the DIF analysis, treatment effect robustness checks, or both

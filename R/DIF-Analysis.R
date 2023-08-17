@@ -8,6 +8,8 @@
 #' @param match.type Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.
 #' @param match.bins (optional) vector of bin sizes for stratifying the matching variable in
 #' the MH method. This is passed to the \code{probs} argument of \code{stats::quantile}.
+#' @param item.type When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+#' See \code{\link[mirt]{mirt}} for more options and details.
 #'
 #' @details
 #'  This is a wrapper for the functions \code{\link[WBdif]{dif_loess}}, \code{\link[WBdif]{dif_mh}}, \code{\link[WBdif]{dif_logistic}}, and \code{\link[WBdif]{dif_irt}}. Runs the requested DIF analyses on \code{dif.data$item.data} using \code{dif.data$dif.group.id} as the conditioning variable.
@@ -42,7 +44,8 @@
 dif_analysis <- function(dif.data,
                          dif.methods = c("loess", "MH", "logistic", "IRT"),
                          match.type = "Total",
-                         match.bins = NULL){
+                         match.bins = NULL,
+                         item.type = NULL){
 
   # pulling constants from dif.data
   item.data <- dif.data$item.data
@@ -181,7 +184,8 @@ dif_analysis <- function(dif.data,
     }
 
     IRT <- dif_irt(item.data = item.data,
-                   dif.group.id = dif.group.id)
+                   dif.group.id = dif.group.id,
+                   item.type = item.type)
 
   } else {
 

@@ -60,7 +60,6 @@ gridExtra::grid.arrange(bias.plots[[1]], bias.plots[[2]])
 
 ```
 
-"Bias Omitted" treatment effect estimates adjusted for bias in `r paste(names(inputs$item.data)[dif.models$biased.items], collapse = ", ")`.
 
 ```{r Treatment_Effects, results='asis', warning=FALSE, ft.align="left", fig.width = 5, fig.height = 4}
 
@@ -68,7 +67,10 @@ for(i in 1:length(effects.tables)){
   cat("\n\n")
   cat("##", names(effects.tables)[[i]])
   cat("\n\n")
+  cat("'Bias Omitted' treatment effect estimates adjusted for bias in", paste(names(inputs$item.data)[dif.models$biased.items], collapse = ", "), ".")
+  cat("\n\n")
   et.flex <- format_flex(effects.tables[[i]])
+  cat("\n\n")
   cat(knitr::knit_print(et.flex))
   cat("\n\n")
   cat("&nbsp;  ")
