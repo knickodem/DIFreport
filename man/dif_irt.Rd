@@ -4,14 +4,14 @@
 \alias{dif_irt}
 \title{Item response theory DIF method}
 \usage{
-dif_irt(item.data, dif.group.id, item.type)
+dif_irt(item.data, dif.groups, item.type)
 }
 \arguments{
 \item{item.data}{data frame of item responses with subjects in rows and items in columns}
 
-\item{dif.group.id}{factor vector of group membership for which DIF is evaluated.}
+\item{dif.groups}{factor vector of group membership for which DIF is evaluated.}
 
-\item{item.type}{When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+\item{item.type}{For IRT, the type of model to fit for each item. The default is \code{"2PL"} for dichotomous items and \code{"graded"} for polytomous items.
 See \code{\link[mirt]{mirt}} for more options and details.}
 }
 \value{
@@ -31,7 +31,7 @@ Conducts DIF analysis using an item response theory approach
 First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
 The models are run \code{\link[mirt]{multipleGroup}} by constraining slopes
 and intercepts, slopes only, and nothing, respectively, to be equal
-between the levels of \code{dif.group.id}. Model fit is compared with a
+between the levels of \code{dif.groups}. Model fit is compared with a
 likelihood ratio test. If DIF is detected through the model comparisons, the
 specific item(s) with DIF are identified in a two-stage process (initial and refinement) using \code{\link[mirt]{DIF}}.
 }

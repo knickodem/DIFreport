@@ -3,14 +3,14 @@
 #' Conducts DIF analysis using an item response theory approach
 #'
 #' @param item.data data frame of item responses with subjects in rows and items in columns
-#' @param dif.group.id factor vector of group membership for which DIF is evaluated.
+#' @param dif.groups factor vector of group membership for which DIF is evaluated.
 #' @inheritParams dif_analysis
 #'
 #' @details
 #' First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
 #' The models are run \code{\link[mirt]{multipleGroup}} by constraining slopes
 #' and intercepts, slopes only, and nothing, respectively, to be equal
-#' between the levels of \code{dif.group.id}. Model fit is compared with a
+#' between the levels of \code{dif.groups}. Model fit is compared with a
 #' likelihood ratio test. If DIF is detected through the model comparisons, the
 #' specific item(s) with DIF are identified in a two-stage process (initial and refinement) using \code{\link[mirt]{DIF}}.
 #'
@@ -26,11 +26,11 @@
 #' @import mirt
 #' @export
 
-dif_irt <- function(item.data, dif.group.id, item.type){
+dif_irt <- function(item.data, dif.groups, item.type){
 
   #### Comparing no dif, uniform dif, and nonuniform dif models ####
   global.irt <- tryCatch(expr = {
-    run_global_irt(item.data = item.data, dif.group.id = dif.group.id, item.type = item.type)
+    run_global_irt(item.data = item.data, dif.groups = dif.groups, item.type = item.type)
   },
   error = function(e){
     message("Did not run IRT method. Possible empty cell(s) in the item by group
@@ -79,7 +79,7 @@ dif_irt <- function(item.data, dif.group.id, item.type){
         ## Stage 2 - Refine/Purify
         # Re-estimate no dif model while freeing IRT_free items
         global.irt$no.dif.mod2 <- mirt::multipleGroup(item.data, model = 1,
-                                                      group = dif.group.id,
+                                                      group = dif.groups,
                                                       itemtype = item.type,
                                                       invariance = c('free_var','free_means',
                                                                      names(item.data)[-irt.free]))
@@ -167,16 +167,18 @@ dif_irt <- function(item.data, dif.group.id, item.type){
 #' @inheritParams dif_irt
 #'
 #' @return A list containing model comparison results table, the type of DIF, and the model objects
+#'
+#' @noRd
 
-run_global_irt <- function(item.data, dif.group.id, item.type){
+run_global_irt <- function(item.data, dif.groups, item.type){
 
   ## Fitting nested models - Fit 2PL models with varying constraints
-  nonuniform.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.group.id, SE = F)
+  nonuniform.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.groups, SE = F)
 
-  uniform.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.group.id,
+  uniform.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.groups,
                                      invariance = c('slopes', 'free_var'), SE = F)
 
-  no.dif.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.group.id,
+  no.dif.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.groups,
                                     invariance = c('slopes', 'intercepts',
                                                    'free_var','free_means'), SE = F)
 

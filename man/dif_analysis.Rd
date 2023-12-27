@@ -6,53 +6,64 @@
 \usage{
 dif_analysis(
   dif.data,
-  dif.methods = c("loess", "MH", "logistic", "IRT"),
+  dif.methods = "default",
   match.type = "Total",
   match.bins = NULL,
-  item.type = NULL
+  item.type = NULL,
+  stop = TRUE
 )
 }
 \arguments{
-\item{dif.data}{The output of \code{\link[WBdif]{dif_data_prep}}.}
+\item{dif.data}{an object returned from \code{\link[DIFreport]{dif_prep}}}
 
-\item{dif.methods}{A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.}
+\item{dif.methods}{character vector with one or more methods of of investigating DIF:
+locally estimated scatterplot smoothing (\code{"loess"}), Mantel-Haenszel test (\code{"MH"}),
+logistic regression (\code{"logistic"}), and multi-group item response theory (\code{"IRT"}). The default is all four methods with dichotomous items and
+\code{c("loess", "IRT")} when polytomous items are detected; MH and logistic can only accommodate dichotomous data.}
 
-\item{match.type}{Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.}
+\item{match.type}{For the loess, MH, and logistic methods, a character indicating whether a
+total summed score (\code{"Total"}; default) or the summed score excluding the item under
+investigation (\code{"Rest"}) should be used as the stratifying variable.}
 
-\item{match.bins}{(optional) vector of bin sizes for stratifying the matching variable in
-the MH method. This is passed to the \code{probs} argument of \code{stats::quantile}.}
+\item{match.bins}{For MH, an optional vector of bin sizes for stratifying the \code{match.type} score.
+This is passed to the \code{probs} argument of \code{stats::quantile}. See examples for usage.}
 
-\item{item.type}{When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+\item{item.type}{For IRT, the type of model to fit for each item. The default is \code{"2PL"} for dichotomous items and \code{"graded"} for polytomous items.
 See \code{\link[mirt]{mirt}} for more options and details.}
+
+\item{stop}{If \code{FALSE}, when possible, errors will return \code{NA} for the item under investigation rather than stop the analysis completely (default is \code{TRUE}.}
 }
 \value{
-A \code{list} containing \code{dif.data} and the results from each selected method. The list is not formatted in a very readable way; it is intended to be passed to \code{\link[WBdif]{dif_models}} for further processing or to \code{\link[WBdif]{dif_report}} for user-friendly formatting.
+A \code{list} containing \code{dif.data} and the results from each selected method.
+The list is not formatted in a directly usable manner; it is intended to be passed to
+\code{\link[DIFreport]{dif_models}} for further processing or to \code{\link[DIFreport]{dif_report}} for user-friendly formatting.
 }
 \description{
 Evaluates differential item functioning (DIF) using loess, Mantel-Haenszel (MH),
 logistic regression, and item response theory (IRT) approaches.
 }
 \details{
-This is a wrapper for the functions \code{\link[WBdif]{dif_loess}}, \code{\link[WBdif]{dif_mh}}, \code{\link[WBdif]{dif_logistic}}, and \code{\link[WBdif]{dif_irt}}. Runs the requested DIF analyses on \code{dif.data$item.data} using \code{dif.data$dif.group.id} as the conditioning variable.
+This is a wrapper for the functions \code{\link[DIFreport]{dif_loess}}, \code{\link[DIFreport]{dif_mh}},
+ \code{\link[DIFreport]{dif_logistic}}, and \code{\link[DIFreport]{dif_irt}}, which run the requested DIF analyses
+ on \code{dif.data$item.data} by \code{dif.data$dif.groups}.
 
 Usage notes:
 \itemize{
 \item Dichotomous items must be coded 0 = incorrect, 1 = correct.
 \item The Mantel-Haenszel and logistic methods can only accommodate dichotomous items.
 \item Polytomous item responses are expected to be sequential integers (e.g., 1, 2, 3) but the lowest code does not have to be 0. Polytomous items are unit scaled when calculating the total or rest score.
-\item Items with no variance are removed from \code{dif.data$item.data} when running the "MH", "logistic", and "IRT" methods.
-\item Items with different number of response categories across levels of \code{dif.data$dif.group.id} are removed from \code{dif.data$item.data} for the "IRT" method.
+\item Items with different number of response categories across levels of \code{dif.data$dif.groups} are removed from \code{dif.data$item.data} for the "IRT" method.
 }
 }
 \examples{
 data("mdat")
 
 # prep data
-dif.data <- dif_data_prep(item.data = mdat`[`5:ncol(mdat)],
-                             dif.group.id = mdat$gender,
+dif.data <- dif_prep(item.data = mdat`[`5:ncol(mdat)],
+                             dif.groups = mdat$gender,
                              na.to.0 = TRUE)
 
-# DIF analysis by dif.group.id
+# DIF analysis by dif.groups
 # using rest scores and binning match scores by deciles to avoid empty cells in MH analysis
 dif.analysis <- dif_analysis(dif.data = dif.data,
                            dif.methods =  c("MH", "IRT"),

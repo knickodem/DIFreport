@@ -2,7 +2,7 @@
 #'
 #' Compiles table of biased items identified by selected DIF methods
 #'
-#' @param dif.analysis Output from \code{\link[WBdif]{dif_analysis}}
+#' @param dif.analysis Output from \code{\link[DIFreport]{dif_analysis}}
 #'
 #' @return a \code{data.frame} with biased items in rows and DIF methods in columns
 #'
@@ -42,7 +42,7 @@ biased_items_table <- function(dif.analysis){
 #'
 #' Extracts list of biased items from a \code{dif_analysis} object
 #'
-#' @param dif.analysis Output from \code{\link[WBdif]{dif_analysis}}
+#' @param dif.analysis Output from \code{\link[DIFreport]{dif_analysis}}
 #'
 #' @return a \code{list} of vectors of column locations in \code{item.data} for the biased items identified by each DIF method.
 #'
@@ -62,7 +62,7 @@ extract_biased_items <- function(dif.analysis){
 #'
 #' Compiles table of treatment effect estimates
 #'
-#' @param effects Output from \code{\link[WBdif]{effect_robustness}}
+#' @param effects Output from \code{\link[DIFreport]{effect_robustness}}
 #' @param alphas (optional) \code{vector} of score reliabilities (e.g., alpha, omega) to append to the table.
 #'
 #' @return a \code{data.frame} of treatment effect estimates and their standard errors.

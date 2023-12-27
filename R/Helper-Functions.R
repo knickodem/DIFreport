@@ -2,50 +2,32 @@
 #'
 #' Collection of convenience functions to improve automation and code readability
 #'
-#' @param item.data frame of item responses with subjects in rows
-#' and items in columns.
-#' @param drops integer vector; item locations in \code{item.data} to exclude from
-#' score calculation
+#' @param item.data frame of item responses with subjects in rows and items in columns.
+#' @param drops integer vector; item locations in \code{item.data} to exclude from score calculation
 #' @param poly.items integer vector; location of polytomous items in \code{item.data}
-#' @param dif.analysis an object returned from \code{\link[WBdif]{dif_analysis}}
-#' @param df a data frame
-#' @param bold.bias character indicating whether results tables should bold instances
-#' of DIF or not ("no", the default). If so, must specify whether the table
-#' displays model comparisons ("model") or item-level tests ("item").
-#' @param digits integer; number decimal places to print in report tables
+#' @param max.values integer vector of equal length to \code{poly.items} indicating the maximum value each item in \code{poly.items} can take.
 #'
 #' @details
-#' \code{sum_score} sums item responses into a scale score. Polytomous items are
-#' unit scaled so each item has a maximum value of 1. \cr
-#' \code{extract_bi} extracts the biased items identified from each \code{dif.analysis}
-#' method. If no biased items were detected, a character string indicated so is extracted. \cr
-#' \code{format_flex} converts the DIF results from a data frame to a
-#' \code{\link[flextable]{flextable}} and formats the table for printing in the report. \cr
+#' Sums item responses into a scale score. The \code{drops} argument is used for calculating the rest score.
+#' Polytomous items are unit scaled so each item has a maximum value of 1.
 #'
 #' @return
-#' \code{sum_score} returns a numeric vector of summed scores \cr
-#' \code{extract_bi} returns list of biased items from each \code{dif.analysis} method \cr
-#' \code{format_flex} returns a \code{\link[flextable]{flextable}} object \cr
-#' \code{est_alpha} returns a numeric value
+#' numeric vector of summed scores
 #'
-#' @importFrom flextable flextable bold autofit colformat_double set_flextable_defaults
+#'
+#' @noRd
 
-sum_score <- function(item.data, drops = NULL, poly.items = integer()){
+sum_score <- function(item.data, drops = NULL, poly.items = integer(), max.values = integer()){
 
   # unit scale all polytomous items
   if(length(poly.items) > 0){
-
-    item.data[,poly.items] <- apply(as.matrix(item.data[,poly.items]), 2, function(x) x / max(x, na.rm = TRUE))
-
+    item.data[,poly.items] <- mapply(function(x, y) x / y, item.data[,poly.items], max.values)
   }
 
   if(!is.null(drops)){
-
     # calculating rest score
-    score <- apply(item.data[,-c(drops)], 1, sum, na.rm = T)
-
+    score <- apply(item.data[,-drops], 1, sum, na.rm = T)
   } else {
-
     # calculating total score
     score <- apply(item.data, 1, sum, na.rm = T)
   }
@@ -54,11 +36,26 @@ sum_score <- function(item.data, drops = NULL, poly.items = integer()){
 }
 
 
-#' @rdname sum_score
+
+#'
+#' @param df a data frame
+#' @param bold.bias character indicating whether results tables should bold instances
+#' of DIF or not ("no", the default). If so, must specify whether the table
+#' displays model comparisons ("model") or item-level tests ("item").
+#' @param digits integer; number decimal places to print in report tables
+#'
+#' @details
+#' Converts the DIF results from a data frame to a \code{\link[flextable]{flextable}} and
+#' formats the table for printing in the report.
+#'
+#' @return
+#' a \code{\link[flextable]{flextable}} object
+#'
+#' @importFrom flextable flextable bold autofit colformat_double set_flextable_defaults
+#'
+#' @noRd
 
 format_flex <- function(df, bold.bias = "no", digits = 3){
-
-
 
   ftab <- flextable::flextable(df)
 
@@ -83,7 +80,9 @@ format_flex <- function(df, bold.bias = "no", digits = 3){
   return(ftab)
 }
 
-#' @rdname sum_score
+#' @param item.data frame of item responses with subjects in rows and items in columns.
+#' @return numeric value
+#' @noRd
 
 est_alpha <- function(item.data){
   item.data <- na.omit(item.data)
@@ -93,7 +92,8 @@ est_alpha <- function(item.data){
   return(alpha)
 }
 
-#' @rdname sum_score
+#' @param dif.analysis an object returned from \code{\link[DIFreport]{dif_analysis}}
+#' @noRd
 
 coeff_alpha <-function(dif.models, std.group = NULL) {
   inputs <- dif.models$inputs

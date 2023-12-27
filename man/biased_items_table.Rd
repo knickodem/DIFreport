@@ -7,7 +7,7 @@
 biased_items_table(dif.analysis)
 }
 \arguments{
-\item{dif.analysis}{Output from \code{\link[WBdif]{dif_analysis}}}
+\item{dif.analysis}{Output from \code{\link[DIFreport]{dif_analysis}}}
 }
 \value{
 a \code{data.frame} with biased items in rows and DIF methods in columns

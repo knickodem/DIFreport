@@ -4,16 +4,15 @@
 \alias{dif_loess}
 \title{LOESS DIF method}
 \usage{
-dif_loess(item.data, dif.group.id, match.type, match.scores)
+dif_loess(item.data, dif.groups, match.type, match.scores)
 }
 \arguments{
 \item{item.data}{data frame of item responses with subjects in rows and items in columns}
 
-\item{dif.group.id}{factor vector of group membership for which DIF is evaluated.}
+\item{dif.groups}{factor vector of group membership for which DIF is evaluated.}
 
-\item{match.type}{character indicating whether \code{match.scores} is a
-total summed score ("Total") or the summed score excluding the item under
-investigation ("Rest").}
+\item{match.type}{character indicating whether \code{match.scores} is a total summed score ("Total") or
+the summed score excluding the item under investigation ("Rest").}
 
 \item{match.scores}{A numeric vector (if \code{match.type = "Total"}) or
 \code{list} of \code{ncol(item.data)} numeric vectors (if \code{match.type = "Rest"})
@@ -22,7 +21,7 @@ of match scores used as a predictor in the LOESS regression.}
 \value{
 A list containing:
 \itemize{
-  \item the plot of LOESS curves for each \code{dif.group.id} level for every item in \code{item.data}
+  \item the plot of LOESS curves for each \code{dif.groups} level for every item in \code{item.data}
   \item the data used to generate the plot.
 }
 }
@@ -31,5 +30,5 @@ Visual inspection of DIF with LOESS regression curves
 }
 \details{
 For each item in \code{item.data}, \code{\link[stats]{loess}} is called to regress the
-item responses on the scores supplied to \code{match.scores}. A separate model is run for each \code{dif.group.id} level.
+item responses on the scores supplied to \code{match.scores}. A separate model is run for each \code{dif.groups} level.
 }

@@ -8,17 +8,17 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# WBdif
+# DIFreport
 
 ## Summary
 
-Development of **WBdif** was motivated by questions regarding the psychometric properties of  early childhood development assessments used as outcome measures in impact evaluations. This package provides methods for (a) evaluating differential item functioning (DIF),  (b) checking whether DIF leads to biased treatment effects on the unit-weighted total score or IRT-based scoring methods, and (c) providing DIF-corrected treatment effects by either removing biased items (for the unit-weighted total score) or using an IRT models that adjusts for the item bias (for IRT-based scoring). The methods are documented in the report: (forthcoming).
+Development of **DIFreport** was motivated by questions regarding the psychometric properties of early childhood development assessments used as outcome measures in impact evaluations. This package provides methods for (a) evaluating differential item functioning (DIF), (b) checking whether DIF leads to biased treatment effects on the unit-weighted total score or item response theory (IRT) based scoring methods, and (c) providing DIF-corrected treatment effects by either removing biased items (for the unit-weighted total score) or using an IRT models that adjusts for the item bias (for IRT-based scoring).
 
 ### Methods
 
-The methods for evaluating DIF include semi-parametric regression (LOESS), the Mantel-Haenszel test, logistic regression, and multi-group item response theory (IRT).  
+The methods for evaluating DIF include semi-parametric regression (LOESS), the Mantel-Haenszel test, logistic regression, and multi-group IRT.  
 
-DIF can be evaluated with respect to the treatment variable, or with respect to pre-treatment variables used to examine treatment heterogeneity (e.g., gender, age, and socio-economic status). The **WBdif** documentation refers to these as unconditional and conditional treatment effects,  respectively.
+DIF can be evaluated with respect to a treatment variable or with respect to pre-treatment variables used to examine treatment heterogeneity (e.g., gender, age, and socio-economic status). The **DIFreport** documentation refers to these as unconditional and conditional treatment effects, respectively.
 
 If assessment items have DIF with respect to treatment, the unconditional treatment effect *may* be biased. The intuitive interpretation here is that the treatment effect varies over the assessment items, so reporting the treatment effect on an aggregate score (e.g., the unit-weighted total score) may not reflect "true" effect on the construct of interest. 
 
@@ -26,34 +26,41 @@ If the assessment items have DIF with respect to a conditioning variable (e.g., 
 
 ### Workflows
 
-**WBdif** provides two general workflows, both of which are illustrated below. In the "[basic](#basic)" workflow, `summary_report()` is an omnibus function that automates the DIF analysis and, if there is any DIF detected, computes the treatment effects with and without adjusting for DIF. The results are summarized in an rmarkdown produced report. 
+**DIFreport** provides two general workflows, both of which are illustrated below. In the "[basic](#basic)" workflow, `summary_report()` is an omnibus function that automates the DIF analysis and, if there is any DIF detected, computes the treatment effects with and without adjusting for DIF. The results are summarized in an `rmarkdown` produced report. 
 
 In the "[advanced](#advanced)" workflow, the steps automated by `summary_report()` can be implemented directly, which gives more control over which DIF analyses are conducted and which items are identified as biased. The advanced workflow is currently under construction, as the output returned by most functions is not very user-friendly. In the future, these outputs may be converted to S3 or S4 objects with methods (e.g., print, summary) to provide greater utility. 
 
 
-**WBdif** is in the alpha stage of development. Please report any bugs or suggestions by opening a [Github issue](https://github.com/knickodem/WBdif/issues).
+**DIFreport** is in the alpha stage of development. Please report any bugs or suggestions by opening a [Github issue](https://github.com/knickodem/WBdif/issues).
 
 ## Installation
 
 ```{r, eval = FALSE}
 install.packages("remotes")
-remotes::install_github("knickodem/WBdif")
-library(WBdif)
+remotes::install_github("knickodem/DIFreport")
+library(DIFreport)
 ```
 
 # Workflows
+
+## Dataset
+
+PROVIDE BRIEF DESCRIPTION
+
+Neuman, M.,  Ozler, B., & Fernald, L. (2013). *Protecting early childhood development in Malawi impact evaluation survey 2013, midline*. World Bank. https://doi.org/10.48529/94zr-ww41
+
 
 ## Basic {#basic}
 
 The basic workflow requires only two functions: 
 
-* `dif_data_prep()` is a pre-processing step that organizes input information for use in other **WBdif** functions and conducts some checks on the data. How the data is prepared determines the type of report produced. In general, different reports require different data preps. 
+* `dif_data_prep()` is a pre-processing step that organizes input information for use in other **DIFreport** functions and conducts some checks on the data to preemptively address potential downstream issues. Additionally, different reports require different data preps. 
 
 * `summary_report()` is a wrapper around all of the other functions needed to run the analysis and produce the report. The function offers a variety of options to customize the both the analysis and reporting. For more details on each option see the [Advanced workflow](#advanced) section. Given the all-in-one nature of `summary_report()`, the code will usually take several minutes to run before producing the report.
 
 ### Unconditional Treatment Effects
 
-If you are interested in assessing DIF with respect to the treatment variable and evaluating robustness of the unconditional treatment effects, only `dif.group.id` need be supplied to `dif_data_prep()`.  Alternatively, one may provide the same variable for `dif.group.id` and `tx.group.id`. However, if different variables are provided to `dif.group.id` and `tx.group.id`, then conditional treatment effects are estimated instead (see below). The function `summary_report()` recognizes how the data are prepared and estimates the appropriate treatment effects. 
+If assessing DIF with respect to only the treatment variable is of interest, and evaluating robustness of the unconditional treatment effects, only `dif.group.id` need be supplied to `dif_data_prep()`. If different variables are provided to `dif.group.id` and `tx.group.id`, then conditional treatment effects are estimated (see [Conditional Treatment Effects](#conditional)). The function `summary_report()` recognizes how the data are prepared and estimates the appropriate treatment effects. 
 
 The code below uses the built-in dataset "mdat" to generate [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/README Example Reports/DIF-Effects-Tx-MDAT-Language.html). 
 
@@ -75,9 +82,9 @@ summary_report(dif.data = mdat_tx,
                dataset.name = "Malawi")
 ```
 
-### Conditional Treatment Effects
+### Conditional Treatment Effects {#conditional}
 
-If you are interested in assessing DIF with respect to a conditioning variable (e.g., gender) and evaluating robustness of the conditional treatment effects (e.g., for just females, for just males, and their difference), then both `dif.group.id` and `tx.group.id`need to be supplied to `dif_data_prep()`. If the same variable is provided to `dif.group.id` and `tx.group.id`, then unconditional treatment effects are estimated instead (see above).
+If assessing DIF with respect to a conditioning variable (e.g., gender) and evaluating robustness of the conditional treatment effects (e.g., for just females, for just males, and their difference) is of interest, then both `dif.group.id` and `tx.group.id`need to be supplied to `dif_data_prep()`.
 
 Below we specify both `dif.group.id` and a different `tx.group.id`. The code below generates [this report](https://htmlpreview.github.io/?https://github.com/knickodem/WBdif/blob/master/README Example Reports/DIF-Effects-Gender-MDAT-Language.html).
 

@@ -7,7 +7,7 @@
 extract_biased_items(dif.analysis)
 }
 \arguments{
-\item{dif.analysis}{Output from \code{\link[WBdif]{dif_analysis}}}
+\item{dif.analysis}{Output from \code{\link[DIFreport]{dif_analysis}}}
 }
 \value{
 a \code{list} of vectors of column locations in \code{item.data} for the biased items identified by each DIF method.

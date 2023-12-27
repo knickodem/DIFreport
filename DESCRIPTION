@@ -1,11 +1,13 @@
-Package: WBdif
+Package: DIFreport
 Type: Package
-Title: Investigating DIF in World Bank early childhood development measures
+Title: Investigate DIF and generate reports
 Version: 0.1.0
 Author: Kyle Nickodem and Peter Halpin
 Maintainer: Kyle Nickodem <kyle.nickodem@gmail.com>
 Description:
    This package provides methods for (a) evaluating differential item functioning (DIF),  (b) checking whether DIF leads to biased treatment effects on the unit-weighted total score or IRT-based scoring methods, and (c) providing DIF-corrected treatment effects by either removing biased items (for the unit-weighted total score) or using an IRT models that adjusts for the item bias (for IRT-based scoring).
+URL: https://github.com/knickodem/DIFreport
+BugReports: https://github.com/knickodem/DIFreport/issues
 Depends:
     R (>= 3.6)
 Imports:
@@ -16,7 +18,7 @@ Imports:
   lme4,
   mirt,
   rmarkdown
-License: GNU GENERAL PUBLIC LICENSE
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
