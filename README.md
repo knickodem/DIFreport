@@ -258,13 +258,8 @@ four different outcome variables.
   items to vary over levels of `dif.groups`.
 
 The information supplied to `dif_prep()` (which is passed to
-`dif_impact()` through `dif.models`) provides additional details about
-how the standardized mean differences are computed
-
-- standardized mean differences are computed for `cond.groups`. If
-  `cond.groups == dif.groups` unconditional standardized mean
-  differences are reported. Otherwise standardized mean differences are
-  computed condition on `dif.groups`.
+`dif_impact()` provides additional details about how the standardized
+mean differences are computed
 
 - The standard deviation used to standardize the effect size is given by
   `ref.name` if supplied.
