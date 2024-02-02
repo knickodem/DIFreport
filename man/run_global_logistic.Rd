@@ -4,19 +4,15 @@
 \alias{run_global_logistic}
 \title{Logistic Model Comparisons for DIF}
 \usage{
-run_global_logistic(item.data, dif.group.id, match.scores)
+run_global_logistic(item.data, dif.groups, match.scores)
 }
 \arguments{
-\item{item.data}{A \code{data.frame} of item responses with subjects in rows
-and items in columns.}
+\item{item.data}{A \code{data.frame} of dichotomous item responses with subjects in rows and items in columns.}
 
-\item{dif.group.id}{A factor vector of group membership for which DIF is evaluated.}
+\item{dif.groups}{factor vector of group membership for which DIF is evaluated.}
 
-\item{match.scores}{A \code{list} of \code{ncol(item.data)} numeric vectors of match scores used as a predictor in the logistic regression.}
-
-\item{match.type}{A character indicating whether \code{match.scores} is a
-total summed score ("Total") or the summed score excluding the item under
-investigation ("Rest").}
+\item{match.scores}{A numeric vector (if \code{match.type = "Total"}) or \code{list} of \code{ncol(item.data)}
+numeric vectors (if \code{match.type = "Rest"}) of match scores used as the stratifying variable in the MH procedure.}
 }
 \value{
 A list containing model comparison results table, the type of DIF, the model objects, and \code{data.frame} of item response and match.score information

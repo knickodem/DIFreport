@@ -1,18 +1,23 @@
 #' Item response theory DIF method
 #'
-#' Conducts DIF analysis using an item response theory approach
+#' Conducts DIF analysis in an item response theory framework using the iterative Wald procedure (Cao et al., 2017; Tay et al., 2015; Woods et al., 2013)
 #'
 #' @param item.data data frame of item responses with subjects in rows and items in columns
 #' @param dif.groups factor vector of group membership for which DIF is evaluated.
 #' @inheritParams dif_analysis
 #'
 #' @details
-#' First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
-#' The models are run \code{\link[mirt]{multipleGroup}} by constraining slopes
-#' and intercepts, slopes only, and nothing, respectively, to be equal
-#' between the levels of \code{dif.groups}. Model fit is compared with a
-#' likelihood ratio test. If DIF is detected through the model comparisons, the
-#' specific item(s) with DIF are identified in a two-stage process (initial and refinement) using \code{\link[mirt]{DIF}}.
+#' The process begins by conducting an omnibus test of DIF by comparing the fit of no DIF, uniform DIF,
+#' and non-uniform DIF models. All models are run with \code{\link[mirt]{multipleGroup}}.
+#' Specifically, in step 1, the no DIF model is run with parameters estimated freely between the \code{dif.groups}.
+#' The latent trait mean and variance for the focal group are saved. In step 2, the uniform DIF model is estimated
+#' while constraining the latent trait parameters for the focal group to those in step 1 and constraining
+#' the item slopes to be equal across \code{dif.groups}. The non-uniform DIF model is then estimated by
+#' adding equality constraints to the item intercepts or thresholds. Model fit is compared between the
+#' No DIF and uniform DIF, and between the uniform DIF and non-uniform DIF models with a likelihood ratio test.
+#' If no DIF is detected through the model comparisons, the process concludes. Otherwise, the specific item(s)
+#' with DIF are identified in steps 3 and 4 using \code{\link[mirt]{DIF}}. This two-step process is sometimes
+#' referred to as the initial and refinement steps for identifying anchor items and items with DIF.
 #'
 #' @return A list containing
 #' \itemize{
@@ -23,10 +28,15 @@
 #' \item IRT models needed for treatment effect robustness check
 #' }
 #'
+#' @references
+#' Cao, M., Tay, L., & Liu, Y. (2017). A Monte Carlo study of an iterative Wald test procedure for DIF analysis. *Educational and Psychological Measurement, 77*(1), 104-118. doi:10.1177/0013164416637104
+#' Tay, L., Meade, A. W., & Cao, M. (2015). An overview and practical guide to IRT measurement equivalence analysis. *Organizational Research Methods, 18*(1), 3-46. doi:10.1177/1094428114553062
+#' Woods, C. M., Cai, L., & Wang, M. (2013). The Langer-improved Wald test for DIF testing with multiple groups: Evaluation and comparison to two-group IRT. *Educational and Psychological Measurement, 73*(3), 532-547. doi:10.1177/0013164412464875
+#'
 #' @import mirt
 #' @export
 
-dif_irt <- function(item.data, dif.groups, item.type){
+dif_irt <- function(item.data, dif.groups, item.type, method, Wald){
 
   #### Comparing no dif, uniform dif, and nonuniform dif models ####
   global.irt <- tryCatch(expr = {
@@ -54,7 +64,7 @@ dif_irt <- function(item.data, dif.groups, item.type){
       ## Stage 1 - Initial DIF
       stage1 <- lapply(1:nitems, run_item_irt,
                        global.irt = global.irt,
-                       which.model = "no.dif.mod")
+                       which.model = "nonuniform.mod")
       # if we want more flexibility in the code, might need to use a for loop instead
 
       # convert list to df
@@ -170,30 +180,53 @@ dif_irt <- function(item.data, dif.groups, item.type){
 #'
 #' @noRd
 
-run_global_irt <- function(item.data, dif.groups, item.type){
+run_global_irt <- function(item.data, dif.groups, item.type, method = "MHRM"){
 
-  ## Fitting nested models - Fit 2PL models with varying constraints
-  nonuniform.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.groups, SE = F)
-
-  uniform.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.groups,
-                                     invariance = c('slopes', 'free_var'), SE = F)
-
-  no.dif.mod <- mirt::multipleGroup(item.data, model = 1, itemtype = item.type, group = dif.groups,
+  ## Step 1 syntax and model
+  s1.syn <- paste0("F1 = 1-", length(item.data))
+  no.dif.mod <- mirt::multipleGroup(item.data, model = s1.syn, itemtype = item.type, group = dif.groups,
+                                    method = method, SE = T,
                                     invariance = c('slopes', 'intercepts',
-                                                   'free_var','free_means'), SE = F)
+                                                   'free_var','free_means'))
+
+  ## extracting parameter values and generating syntax for step 2
+  # save latent trait estimates for comparison group
+  comp.pars <- coef(no.dif.mod)[[2]] # assumes only 2 groups
+
+  # get starting values for step 2 model
+  start.pars <- mirt::multipleGroup(item.data, model = s1.syn, itemtype = item.type,
+                                    group = dif.groups, pars="values")
+  npars <- nrow(start.pars) # number of parameters
+
+  # replacing mean and variance values for comparison group with Step 1 values
+  start.pars[c(npars-1, npars), "value"] <- c(comp.pars$GroupPars[1,]) # assumes parameters are the last two in the table
+
+  # Step 2 model - fixes latent trait parameters
+  s2.syn  <- paste0(s1.syn, "\nFIXED = (GROUP, MEAN_1), (GROUP, COV_11)")
+
+  ## Running step 2 models
+  # checking for uniform DIF
+  uniform.mod <- mirt::multipleGroup(item.data, model = s2.syn, itemtype = item.type,
+                                     group = dif.groups, invariance = c('slopes'), # 'free_var'
+                                     method = method, SE = T, pars = start.pars)
+
+  # checking for any DIF
+  nonuniform.mod <- mirt::multipleGroup(item.data, model = s2.syn, itemtype = item.type,
+                                        group = dif.groups, method = method, SE = T, pars = start.pars)
 
   ## Model comparisons
   uniform.tab <- mirt::anova(no.dif.mod, uniform.mod, verbose = FALSE)
-  nonunif.tab <- mirt::anova(uniform.mod, nonuniform.mod, verbose = FALSE)
+  nonunif.tab <- mirt::anova(no.dif.mod, nonuniform.mod, verbose = FALSE)
 
   ## Extracting comparison results
   tab <- rbind(uniform.tab, nonunif.tab[2,])
-  tab$model <- c("No DIF", "Uniform", "Non-uniform")
-  tab <- tab[,c("model", "logLik", "X2", "df", "p")]
+  tab$Model <- c("No DIF", "Uniform", "Non-uniform")
+  tab <- tab[,c("Model", "AIC", "SABIC", "logLik", "X2", "df", "p")]
+  row.names(tab) <- NULL
 
 
   ## Do we need to test for DIF at the item-level, and if so, which parameter?
-  if(tab$p[[3]] < .05) {
+  if(tab$p[[2]] < .05) { # may need to change this if nonunif.tab uses no.dif.mod as comparison model
 
     dif.params <- c("a1", "d")
     dif.type <- "non-uniform"
@@ -227,7 +260,7 @@ run_global_irt <- function(item.data, dif.groups, item.type){
 #'
 #' Test each item for DIF using IRT models
 #'
-#' @param global.irt an object returned from \code{\link[WBdif]{run_global_irt}}
+#' @param global.irt an object returned from \code{\link[DIFreport]{run_global_irt}}
 #' @param which.model the model in \code{global.irt} to use for testing DIF. Options
 #' are \code{"no.dif.mod"} (default), \code{"uniform.mod"} or \code{"nonuniform.mod"}.
 #' @param items2test numeric; the item to test for DIF, which is passed to the
@@ -236,13 +269,16 @@ run_global_irt <- function(item.data, dif.groups, item.type){
 #' @return an object returned from \code{\link[mirt]{DIF}}
 
 run_item_irt <- function(global.irt,
-                         which.model = "no.dif.mod",
-                         items2test){ # need to loop each item rather than 1:nitems in
+                         which.model = "nonuniform.mod",
+                         items2test,    # need to loop each item rather than 1:nitems in
+                         scheme = "add",
+                         Wald = TRUE){
   # order to get all the output we need
 
   # identify if item is dichotomous or polytomous
   itemtype <- mirt::extract.mirt(global.irt[[which.model]], "itemtype")[[items2test]]
 
+  # need to expand itemtype to all models with multiple thresholds
   if(itemtype == "graded" & ("d" %in% global.irt$dif.params)){
 
     # from coefs of group1 (arbitrary), isolate item, then extract dim2 names except a1
@@ -258,8 +294,8 @@ run_item_irt <- function(global.irt,
   item.irt <- mirt::DIF(global.irt[[which.model]],
                         which.par = global.irt$dif.params,
                         items2test = items2test,
-                        scheme = "drop", #seq_stat = .05, max_run = 2,
-                        Wald = FALSE,
+                        scheme = scheme, #seq_stat = .05, max_run = 2,
+                        Wald = Wald, # can only be TRUE if scheme = "add"
                         return_models = FALSE) # , p.adjust = "BH", ...
 
   return(item.irt)

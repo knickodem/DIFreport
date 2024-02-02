@@ -15,8 +15,8 @@ A data frame with 2122 rows and 30 variables:
 }
 }
 \source{
-Kalanda, M. (2016). Effects of quality improvement strategies on early childhood development in community-based childcare centers in Malawi: A randomized trial. \emphasis{World Bank}. \url{https://www.worldbank.org/en/programs/sief-trust-fund/brief/effects-of-quality-improvement-strategies-on-early-childhood-development-in-community-based-childcare-centers-in-malawi}
-Neuman, M.,  Ozler, B., & Fernald, L. (2013). \emphasis{Protecting early childhood development in Malawi impact evaluation survey 2013, midline}. World Bank. \url{https://doi.org/10.48529/94zr-ww41}
+Kalanda, M. (2016). Effects of quality improvement strategies on early childhood development in community-based childcare centers in Malawi: A randomized trial. \emph{World Bank}. \url{https://www.worldbank.org/en/programs/sief-trust-fund/brief/effects-of-quality-improvement-strategies-on-early-childhood-development-in-community-based-childcare-centers-in-malawi}
+Neuman, M.,  Ozler, B., & Fernald, L. (2013). \emph{Protecting early childhood development in Malawi impact evaluation survey 2013, midline}. World Bank. \url{https://doi.org/10.48529/94zr-ww41}
 }
 \usage{
 data(mdat)

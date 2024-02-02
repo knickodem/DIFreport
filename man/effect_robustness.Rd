@@ -7,7 +7,7 @@
 effect_robustness(dif.models, irt.scoring = "WLE")
 }
 \arguments{
-\item{dif.models}{Output from \code{\link[WBdif]{dif_models}}}
+\item{dif.models}{Output from \code{\link[DIFreport]{dif_models}}}
 
 \item{irt.scoring}{What type of IRT scoring procedure should be used? Passed to the \code{method} argument of \code{\link[mirt]{fscores}}. See \code{help(fscores, mirt)}.}
 }
@@ -23,9 +23,9 @@ Data and models are passed to \code{effect_robustness} via the \code{dif.models}
 Treatment effects and their standard errors are reported for four different outcome variables.
   \itemize{
   \item The unit-weighted total score computed with all items.
-  \item The unit-weighted total score computed with DIFfy items omitted (i.e. the items identified in \code{dif.models$biased.items}).
+  \item The unit-weighted total score computed with DIF items omitted (i.e. the items identified in \code{dif.models$biased.items}).
   \item IRT scores computed using a model that constrains all items to have equal parameters over levels of \code{dif.group.id} (i.e., \code{dif.models$no.dif.mod}) .
-  \item IRT scores computed using a model that allows parameters of DIFfy items to vary over levels of \code{dif.group.id} (i.e., \code{dif.models$dif.mod}).
+  \item IRT scores computed using a model that allows parameters of DIF items to vary over levels of \code{dif.group.id} (i.e., \code{dif.models$dif.mod}).
 }
  IRT scores are computed using the method given by \code{irt.scoring}.
 }

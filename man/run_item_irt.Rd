@@ -4,10 +4,16 @@
 \alias{run_item_irt}
 \title{IRT item tests for DIF}
 \usage{
-run_item_irt(global.irt, which.model = "no.dif.mod", items2test)
+run_item_irt(
+  global.irt,
+  which.model = "nonuniform.mod",
+  items2test,
+  scheme = "add",
+  Wald = TRUE
+)
 }
 \arguments{
-\item{global.irt}{an object returned from \code{\link[WBdif]{run_global_irt}}}
+\item{global.irt}{an object returned from \code{\link[DIFreport]{run_global_irt}}}
 
 \item{which.model}{the model in \code{global.irt} to use for testing DIF. Options
 are \code{"no.dif.mod"} (default), \code{"uniform.mod"} or \code{"nonuniform.mod"}.}

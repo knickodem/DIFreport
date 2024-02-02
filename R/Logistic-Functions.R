@@ -2,20 +2,12 @@
 #'
 #' Conducts DIF analysis with logistic regression
 #'
-#' @param item.data A \code{data.frame} of item responses with subjects in rows
-#' and items in columns.
-#' @param dif.group.id A factor vector of group membership for which DIF is evaluated.
-#' @param match.type A character indicating whether \code{match.scores} is a
-#' total summed score ("Total") or the summed score excluding the item under
-#' investigation ("Rest").
-#' @param match.scores A numeric vector (if \code{match.type = "Total"}) or
-#' \code{list} of \code{ncol(item.data)} numeric vectors (if \code{match.type = "Rest"})
-#' of match scores used as a predictor in the logistic regression.
+#' @inheritParams dif_mh
 #'
 #' @details
 #' First conducts an omnibus test of DIF by comparing fit of no DIF, uniform DIF, and non-uniform DIF logistic
 #' regression models. The no DIF model regresses the dichotomous item responses from \code{item.data}
-#' on item, \code{match.scores}, and the two-way interaction. The uniform DIF model adds \code{dif.group.id}
+#' on item, \code{match.scores}, and the two-way interaction. The uniform DIF model adds \code{dif.groups}
 #' and the interaction with item while the non-uniform model adds the three-way interaction. If DIF is
 #' detected through the model comparisons, the specific item(s) with DIF are
 #' identified in a two-stage process - initial detection stage and refinement stage.
@@ -30,7 +22,7 @@
 #'
 #' @export
 
-dif_logistic <- function(item.data, dif.group.id, match.type, match.scores){
+dif_logistic <- function(item.data, dif.groups, match.type, match.scores){
 
   ## Number of items in the measure
   nitems <- ncol(item.data)
@@ -47,7 +39,7 @@ dif_logistic <- function(item.data, dif.group.id, match.type, match.scores){
 
   #### Testing for uniform and non-uniform DIF across all items ####
   global.log <- run_global_logistic(item.data = item.data,
-                                    dif.group.id = dif.group.id,
+                                    dif.groups = dif.groups,
                                     match.scores = match.scores)
 
 
@@ -154,19 +146,13 @@ dif_logistic <- function(item.data, dif.group.id, match.type, match.scores){
 #'
 #' Conduct an omnibus test for DIF by comparing no DIF, uniform DIF, and non-uniform DIF logistic regression models
 #'
-#' @param item.data A \code{data.frame} of item responses with subjects in rows
-#' and items in columns.
-#' @param dif.group.id A factor vector of group membership for which DIF is evaluated.
-#' @param match.type A character indicating whether \code{match.scores} is a
-#' total summed score ("Total") or the summed score excluding the item under
-#' investigation ("Rest").
-#' @param match.scores A \code{list} of \code{ncol(item.data)} numeric vectors of match scores used as a predictor in the logistic regression.
+#' @inheritParams dif_logistic
 #' @return A list containing model comparison results table, the type of DIF, the model objects, and \code{data.frame} of item response and match.score information
 
-run_global_logistic <- function(item.data, dif.group.id, match.scores){
+run_global_logistic <- function(item.data, dif.groups, match.scores){
 
   #### Omnibus test for DIF  ####
-  long.data <- data.frame(response = NA, match.scores = NA, item = NA, dif.group.id = NA)
+  long.data <- data.frame(response = NA, match.scores = NA, item = NA, dif.groups = NA)
 
   ## Gather item information into a long format dataframe
   for (i in 1:ncol(item.data)) {
@@ -174,7 +160,7 @@ run_global_logistic <- function(item.data, dif.group.id, match.scores){
     long.temp <- data.frame(response = item.data[,i],
                             match.scores = match.scores[[i]],
                             item = rep(names(item.data)[i], nrow(item.data)),
-                            dif.group.id = as.numeric(dif.group.id)-1)
+                            dif.groups = as.numeric(dif.groups)-1)
 
     long.data <- rbind(long.data, long.temp)
   }
@@ -185,9 +171,9 @@ run_global_logistic <- function(item.data, dif.group.id, match.scores){
   ## No DIF model, then adding grouping variable
   mod0 <- stats::glm(response ~ -1 + item*match.scores,
               data = long.data, family = binomial)    # No DIF
-  mod1 <- stats::glm(response ~ -1 + item*match.scores + item*dif.group.id,
+  mod1 <- stats::glm(response ~ -1 + item*match.scores + item*dif.groups,
               data = long.data, family = binomial)    # uniform DIF
-  mod2 <- stats::glm(response ~ -1 + item*match.scores*dif.group.id,
+  mod2 <- stats::glm(response ~ -1 + item*match.scores*dif.groups,
               data = long.data, family = binomial)    # nonuniform DIF
 
   ## Omnibus test for any DIF
@@ -228,8 +214,8 @@ run_global_logistic <- function(item.data, dif.group.id, match.scores){
 #'
 #' Internal function for dif_logistic
 #'
-#' @param item.data subset of long format data returned from \code{\link[WBdif]{run_global_logistic}} for a single item
-#' @param dif.type extracted from object returned from \code{\link[WBdif]{run_global_logistic}}
+#' @param item.data subset of long format data returned from \code{\link[DIFreport]{run_global_logistic}} for a single item
+#' @param dif.type extracted from object returned from \code{\link[DIFreport]{run_global_logistic}}
 #' @return a \code{data.frame} containing results of a likelihood ratio test
 
 run_item_logistic <- function(item.data, dif.type){
@@ -240,16 +226,16 @@ run_item_logistic <- function(item.data, dif.type){
 
   if(dif.type == "uniform"){
 
-    item.dif <- stats::glm(response ~ 1 + match.scores + dif.group.id,
+    item.dif <- stats::glm(response ~ 1 + match.scores + dif.groups,
                     data = item.data, family = binomial)
 
-    OR <- coef(item.dif)[grepl("dif.group.id", names(coef(item.dif)))]
+    OR <- coef(item.dif)[grepl("dif.groups", names(coef(item.dif)))]
     OR <- exp(OR) # indicates direction of uniform bias
   }
 
   if(dif.type == "non-uniform"){
 
-    item.dif <- stats::glm(response ~ 1 + match.scores + dif.group.id + dif.group.id:match.scores,
+    item.dif <- stats::glm(response ~ 1 + match.scores + dif.groups + dif.groups:match.scores,
                     data = item.data, family = binomial)
   }
 

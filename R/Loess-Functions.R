@@ -67,7 +67,8 @@ dif_loess <- function(item.data, dif.groups, match.type, match.scores){
   loess.df$dif.groups <- factor(loess.df$dif.groups, levels = levels(dif.groups))
 
   ## Plotting the results
-  max.val <- apply(item.data, 2, max, na.rm = TRUE) # highest response option
+  max.val <- apply(item.data, 2, max, na.rm = TRUE) # highest response option of all items
+  # note. this is different than dif.data$max.values which are only the polytomous items
   poly <- which(max.val > 1) # number of polytomous items
   if(length(poly) > 0){
 
@@ -80,6 +81,8 @@ dif_loess <- function(item.data, dif.groups, match.type, match.scores){
     ylab <- "Prob(Correct)"
   }
 
+  if(nitems > 12) nr <- ceiling(nitems/6) else nr <- 2
+
   plot <- ggplot(loess.df, aes(x = score, y = prob, group = dif.groups)) +
     geom_line(aes(color = dif.groups), lwd = .8) +
     geom_ribbon(aes(ymin = prob - 1.96 * se,
@@ -90,7 +93,7 @@ dif_loess <- function(item.data, dif.groups, match.type, match.scores){
     scale_color_brewer(palette = "Set2") +
     scale_fill_brewer(palette = "Set2") +
     theme_bw(base_size = 18) +
-    facet_wrap(~item, ncol = 6, scales = scales) +
+    facet_wrap(~item, nrow = nr, scales = scales) +
     theme(legend.position = "top",
           legend.title = element_blank())
 

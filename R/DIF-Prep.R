@@ -4,7 +4,7 @@
 #'
 #' @param data a \code{data.frame} containing the item responses with subjects in rows and items in columns. Items can be dichotomous or polytomous, but the columns must be numeric. All reverse coding should be completed before using this function.
 #' @param dif.groups column position or name in \code{data} indicating the two (and only two) groups to compare for DIF.
-#' @param comp.name character; specifying the comparison group in \code{dif.groups}. This primarily for organizing the report output.
+#' @param ref.name character; specifying the reference group in \code{dif.groups}. This primarily for organizing the report output.
 #' If examining standardized mean differences, the standard deviation of this group can be used rather than the pooled standard deviation
 #' by setting \code{pooled = FALSE} in \code{\link[DIFreport]{dif_report}} or \code{\link[DIFreport]{summary_report}}
 #' @param items vector of column positions or names in \code{data} indicating the items to analyze for DIF. Default is to use all columns.
@@ -32,7 +32,7 @@
 #'
 #' dif.data <- dif_prep(data = mdat,
 #'                              dif.groups = "treated",
-#'                              comp.name = "Control",
+#'                              ref.name = "Control",
 #'                              items = 5:ncol(mdat)
 #'                              cond.groups ="gender",
 #'                              cluster = "clusterid",
@@ -40,7 +40,7 @@
 #'
 #' @export
 
-dif_prep <- function(data, dif.groups, comp.name = NULL, items = names(data),
+dif_prep <- function(data, dif.groups, ref.name = NULL, items = names(data),
                      anchors = NULL, poly.items = NULL, max.values = NULL,
                      cond.groups = NULL, cluster = NULL, na.to.0 = FALSE){
 
@@ -142,7 +142,7 @@ dif_prep <- function(data, dif.groups, comp.name = NULL, items = names(data),
     cond.groups <- cond.groups[drop.cases]
   }
 
-  ## Replacing remaining NAs with 0
+  ## Replacing remaining NAs with 0 (should we put before removing empty rows?)
   if(na.to.0 == TRUE) {
     item.data[is.na(item.data)] <- 0
   }

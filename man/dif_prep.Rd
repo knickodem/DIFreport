@@ -7,7 +7,7 @@
 dif_prep(
   data,
   dif.groups,
-  comp.name = NULL,
+  ref.name = NULL,
   items = names(data),
   anchors = NULL,
   poly.items = NULL,
@@ -22,7 +22,7 @@ dif_prep(
 
 \item{dif.groups}{column position or name in \code{data} indicating the two (and only two) groups to compare for DIF.}
 
-\item{comp.name}{character; specifying the comparison group in \code{dif.groups}. This primarily for organizing the report output.
+\item{ref.name}{character; specifying the reference group in \code{dif.groups}. This primarily for organizing the report output.
 If examining standardized mean differences, the standard deviation of this group can be used rather than the pooled standard deviation
 by setting \code{pooled = FALSE} in \code{\link[DIFreport]{dif_report}} or \code{\link[DIFreport]{summary_report}}}
 
@@ -62,7 +62,7 @@ data("mdat")
 
 dif.data <- dif_prep(data = mdat,
                              dif.groups = "treated",
-                             comp.name = "Control",
+                             ref.name = "Control",
                              items = 5:ncol(mdat)
                              cond.groups ="gender",
                              cluster = "clusterid",

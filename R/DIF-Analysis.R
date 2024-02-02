@@ -10,7 +10,7 @@
 #' \code{c("loess", "IRT")} when polytomous items are detected; MH and logistic can only accommodate dichotomous data.
 #' @param match.type For the loess, MH, and logistic methods, a character indicating whether a
 #' total summed score (\code{"Total"}; default) or the summed score excluding the item under
-#' investigation (\code{"Rest"}) should be used as the stratifying variable.
+#' investigation (\code{"Rest"}) should be used as the stratifying variable. ADD IRT SCORING AS AN OPTION!!!!!
 #' @param match.bins For MH, an optional vector of bin sizes for stratifying the \code{match.type} score.
 #' This is passed to the \code{probs} argument of \code{stats::quantile}. See examples for usage.
 #' @param item.type For IRT, the type of model to fit for each item. The default is \code{"2PL"} for dichotomous items and \code{"graded"} for polytomous items.
@@ -76,8 +76,10 @@ dif_analysis <- function(dif.data,
     stop("dif.data must be of class 'DIFprep'. Use the dif_prep function first.")
   }
 
+  if(length(dif.methods) == 1){
   if(dif.methods == "default"){
     dif.methods <- if(length(poly.items) == 0) c("loess", "MH", "logistic", "IRT") else c("loess", "IRT")
+  }
   }
 
   # ## Saving original data with all items for use in loess; WHY???
@@ -89,7 +91,7 @@ dif_analysis <- function(dif.data,
   #### Creating match.scores object ####
   # calculating vector of total scores or list of rest scores
 
-  if(c("loess", "MH", "logistic") %in% dif.methods){
+  if(any(c("loess", "MH", "logistic") %in% dif.methods)){
 
     not0 <- which(apply(item.data, 2, function(x) min(na.omit(x))) != 0)
     if(length(not0) > 0){
@@ -115,7 +117,7 @@ dif_analysis <- function(dif.data,
   if("MH" %in% dif.methods){
 
     MH <- dif_mh(item.data = item.data,
-                 dif.group = dif.groups,
+                 dif.groups = dif.groups,
                  match.type = match.type,
                  match.scores = match.scores,
                  match.bins = match.bins,

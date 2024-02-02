@@ -4,21 +4,19 @@
 \alias{dif_logistic}
 \title{Logistic regression DIF method}
 \usage{
-dif_logistic(item.data, dif.group.id, match.type, match.scores)
+dif_logistic(item.data, dif.groups, match.type, match.scores)
 }
 \arguments{
-\item{item.data}{A \code{data.frame} of item responses with subjects in rows
-and items in columns.}
+\item{item.data}{A \code{data.frame} of dichotomous item responses with subjects in rows and items in columns.}
 
-\item{dif.group.id}{A factor vector of group membership for which DIF is evaluated.}
+\item{dif.groups}{factor vector of group membership for which DIF is evaluated.}
 
-\item{match.type}{A character indicating whether \code{match.scores} is a
-total summed score ("Total") or the summed score excluding the item under
-investigation ("Rest").}
+\item{match.type}{For the loess, MH, and logistic methods, a character indicating whether a
+total summed score (\code{"Total"}; default) or the summed score excluding the item under
+investigation (\code{"Rest"}) should be used as the stratifying variable.}
 
-\item{match.scores}{A numeric vector (if \code{match.type = "Total"}) or
-\code{list} of \code{ncol(item.data)} numeric vectors (if \code{match.type = "Rest"})
-of match scores used as a predictor in the logistic regression.}
+\item{match.scores}{A numeric vector (if \code{match.type = "Total"}) or \code{list} of \code{ncol(item.data)}
+numeric vectors (if \code{match.type = "Rest"}) of match scores used as the stratifying variable in the MH procedure.}
 }
 \value{
 list containing
@@ -35,7 +33,7 @@ Conducts DIF analysis with logistic regression
 \details{
 First conducts an omnibus test of DIF by comparing fit of no DIF, uniform DIF, and non-uniform DIF logistic
 regression models. The no DIF model regresses the dichotomous item responses from \code{item.data}
-on item, \code{match.scores}, and the two-way interaction. The uniform DIF model adds \code{dif.group.id}
+on item, \code{match.scores}, and the two-way interaction. The uniform DIF model adds \code{dif.groups}
 and the interaction with item while the non-uniform model adds the three-way interaction. If DIF is
 detected through the model comparisons, the specific item(s) with DIF are
 identified in a two-stage process - initial detection stage and refinement stage.
