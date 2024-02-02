@@ -7,9 +7,9 @@
 run_item_logistic(item.data, dif.type)
 }
 \arguments{
-\item{item.data}{subset of long format data returned from \code{\link[WBdif]{run_global_logistic}} for a single item}
+\item{item.data}{subset of long format data returned from \code{\link[DIFreport]{run_global_logistic}} for a single item}
 
-\item{dif.type}{extracted from object returned from \code{\link[WBdif]{run_global_logistic}}}
+\item{dif.type}{extracted from object returned from \code{\link[DIFreport]{run_global_logistic}}}
 }
 \value{
 a \code{data.frame} containing results of a likelihood ratio test

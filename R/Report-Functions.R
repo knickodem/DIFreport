@@ -2,9 +2,9 @@
 #'
 #' Produces a report summarizing DIF analysis for a given measure and grouping variable, the robustness of treatment effect estimates to DIF, or both
 #'
-#' @param dif.analysis An object returned from \code{\link[WBdif]{dif_analysis}}
-#' @param dif.models An object returned from \code{\link[WBdif]{dif_models}}
-#' @param effect.robustness An object returned from \code{\link[WBdif]{effect_robustness}}
+#' @param dif.analysis An object returned from \code{\link[DIFreport]{dif_analysis}}
+#' @param dif.models An object returned from \code{\link[DIFreport]{dif_models}}
+#' @param effect.robustness An object returned from \code{\link[DIFreport]{effect_robustness}}
 #' @param file.name File name to create on disk. The file path can also be specified here. If the path is omitted, the file is saved to the working directory.
 #' @param biased.items Οne of \code{c("MH", "logistic", "IRT")}. Determines which DIF method should be used to identify biased items. Default is "IRT".
 #' @param report.format File format of the report. Default is HTML ("html_document"). See \code{\link[rmarkdown]{render}} for other options.
@@ -109,7 +109,7 @@ dif_report <- function(dif.analysis,
   }
 
   ## running report
-  template <- system.file("rmd", "DIF-Only-Report.Rmd", package = "WBdif")
+  template <- system.file("rmd", "DIF-Only-Report.Rmd", package = "DIFreport")
   dir <- getwd()
   rmarkdown::render(input = template,
                     output_format = report.format,
@@ -139,7 +139,7 @@ effect_report <- function(dif.models,
   bias.plots <- bias_plots(dif.models)
 
   ## running report
-  template <- system.file("rmd", "Effects-Only-Report.Rmd", package = "WBdif")
+  template <- system.file("rmd", "Effects-Only-Report.Rmd", package = "DIFreport")
   dir <- getwd()
   rmarkdown::render(input = template,
                     output_format = report.format,
@@ -203,7 +203,7 @@ dif_effect_report <- function(dif.analysis,
   bias.plots <- bias_plots(dif.models)
 
   ## running report
-  template <- system.file("rmd", "DIF-Effects-Report.Rmd", package = "WBdif")
+  template <- system.file("rmd", "DIF-Effects-Report.Rmd", package = "DIFreport")
   dir <- getwd()
   rmarkdown::render(input = template,
                     output_format = report.format,

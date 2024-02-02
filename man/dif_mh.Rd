@@ -4,24 +4,34 @@
 \alias{dif_mh}
 \title{Mantel-Haenszel DIF method}
 \usage{
-dif_mh(item.data, dif.group.id, match.type, match.scores, match.bins = NULL)
+dif_mh(
+  item.data,
+  dif.groups,
+  match.type,
+  match.scores,
+  match.bins = NULL,
+  exclude = NULL,
+  stop = TRUE
+)
 }
 \arguments{
-\item{item.data}{data frame of dichotomous item responses with subjects in rows
-and items in columns}
+\item{item.data}{A \code{data.frame} of dichotomous item responses with subjects in rows and items in columns.}
 
-\item{dif.group.id}{factor vector of group membership for which DIF is evaluated.}
+\item{dif.groups}{factor vector of group membership for which DIF is evaluated.}
 
-\item{match.type}{A character indicating whether \code{match.scores} is a
-total summed score ("Total") or the summed score excluding the item under
-investigation ("Rest").}
+\item{match.type}{For the loess, MH, and logistic methods, a character indicating whether a
+total summed score (\code{"Total"}; default) or the summed score excluding the item under
+investigation (\code{"Rest"}) should be used as the stratifying variable.}
 
-\item{match.scores}{A numeric vector (if \code{match.type = "Total"}) or
-\code{list} of \code{ncol(item.data)} numeric vectors (if \code{match.type = "Rest"})
-of match scores used as the stratifying variable in the MH procedure.}
+\item{match.scores}{A numeric vector (if \code{match.type = "Total"}) or \code{list} of \code{ncol(item.data)}
+numeric vectors (if \code{match.type = "Rest"}) of match scores used as the stratifying variable in the MH procedure.}
 
-\item{match.bins}{optional vector of bin sizes for stratifying \code{match.scores}.
-This is passed to the \code{probs} argument of \code{\link[stats]{quantile}}.}
+\item{match.bins}{For MH, an optional vector of bin sizes for stratifying the \code{match.type} score.
+This is passed to the \code{probs} argument of \code{stats::quantile}. See examples for usage.}
+
+\item{exclude}{character vector of column names in \code{item.data} to exclude from DIF analysis, such as the anchor items or (currently) polytomous items.}
+
+\item{stop}{If \code{FALSE}, when possible, errors will return \code{NA} for the item under investigation rather than stop the analysis completely (default is \code{TRUE}.}
 }
 \value{
 A list containing
@@ -31,11 +41,11 @@ A list containing
 }
 }
 \description{
-Conducts DIF analysis with Mantel-Haenszel method
+Conducts DIF analysis with the Mantel-Haenszel method
 }
 \details{
 \code{run_mh} conducts a Mantel-Haenszel test via \code{\link[stats]{mantelhaen.test}} for each
-item in \code{item.data} grouped by \code{dif.group.id} and stratified by the scores supplied
+item in \code{item.data}, except those specified in \code{exclude}, grouped by \code{dif.groups} and stratified by the scores supplied
 to \code{match.scores}, which, if specified, are binned by \code{match.bins}. Biased items
 are identified through a two-step process of initial and refinement phases.
 }

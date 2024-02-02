@@ -1,6 +1,6 @@
-#' Malawi Developmental Assessment Tool: Language
+#' Malawi Developmental Assessment Tool (MDAT): Language
 #'
-#' A dataset containing the 26 item MDAT language assessment and indicators for treatment condition and gender
+#' A dataset containing the 26-item MDAT language assessment and indicators for treatment condition and gender
 #'
 #' @docType data
 #'
@@ -14,5 +14,7 @@
 #'   \item{gender}{gender; "Male", "Female"}
 #'   \item{l20 - l48}{dichotomous (1/0) item responses}
 #' }
-#' @source \url{https://www.worldbank.org/en/programs/sief-trust-fund/brief/effects-of-quality-improvement-strategies-on-early-childhood-development-in-community-based-childcare-centers-in-malawi}
+#' @source
+#' Kalanda, M. (2016). Effects of quality improvement strategies on early childhood development in community-based childcare centers in Malawi: A randomized trial. \emph{World Bank}. \url{https://www.worldbank.org/en/programs/sief-trust-fund/brief/effects-of-quality-improvement-strategies-on-early-childhood-development-in-community-based-childcare-centers-in-malawi}
+#' Neuman, M.,  Ozler, B., & Fernald, L. (2013). \emph{Protecting early childhood development in Malawi impact evaluation survey 2013, midline}. World Bank. \url{https://doi.org/10.48529/94zr-ww41}
 "mdat"

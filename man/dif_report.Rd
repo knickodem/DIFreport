@@ -39,7 +39,7 @@ dif_effect_report(
 )
 }
 \arguments{
-\item{dif.analysis}{An object returned from \code{\link[WBdif]{dif_analysis}}}
+\item{dif.analysis}{An object returned from \code{\link[DIFreport]{dif_analysis}}}
 
 \item{file.name}{File name to create on disk. The file path can also be specified here. If the path is omitted, the file is saved to the working directory.}
 
@@ -53,9 +53,9 @@ dif_effect_report(
 
 \item{biased.items}{Οne of \code{c("MH", "logistic", "IRT")}. Determines which DIF method should be used to identify biased items. Default is "IRT".}
 
-\item{dif.models}{An object returned from \code{\link[WBdif]{dif_models}}}
+\item{dif.models}{An object returned from \code{\link[DIFreport]{dif_models}}}
 
-\item{effect.robustness}{An object returned from \code{\link[WBdif]{effect_robustness}}}
+\item{effect.robustness}{An object returned from \code{\link[DIFreport]{effect_robustness}}}
 }
 \value{
 a summary report of:

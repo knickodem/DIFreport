@@ -4,14 +4,14 @@
 \alias{dif_irt}
 \title{Item response theory DIF method}
 \usage{
-dif_irt(item.data, dif.group.id, item.type)
+dif_irt(item.data, dif.groups, item.type, method, Wald)
 }
 \arguments{
 \item{item.data}{data frame of item responses with subjects in rows and items in columns}
 
-\item{dif.group.id}{factor vector of group membership for which DIF is evaluated.}
+\item{dif.groups}{factor vector of group membership for which DIF is evaluated.}
 
-\item{item.type}{When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+\item{item.type}{For IRT, the type of model to fit for each item. The default is \code{"2PL"} for dichotomous items and \code{"graded"} for polytomous items.
 See \code{\link[mirt]{mirt}} for more options and details.}
 }
 \value{
@@ -25,13 +25,23 @@ A list containing
 }
 }
 \description{
-Conducts DIF analysis using an item response theory approach
+Conducts DIF analysis in an item response theory framework using the iterative Wald procedure (Cao et al., 2017; Tay et al., 2015; Woods et al., 2013)
 }
 \details{
-First conducts an omnibus test of DIF by comparing the fit of no DIF, uniform DIF, and non-uniform DIF 2PL IRT models.
-The models are run \code{\link[mirt]{multipleGroup}} by constraining slopes
-and intercepts, slopes only, and nothing, respectively, to be equal
-between the levels of \code{dif.group.id}. Model fit is compared with a
-likelihood ratio test. If DIF is detected through the model comparisons, the
-specific item(s) with DIF are identified in a two-stage process (initial and refinement) using \code{\link[mirt]{DIF}}.
+The process begins by conducting an omnibus test of DIF by comparing the fit of no DIF, uniform DIF,
+and non-uniform DIF models. All models are run with \code{\link[mirt]{multipleGroup}}.
+Specifically, in step 1, the no DIF model is run with parameters estimated freely between the \code{dif.groups}.
+The latent trait mean and variance for the focal group are saved. In step 2, the uniform DIF model is estimated
+while constraining the latent trait parameters for the focal group to those in step 1 and constraining
+the item slopes to be equal across \code{dif.groups}. The non-uniform DIF model is then estimated by
+adding equality constraints to the item intercepts or thresholds. Model fit is compared between the
+No DIF and uniform DIF, and between the uniform DIF and non-uniform DIF models with a likelihood ratio test.
+If no DIF is detected through the model comparisons, the process concludes. Otherwise, the specific item(s)
+with DIF are identified in steps 3 and 4 using \code{\link[mirt]{DIF}}. This two-step process is sometimes
+referred to as the initial and refinement steps for identifying anchor items and items with DIF.
+}
+\references{
+Cao, M., Tay, L., & Liu, Y. (2017). A Monte Carlo study of an iterative Wald test procedure for DIF analysis. *Educational and Psychological Measurement, 77*(1), 104-118. doi:10.1177/0013164416637104
+Tay, L., Meade, A. W., & Cao, M. (2015). An overview and practical guide to IRT measurement equivalence analysis. *Organizational Research Methods, 18*(1), 3-46. doi:10.1177/1094428114553062
+Woods, C. M., Cai, L., & Wang, M. (2013). The Langer-improved Wald test for DIF testing with multiple groups: Evaluation and comparison to two-group IRT. *Educational and Psychological Measurement, 73*(3), 532-547. doi:10.1177/0013164412464875
 }

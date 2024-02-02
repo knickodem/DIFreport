@@ -7,7 +7,7 @@
 effects_table(effects, alphas = NULL)
 }
 \arguments{
-\item{effects}{Output from \code{\link[WBdif]{effect_robustness}}}
+\item{effects}{Output from \code{\link[DIFreport]{effect_robustness}}}
 
 \item{alphas}{(optional) \code{vector} of score reliabilities (e.g., alpha, omega) to append to the table.}
 }

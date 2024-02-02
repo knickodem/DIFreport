@@ -21,7 +21,7 @@ summary_report(
 )
 }
 \arguments{
-\item{dif.data}{The output of \code{\link[WBdif]{dif_data_prep}}.}
+\item{dif.data}{an object returned from \code{\link[DIFreport]{dif_prep}}}
 
 \item{file.name}{File name to create on disk. The file path can also be specified here. If the path is omitted, the file is saved to the working directory.}
 
@@ -35,16 +35,21 @@ summary_report(
 
 \item{dataset.name}{An optional character string naming the dataset used, which is printed in the report.}
 
-\item{dif.methods}{A character \code{vector} with one or more of \code{c("loess", "MH", "logistic", "IRT")}. The default is all four methods.}
+\item{dif.methods}{character vector with one or more methods of of investigating DIF:
+locally estimated scatterplot smoothing (\code{"loess"}), Mantel-Haenszel test (\code{"MH"}),
+logistic regression (\code{"logistic"}), and multi-group item response theory (\code{"IRT"}). The default is all four methods with dichotomous items and
+\code{c("loess", "IRT")} when polytomous items are detected; MH and logistic can only accommodate dichotomous data.}
 
 \item{biased.items}{Οne of \code{c("MH", "logistic", "IRT")}. Determines which DIF method should be used to identify biased items. Default is "IRT".}
 
-\item{match.type}{Οne of \code{c("Total", "Rest")}. Determines whether the total score or rest score should be used as the stratifying variable for loess, MH, and logistic regression methods.}
+\item{match.type}{For the loess, MH, and logistic methods, a character indicating whether a
+total summed score (\code{"Total"}; default) or the summed score excluding the item under
+investigation (\code{"Rest"}) should be used as the stratifying variable.}
 
-\item{match.bins}{(optional) vector of bin sizes for stratifying the matching variable in
-the MH method. This is passed to the \code{probs} argument of \code{stats::quantile}.}
+\item{match.bins}{For MH, an optional vector of bin sizes for stratifying the \code{match.type} score.
+This is passed to the \code{probs} argument of \code{stats::quantile}. See examples for usage.}
 
-\item{item.type}{When \code{dif.methods} includes \code{"IRT"}, the model to fit for each item. The default is \code{"2PL"} for dichotomous variables and \code{"graded"} for polytomous items.
+\item{item.type}{For IRT, the type of model to fit for each item. The default is \code{"2PL"} for dichotomous items and \code{"graded"} for polytomous items.
 See \code{\link[mirt]{mirt}} for more options and details.}
 
 \item{irt.scoring}{What type of IRT scoring procedure should be used? Passed to the \code{method} argument of \code{\link[mirt]{fscores}}. See \code{help(fscores, mirt)}.}
